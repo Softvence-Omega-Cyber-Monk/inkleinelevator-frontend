@@ -35,7 +35,9 @@ const AdminDashboard = () => {
             </div>
             {sidebarOpen && (
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm">Arlene McCoy fff</div>
+                <div className="font-semibold text-sm">
+                  Arlene McCoy iam <strong>shaikot</strong> fff
+                </div>
                 <div className="text-xs text-gray-400 truncate">
                   am.jennings@example.com
                 </div>
