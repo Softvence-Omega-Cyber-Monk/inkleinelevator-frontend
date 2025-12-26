@@ -22,6 +22,11 @@ import ElevatorDashboardOverview from "@/pages/ElevatorDashboard/ElevatorDashboa
 import AdminRouter from "./AdminRouter";
 import AdminDashboard from "@/pages/AdminDashboard/AdminDashboard";
 import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOverview";
+import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOverview";
+import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
+import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
+import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
+import ProjectDetail from "@/pages/ElevatorDashboard/BrowseJobs/JobDetails";
 
 
 const routes = createBrowserRouter([
@@ -95,7 +100,14 @@ const routes = createBrowserRouter([
         path: "",
         element: <ElevatorDashboard />,
         children: [
-          { path: "", element: <ElevatorDashboardOverview /> }
+          { path: "", element: <ElevatorDashboardOverview /> },
+          { path: "browse-jobs", element: <BrowsJobsOverview /> },
+          { path: "my-bids", element: <MyBidsPage /> },
+          { path: "billing", element: <BillingPage /> },
+          { path: "company-profile", element: <CompanyProfile /> },
+          { path: "meassages", element: <MessagesPage /> },
+          { path: "settings", element: <SettingOverview /> },
+          { path: `jobdetails/${10}`, element: <ProjectDetail /> },
         ]
       }
     ]
