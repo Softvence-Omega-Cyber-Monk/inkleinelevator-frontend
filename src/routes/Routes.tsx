@@ -16,6 +16,12 @@ import UserDashboardOverview from "@/pages/UserDashboard/UserDashboardOverview";
 import MyJobs from "@/pages/UserDashboard/MyJobs/MyJobs";
 import MessagesPage from "@/pages/UserDashboard/Meassage/MessagesPage";
 import SettingOverview from "@/pages/UserDashboard/Seetings/SettingOverview";
+import ElevatorRouter from "./ElevatorRouter";
+import ElevatorDashboard from "@/pages/ElevatorDashboard/ElevatorDashboard";
+import ElevatorDashboardOverview from "@/pages/ElevatorDashboard/ElevatorDashboardOverview";
+import AdminRouter from "./AdminRouter";
+import AdminDashboard from "@/pages/AdminDashboard/AdminDashboard";
+import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOverview";
 
 
 const routes = createBrowserRouter([
@@ -76,11 +82,37 @@ const routes = createBrowserRouter([
           { path: "", element: <UserDashboardOverview /> },  // Add this!
           { path: "my-jobs", element: <MyJobs /> },
           { path: "message", element: <MessagesPage /> },
-          { path: "setting", element: <SettingOverview/> }
+          { path: "setting", element: <SettingOverview /> }
         ]
       }
     ]
-  }
+  },
+  {
+    path: "/elevator",
+    element: <ElevatorRouter />,
+    children: [
+      {
+        path: "",
+        element: <ElevatorDashboard />,
+        children: [
+          { path: "", element: <ElevatorDashboardOverview /> }
+        ]
+      }
+    ]
+  },
+  {
+    path: "/admin",
+    element: <AdminRouter />,
+    children: [
+      {
+        path: "",
+        element: <AdminDashboard />,
+        children: [
+          { path: "", element: <AdminDashboardOverview /> }
+        ]
+      }
+    ]
+  },
 
 ]);
 
