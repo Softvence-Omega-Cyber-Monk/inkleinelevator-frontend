@@ -107,7 +107,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* Dashboard Content - This will render child routes */}
-        <div className="p-8">
+        <div className="p-8 bg-[#F9F9FF]">
           <Outlet />
         </div>
       </div>
