@@ -27,6 +27,9 @@ import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
 import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
 import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
 import ProjectDetail from "@/pages/ElevatorDashboard/BrowseJobs/JobDetails";
+import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement";
+import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
+import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
 
 
 const routes = createBrowserRouter([
@@ -120,12 +123,14 @@ const routes = createBrowserRouter([
         path: "",
         element: <AdminDashboard />,
         children: [
-          { path: "", element: <AdminDashboardOverview /> }
+          { path: "", element: <AdminDashboardOverview /> },
+          { path: "userManagement", element: <UserManagement /> },
+          { path: "JobsManagement", element: <JobsManagement /> },
+          { path: "bidsmanagement", element: <BidsManagement /> },
         ]
       }
     ]
-  },
-
+  }
 ]);
 
 export default routes;
