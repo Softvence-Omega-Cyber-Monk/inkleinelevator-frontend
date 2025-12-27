@@ -31,6 +31,10 @@ import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement
 import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
 import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
 import CreatedPostElevatorJob from "@/pages/UserDashboard/CreatedPostElevatorJob";
+import PaymentProcessing from "@/pages/AdminDashboard/Payment/PaymentOverview";
+import ContentManagement from "@/pages/AdminDashboard/ContentManagement/ContentManagement";
+import SystemSettings from "@/pages/AdminDashboard/SystemSetting/SystemSettingOverview";
+import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
 
 
 const routes = createBrowserRouter([
@@ -129,6 +133,10 @@ const routes = createBrowserRouter([
           { path: "userManagement", element: <UserManagement /> },
           { path: "JobsManagement", element: <JobsManagement /> },
           { path: "bidsmanagement", element: <BidsManagement /> },
+          { path: "payments", element: <PaymentProcessing /> },
+          { path: "contentManagement", element: <ContentManagement /> },
+          { path: "systemSettings", element: <SystemSettings /> },
+          { path: "dataExport", element: <DataExport/> }
         ]
       }
     ]
