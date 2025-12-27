@@ -124,12 +124,12 @@ const FAQSection: React.FC = () => {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Left Sidebar - Categories */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+            <div className="overflow-hidden">
               {categories.map((category) => (
                 <button
                   key={category.id}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`w-full text-left px-6 py-4 transition-colors ${
+                  className={`w-full text-left px-6 py-4 border-b border-[#DFE3E8] transition-colors ${
                     activeCategory === category.id
                       ? 'bg-gray-900 text-white'
                       : 'bg-white text-gray-700 hover:bg-gray-100'
@@ -143,17 +143,17 @@ const FAQSection: React.FC = () => {
 
           {/* Right Side - FAQ Items */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-sm">
+            <div className="">
               {currentFAQs.map((faq, index) => (
                 <div
                   key={index}
-                  className={`border-b border-gray-200 last:border-b-0 ${
+                  className={`border-b-[#E7E8EB] border-gray-200 last:border-b-0 ${
                     expandedIndex === index ? 'bg-gray-50' : ''
                   }`}
                 >
                   <button
                     onClick={() => toggleFAQ(index)}
-                    className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors"
+                    className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors border-b border-[#DFE3E8]"
                   >
                     <span className="text-gray-900 font-medium pr-4">
                       {faq.question}

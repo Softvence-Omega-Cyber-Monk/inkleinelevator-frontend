@@ -2,7 +2,7 @@ import React from 'react';
 
 const WhoItsFor: React.FC = () => {
     return (
-        <div className="py-16 bg-gray-50">
+        <div className="py-16 bg-white">
             <div className="max-w-[1500px] mx-auto">
                 {/* Header Section */}
                 <div className="text-center mb-12">

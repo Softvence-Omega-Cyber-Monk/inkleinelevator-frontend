@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Search, Calendar, MessageSquare, MoreVertical, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const MyJobs = () => {
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [jobType, setJobType] = useState('all');
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { Building2, LogOut, Menu,  User } from 'lucide-react';
+import { Building2, Flag, Fuel, LayoutDashboard, LogOut, Menu, MessageSquare, Search, Settings, User } from 'lucide-react';
 
 const ElevatorDashboard = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -8,8 +8,8 @@ const ElevatorDashboard = () => {
     const location = useLocation();
 
     const isActive = (path: any) => {
-        if (path === '/admin' && location.pathname === '/admin') return true;
-        if (path !== '/admin' && location.pathname === path) return true;
+        if (path === '/elevator' && location.pathname === '/elevator') return true;
+        if (path !== '/elevator' && location.pathname === path) return true;
         return false;
     };
 
@@ -22,19 +22,22 @@ const ElevatorDashboard = () => {
     return (
         <div className="flex h-screen bg-gray-50">
             {/* Sidebar */}
-            <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-slate-900 text-white transition-all duration-300 flex flex-col`}>
+            <div className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}>
                 {/* User Profile */}
-                <div className="p-6 bg-slate-800">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                            AM
-                        </div>
-                        {sidebarOpen && (
-                            <div className="flex-1 min-w-0">
-                                <div className="font-semibold text-sm">Arlene McCoy</div>
-                                <div className="text-xs text-gray-400 truncate">am.jennings@example.com</div>
+                <div className="m-4 mb-6">
+                    <div className="bg-[#0f1729] rounded-2xl p-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                <User size={20} className="text-gray-600" />
                             </div>
-                        )}
+                            {sidebarOpen && (
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-xs text-gray-400 mb-1">Company</div>
+                                    <div className="font-semibold text-sm text-white">Jane Contractor</div>
+                                    <div className="text-xs text-gray-400 truncate">tim.jennings@example.com</div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -42,22 +45,70 @@ const ElevatorDashboard = () => {
                 <nav className="flex-1 p-4">
                     <button
                         onClick={() => navigate('/elevator')}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-colors ${isActive('/admin') ? 'bg-blue-600 text-white' : 'hover:bg-slate-800'
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        <LayoutDashboard size={20} />
+                        {sidebarOpen && <span>Dashboard</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/elevator/browse-jobs')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator/browse-jobs') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        <Search size={20} />
+                        {sidebarOpen && <span>Browse Jobs</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/elevator/my-bids')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator/my-bids') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        <Flag size={20} />
+                        {sidebarOpen && <span>My Bids</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/elevator/billing')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator/billing') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        <Fuel size={20} />
+                        {sidebarOpen && <span>Billing</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/elevator/company-profile')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator/company-profile') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
                             }`}
                     >
                         <Building2 size={20} />
-                        {sidebarOpen && <span>Dashboard</span>}
+                        {sidebarOpen && <span>Company Profile</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/elevator/meassages')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator/meassages') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        <MessageSquare size={20} />
+                        {sidebarOpen && <span>Messages</span>}
+                    </button>
+                    <button
+                        onClick={() => navigate('/elevator/settings')}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${isActive('/elevator/settings') ? 'bg-[#0f1729] text-white' : 'text-gray-700 hover:bg-gray-50'
+                            }`}
+                    >
+                        <Settings size={20} />
+                        {sidebarOpen && <span>Settings</span>}
                     </button>
                 </nav>
 
                 {/* Logout */}
-                <div className="p-4 border-t border-slate-800">
+                <div className="p-4 pb-6">
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-slate-800 transition-colors"
+                        className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
                     >
                         <LogOut size={20} />
-                        {sidebarOpen && <span>Log out</span>}
+                        {sidebarOpen && <span className="text-sm font-medium">Log out</span>}
                     </button>
                 </div>
             </div>

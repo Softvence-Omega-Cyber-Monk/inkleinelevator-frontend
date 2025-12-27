@@ -22,6 +22,19 @@ import ElevatorDashboardOverview from "@/pages/ElevatorDashboard/ElevatorDashboa
 import AdminRouter from "./AdminRouter";
 import AdminDashboard from "@/pages/AdminDashboard/AdminDashboard";
 import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOverview";
+import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOverview";
+import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
+import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
+import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
+import ProjectDetail from "@/pages/ElevatorDashboard/BrowseJobs/JobDetails";
+import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement";
+import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
+import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
+import CreatedPostElevatorJob from "@/pages/UserDashboard/CreatedPostElevatorJob";
+import PaymentProcessing from "@/pages/AdminDashboard/Payment/PaymentOverview";
+import ContentManagement from "@/pages/AdminDashboard/ContentManagement/ContentManagement";
+import SystemSettings from "@/pages/AdminDashboard/SystemSetting/SystemSettingOverview";
+import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
 
 
 const routes = createBrowserRouter([
@@ -51,12 +64,12 @@ const routes = createBrowserRouter([
       },
       {
         path: "/how-it-works",
-        element: <HoeItWorks />
+        element: <HoeItWorks />,
       },
       {
         path: "/success-stories",
-        element: <Success />
-      }
+        element: <Success />,
+      },
     ],
   },
   {
@@ -82,7 +95,8 @@ const routes = createBrowserRouter([
           { path: "", element: <UserDashboardOverview /> },  // Add this!
           { path: "my-jobs", element: <MyJobs /> },
           { path: "message", element: <MessagesPage /> },
-          { path: "setting", element: <SettingOverview /> }
+          { path: "setting", element: <SettingOverview /> },
+          { path: "createdPostElevatorJob", element: <CreatedPostElevatorJob /> }
         ]
       }
     ]
@@ -95,7 +109,14 @@ const routes = createBrowserRouter([
         path: "",
         element: <ElevatorDashboard />,
         children: [
-          { path: "", element: <ElevatorDashboardOverview /> }
+          { path: "", element: <ElevatorDashboardOverview /> },
+          { path: "browse-jobs", element: <BrowsJobsOverview /> },
+          { path: "my-bids", element: <MyBidsPage /> },
+          { path: "billing", element: <BillingPage /> },
+          { path: "company-profile", element: <CompanyProfile /> },
+          { path: "meassages", element: <MessagesPage /> },
+          { path: "settings", element: <SettingOverview /> },
+          { path: `jobdetails/${10}`, element: <ProjectDetail /> },
         ]
       }
     ]
@@ -108,12 +129,18 @@ const routes = createBrowserRouter([
         path: "",
         element: <AdminDashboard />,
         children: [
-          { path: "", element: <AdminDashboardOverview /> }
+          { path: "", element: <AdminDashboardOverview /> },
+          { path: "userManagement", element: <UserManagement /> },
+          { path: "JobsManagement", element: <JobsManagement /> },
+          { path: "bidsmanagement", element: <BidsManagement /> },
+          { path: "payments", element: <PaymentProcessing /> },
+          { path: "contentManagement", element: <ContentManagement /> },
+          { path: "systemSettings", element: <SystemSettings /> },
+          { path: "dataExport", element: <DataExport/> }
         ]
       }
     ]
-  },
-
+  }
 ]);
 
 export default routes;

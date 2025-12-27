@@ -1,6 +1,8 @@
 import AboutBanner from "./About/AboutBanner";
 import OurStory from "./About/AboutStory";
 import AboutStoryCard from "./About/AboutStoryCard";
+import ContactSection from "./About/ContactSection";
+import PrinciplesSection from "./About/CoreValues";
 import MissionVisionCards from "./About/MissionVisionCards";
 
 const About = () => {
@@ -10,6 +12,8 @@ const About = () => {
       <OurStory />
       <AboutStoryCard />
       <MissionVisionCards />
+      <PrinciplesSection />
+      <ContactSection />
     </div>
   );
 };
