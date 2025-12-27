@@ -30,6 +30,7 @@ import ProjectDetail from "@/pages/ElevatorDashboard/BrowseJobs/JobDetails";
 import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement";
 import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
 import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
+import CreatedPostElevatorJob from "@/pages/UserDashboard/CreatedPostElevatorJob";
 
 
 const routes = createBrowserRouter([
@@ -59,12 +60,12 @@ const routes = createBrowserRouter([
       },
       {
         path: "/how-it-works",
-        element: <HoeItWorks />
+        element: <HoeItWorks />,
       },
       {
         path: "/success-stories",
-        element: <Success />
-      }
+        element: <Success />,
+      },
     ],
   },
   {
@@ -90,7 +91,8 @@ const routes = createBrowserRouter([
           { path: "", element: <UserDashboardOverview /> },  // Add this!
           { path: "my-jobs", element: <MyJobs /> },
           { path: "message", element: <MessagesPage /> },
-          { path: "setting", element: <SettingOverview /> }
+          { path: "setting", element: <SettingOverview /> },
+          { path: "createdPostElevatorJob", element: <CreatedPostElevatorJob /> }
         ]
       }
     ]
