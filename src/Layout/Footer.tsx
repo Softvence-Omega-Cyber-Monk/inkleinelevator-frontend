@@ -16,7 +16,7 @@ const Footer: React.FC = () => {
       <div className="absolute inset-0 bg-black/60" />
       
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 lg:px-12 py-12">
+      <div className="relative max-w-[1500px] mx-auto px-4 py-12">
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-12">
           {/* Left - Main Heading and Buttons */}
