@@ -12,7 +12,7 @@ const PricingSection: React.FC = () => {
     ];
 
     return (
-        <div className="py-16 px-4 bg-gray-200">
+        <div className="py-16 px-4 bg-[#F8F9FF]">
             <div className="max-w-[1500px] mx-auto">
                 {/* Header Section */}
                 <div className="text-center mb-12">

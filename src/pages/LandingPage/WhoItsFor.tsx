@@ -40,11 +40,11 @@ const WhoItsFor: React.FC = () => {
                             <h4 className="text-sm font-semibold text-gray-900 mb-3">Perfect for:</h4>
                             <div className="space-y-2">
                                 {[
-                                    'Property management companies overseeing multiple buildings',
-                                    'Building owners needing installation or modernization',
-                                    'Facilities managers requiring maintenance contracts',
-                                    'General contractors coordinating new construction',
-                                    'HOA boards managing residential elevators'
+                                    "Contractors create an account and post elevator jobs",
+                                    "Elevator companies submit bids for the posted jobs",
+                                    "Contractors review, communicate, and compare the bids",
+                                    "Contractors select the most suitable bid and finalize the contract",
+                                    "The project is completed successfully"
                                 ].map((item, index) => (
                                     <div key={index} className="flex items-start gap-2">
                                         <svg className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
