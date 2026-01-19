@@ -6,7 +6,6 @@ import NotFound from "../pages/NotFound";
 import Home from "../pages/Home";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
-import Form from "@/pages/Form";
 import Services from "@/pages/Services";
 import HoeItWorks from "@/pages/HoeItWorks";
 import Success from "@/pages/SuccessStory";
@@ -36,7 +35,6 @@ import ContentManagement from "@/pages/AdminDashboard/ContentManagement/ContentM
 import SystemSettings from "@/pages/AdminDashboard/SystemSetting/SystemSettingOverview";
 import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
 
-
 const routes = createBrowserRouter([
   {
     path: "/",
@@ -58,10 +56,7 @@ const routes = createBrowserRouter([
         path: "/services",
         element: <Services />,
       },
-      {
-        path: "/form",
-        element: <Form />,
-      },
+
       {
         path: "/how-it-works",
         element: <HoeItWorks />,
@@ -92,14 +87,17 @@ const routes = createBrowserRouter([
         path: "",
         element: <UserDashboard />,
         children: [
-          { path: "", element: <UserDashboardOverview /> },  // Add this!
+          { path: "", element: <UserDashboardOverview /> }, // Add this!
           { path: "my-jobs", element: <MyJobs /> },
           { path: "message", element: <MessagesPage /> },
           { path: "setting", element: <SettingOverview /> },
-          { path: "createdPostElevatorJob", element: <CreatedPostElevatorJob /> }
-        ]
-      }
-    ]
+          {
+            path: "createdPostElevatorJob",
+            element: <CreatedPostElevatorJob />,
+          },
+        ],
+      },
+    ],
   },
   {
     path: "/elevator",
@@ -117,9 +115,9 @@ const routes = createBrowserRouter([
           { path: "meassages", element: <MessagesPage /> },
           { path: "settings", element: <SettingOverview /> },
           { path: `jobdetails/${10}`, element: <ProjectDetail /> },
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
   {
     path: "/admin",
@@ -136,11 +134,11 @@ const routes = createBrowserRouter([
           { path: "payments", element: <PaymentProcessing /> },
           { path: "contentManagement", element: <ContentManagement /> },
           { path: "systemSettings", element: <SystemSettings /> },
-          { path: "dataExport", element: <DataExport/> }
-        ]
-      }
-    ]
-  }
+          { path: "dataExport", element: <DataExport /> },
+        ],
+      },
+    ],
+  },
 ]);
 
 export default routes;
