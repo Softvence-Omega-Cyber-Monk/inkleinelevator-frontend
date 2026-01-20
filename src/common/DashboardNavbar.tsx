@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Menu, Building2, BellDot } from "lucide-react";
+import { Menu, BellDot } from "lucide-react";
 import logo from "@/assets/image/logo.png";
 
 interface DashboardNavbarProps {

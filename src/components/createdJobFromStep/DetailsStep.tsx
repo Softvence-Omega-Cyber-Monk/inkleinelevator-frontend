@@ -1,6 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { ChevronDown, X } from "lucide-react";
+// text editor
+import { RichTextEditor } from "@mantine/tiptap";
+import { useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Underline from "@tiptap/extension-underline";
+import Highlight from "@tiptap/extension-highlight";
+import TextAlign from "@tiptap/extension-text-align";
+import Color from "@tiptap/extension-color";
+import { TextStyle } from "@tiptap/extension-text-style";
+import Placeholder from "@tiptap/extension-placeholder";
+import BulletList from "@tiptap/extension-bullet-list";
+import OrderedList from "@tiptap/extension-ordered-list";
+import ListItem from "@tiptap/extension-list-item";
 
 interface DetailsStepProps {
   formData: any;
@@ -15,33 +28,26 @@ export default function DetailsStep({
   onNext,
   onBack,
 }: DetailsStepProps) {
-  // const handleAddRequirement = (requirement: string) => {
-  //   if (!formData.technicalRequirements.includes(requirement)) {
-  //     setFormData({
-  //       ...formData,
-  //       technicalRequirements: [...formData.technicalRequirements, requirement],
-  //     });
-  //   }
-  // };
-
-  // const handleRemoveRequirement = (requirement: string) => {
-  //   setFormData({
-  //     ...formData,
-  //     technicalRequirements: formData.technicalRequirements.filter(
-  //       (r: string) => r !== requirement
-  //     ),
-  //   });
-  // };
-
-  const handleRemoveTechnicalFile = (index: number) => {
-    setFormData((prev: any) => ({
-      ...prev,
-      technicalRequirementsFiles: (
-        prev.technicalRequirementsFiles || []
-      ).filter((_: File, i: number) => i !== index),
-    }));
-  };
-
+  // this code sinepet for text editor
+  const editor = useEditor({
+    extensions: [
+      StarterKit,
+      Underline,
+      Highlight,
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
+      Color,
+      TextStyle,
+      Placeholder.configure({
+        placeholder: "Describe the elevator project...",
+      }),
+      BulletList,
+      OrderedList,
+      ListItem,
+    ],
+    content: formData.description || "",
+    onUpdate: ({ editor }) =>
+      setFormData({ ...formData, description: editor.getHTML() }),
+  });
   return (
     <div>
       {/* Heading */}
@@ -53,78 +59,143 @@ export default function DetailsStep({
         </p>
       </div>
 
-      {/* Project Description */}
+      {/* Project Description here have text editor */}
       <div className="mb-8 mt-10">
+        {/* Label for the editor */}
         <label className="block text-sm font-semibold text-gray-900 mb-2">
           Project Description
         </label>
-        <div className="border border-gray-200 rounded-lg mb-4 p-3">
-          <div className="flex gap-2 flex-wrap">
-            <button className="px-2 py-1 font-bold hover:bg-gray-100">B</button>
-            <button className="px-2 py-1 italic hover:bg-gray-100">I</button>
-            <button className="px-2 py-1 underline hover:bg-gray-100">U</button>
-            <div className="border-l border-gray-300 mx-2"></div>
-            <button className="px-2 py-1 text-sm hover:bg-gray-100">H1</button>
-            <button className="px-2 py-1 text-sm hover:bg-gray-100">H2</button>
+
+        {/* Mantine RichTextEditor */}
+        {editor && (
+          <div className="rounded-lg p-2">
+            <RichTextEditor editor={editor}>
+              <RichTextEditor.Toolbar sticky stickyOffset={60}>
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Bold />
+                  <RichTextEditor.Italic />
+                  <RichTextEditor.Underline />
+                  <RichTextEditor.Strikethrough />
+                  <RichTextEditor.Highlight />
+                </RichTextEditor.ControlsGroup>
+
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.H1 />
+                  <RichTextEditor.H2 />
+                  <RichTextEditor.H3 />
+                </RichTextEditor.ControlsGroup>
+
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.AlignLeft />
+                  <RichTextEditor.AlignCenter />
+                  <RichTextEditor.AlignRight />
+                  <RichTextEditor.AlignJustify />
+                </RichTextEditor.ControlsGroup>
+
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Link />
+                  <RichTextEditor.Unlink />
+                </RichTextEditor.ControlsGroup>
+
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.ColorPicker
+                    colors={["#000000", "#e03131", "#2f9e44", "#1971c2"]}
+                  />
+                  <RichTextEditor.UnsetColor />
+                </RichTextEditor.ControlsGroup>
+
+                <RichTextEditor.ControlsGroup>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      editor.chain().focus().toggleBulletList().run()
+                    }
+                    className="px-2 py-1 border rounded text-sm"
+                  >
+                    • Bullet
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      editor.chain().focus().toggleOrderedList().run()
+                    }
+                    className="px-2 py-1 border rounded text-sm"
+                  >
+                    1. Numbered
+                  </button>
+                </RichTextEditor.ControlsGroup>
+
+                <RichTextEditor.ControlsGroup>
+                  <RichTextEditor.Undo />
+                  <RichTextEditor.Redo />
+                </RichTextEditor.ControlsGroup>
+              </RichTextEditor.Toolbar>
+
+              <RichTextEditor.Content className="min-h-[200px] px-3 py-2" />
+            </RichTextEditor>
           </div>
-        </div>
-        <textarea
-          placeholder="Describe the elevator project in detail. Include number of units, building type, elevator specifications, and any specific requirements..."
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-800 text-gray-900 placeholder-gray-400 h-32"
-        />
+        )}
       </div>
 
+      {/* Technical Requirements */}
       {/* Technical Requirements */}
       <div className="mb-8">
         <label className="block text-sm font-semibold text-gray-900 mb-2">
           Technical Requirements & Certifications
         </label>
-        <label className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors inline-flex items-center">
-          <span className="text-gray-500">📎 Upload file</span>
-          {/* <input
-            type="file"
-            multiple
-            onChange={handleTechnicalRequirementsFile}
-            className="hidden"
-          /> */}
-          <input
-            type="file"
-            multiple
-            onChange={(e) => {
-              if (!e.target.files) return;
-              const filesArray = Array.from(e.target.files); // convert FileList to array
+
+        {/* Input for tags */}
+        <input
+          type="text"
+          placeholder="Type a keyword and press Enter"
+          className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-800 text-gray-900 placeholder-gray-400"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const value = (e.target as HTMLInputElement).value.trim();
+              if (!value) return;
+
               setFormData((prev: any) => ({
                 ...prev,
-                technicalRequirementsFiles: [
-                  ...(prev.technicalRequirementsFiles || []), // append existing
-                  ...filesArray,
+                technicalRequirements: [
+                  ...(prev.technicalRequirements || []),
+                  value,
                 ],
               }));
-            }}
-          />
-        </label>
+
+              (e.target as HTMLInputElement).value = "";
+            }
+          }}
+        />
+
+        {/* Display tags */}
         <div className="flex flex-wrap gap-2 mt-3">
-          {formData.technicalRequirementsFiles &&
-            formData.technicalRequirementsFiles.length > 0 &&
-            formData.technicalRequirementsFiles.map(
-              (file: File, index: number) => (
+          {formData.technicalRequirements &&
+            formData.technicalRequirements.length > 0 &&
+            formData.technicalRequirements.map(
+              (keyword: string, index: number) => (
                 <div
                   key={index}
                   className="bg-gray-100 px-3 py-1 rounded-lg flex items-center gap-2"
                 >
-                  <span className="text-sm text-gray-700">{file.name}</span>
+                  <span className="text-sm text-gray-700">{keyword}</span>
                   <button
-                    onClick={() => handleRemoveTechnicalFile(index)}
+                    onClick={() => {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        technicalRequirements:
+                          prev.technicalRequirements.filter(
+                            (_: string, i: number) => i !== index,
+                          ),
+                      }));
+                    }}
                     className="text-gray-500 hover:text-gray-700"
                   >
                     <X size={16} />
                   </button>
                 </div>
-              )
+              ),
             )}
         </div>
       </div>
@@ -138,6 +209,11 @@ export default function DetailsStep({
 
           <div className="relative">
             <select
+              value={formData.elevatorType} // bind value
+              onChange={
+                (e) =>
+                  setFormData({ ...formData, elevatorType: e.target.value }) // update formData
+              }
               className="w-full px-4 py-3 pr-10 bg-blue-50 border border-blue-100 rounded-lg
                  focus:outline-none focus:ring-1 focus:ring-gray-800
                  text-gray-900 appearance-none cursor-pointer"

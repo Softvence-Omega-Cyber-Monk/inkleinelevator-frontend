@@ -3,7 +3,6 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Building2,
   LogOut,
-  Menu,
   User,
   Users,
   Briefcase,
@@ -12,7 +11,6 @@ import {
   FileCode,
   Settings,
   Download,
-  BellDot,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
 

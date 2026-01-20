@@ -1,62 +1,61 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   Calendar,
-  MessageSquare,
   MoreVertical,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
 } from "lucide-react";
+import { useGetAllMyJobsQuery } from "@/Redux/features/userDa/userJob/userJobApi";
+import BeatLoader from "react-spinners/BeatLoader";
+import { useNavigate } from "react-router-dom";
 
 const MyJobs = () => {
-  // const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [jobType, setJobType] = useState("all");
 
-  const jobs = [
-    {
-      id: 1,
-      image:
-        "https://images.unsplash.com/photo-1565967511849-76a60a516170?w=400&h=300&fit=crop",
-      title: "Elevator Modernization - Tower A",
-      category: "Modernization",
-      status: "Open",
-      statusColor: "bg-green-500",
-      postedDate: "Posted 3 days ago",
-      bids: 12,
-      messages: 5,
-    },
-    {
-      id: 2,
-      image:
-        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&h=300&fit=crop",
-      title: "Elevator Modernization - Tower A",
-      category: "Modernization",
-      status: "Open",
-      statusColor: "bg-green-500",
-      postedDate: "Posted 3 days ago",
-      bids: 12,
-      messages: 5,
-    },
-    {
-      id: 3,
-      image:
-        "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=400&h=300&fit=crop",
-      title: "Elevator Modernization - Tower A",
-      category: "Modernization",
-      status: "Complete",
-      statusColor: "bg-orange-500",
-      postedDate: "Posted 3 days ago",
-      bids: 12,
-      messages: 5,
-    },
-  ];
+  const { data, isLoading } = useGetAllMyJobsQuery({
+    page: currentPage,
+    limit: 10,
+    search: searchQuery || undefined,
+    jobType: jobType !== "all" ? jobType : undefined,
+  });
+
+  const myJobData = data?.data;
+  console.log("amar job", myJobData);
+  const totalPages = data ? Math.ceil(data.total / data.limit) : 1;
+
+  useEffect(() => {
+    setCurrentPage(1); // reset page to 1
+  }, [searchQuery, jobType]);
+
+  const handlePageChange = (page: any) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    let start = Math.max(currentPage - 2, 1);
+    let end = Math.min(start + 4, totalPages);
+
+    if (end - start < 4) {
+      start = Math.max(end - 4, 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
 
   return (
     <div>
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        {/* LEFT */}
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
             My Jobs
@@ -66,8 +65,8 @@ const MyJobs = () => {
           </p>
         </div>
 
-        {/* RIGHT */}
         <button
+          onClick={() => navigate("/user/createdPostElevatorJob")}
           className="
             w-full sm:w-auto
             flex items-center justify-center gap-2
@@ -93,106 +92,168 @@ const MyJobs = () => {
             placeholder="Search Jobs by name, type ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
           />
         </div>
-        <select
-          value={jobType}
-          onChange={(e) => setJobType(e.target.value)}
-          className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-        >
-          <option value="all">Jobs Type</option>
-          <option value="modernization">Modernization</option>
-          <option value="maintenance">Maintenance</option>
-          <option value="repair">Repair</option>
-        </select>
+        <div className="relative w-full sm:w-auto">
+          <select
+            value={jobType}
+            onChange={(e) => setJobType(e.target.value)}
+            className="appearance-none w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 bg-white"
+          >
+            <option value="all">All</option>
+            <option value="OPEN">OPEN</option>
+            <option value="ACCEPTED">ACCEPTED</option>
+            <option value="DECLINED">DECLINED</option>
+            <option value="PENDING_REVIEW">PENDING_REVIEW</option>
+            <option value="INPROGRESS">INPROGRESS</option>
+            <option value="COMPLITE">COMPLETED</option>
+          </select>
+
+          {/* Lucide arrow inside the select */}
+          <ChevronDown
+            size={18}
+            className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500"
+          />
+        </div>
       </div>
 
+      {/* Loading */}
+      {isLoading && (
+        <div className="flex justify-center py-10">
+          <BeatLoader color="#0f172b" />
+        </div>
+      )}
+
+      {/* No data message */}
+      {!isLoading && myJobData?.jobs?.length === 0 && (
+        <p className="text-center py-10 text-gray-500">No jobs found.</p>
+      )}
+
       {/* Jobs List */}
-      {/* Jobs List */}
+
       <div className="space-y-4 mb-6">
-        {jobs.map((job) => (
+        {myJobData?.jobs?.map((job: any) => (
           <div
-            key={job.id}
+            key={job.jobId}
             className="
-        bg-white border border-gray-200 rounded-lg
-        p-4 sm:p-6
+        bg-[#FFF] border border-gray-200 rounded-xl
+        p-4 
         flex flex-col lg:flex-row
-        gap-4 lg:gap-6
+        gap-4 lg:gap-5
       "
           >
-            {/* Job Image */}
-            <div className="w-full sm:w-40 lg:w-32 h-40 sm:h-28 lg:h-24 rounded-lg overflow-hidden flex-shrink-0">
-              <img
-                src={job.image}
-                alt={job.title}
-                className="w-full h-full object-cover"
-              />
+            {/* Job Image Placeholder */}
+            <div className="w-full sm:w-40 lg:w-32 h-40 sm:h-28 lg:h-34 rounded-lg overflow-hidden flex-shrink-0 bg-gray-900 flex items-center justify-center text-gray-400">
+              {job.photo && job.photo.length > 0 ? (
+                <img
+                  src={job.photo[0]}
+                  alt={job.jobTitle}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                  No Image
+                </div>
+              )}
             </div>
 
             {/* Job Details */}
             <div className="flex-1">
-              {/* Title + Status */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-base sm:text-lg font-semibold text-gray-900">
-                    {job.title}
+                    {job?.jobTitle}
                   </h3>
                   <span
-                    className={`${job.statusColor} text-white text-xs font-medium px-3 py-1 rounded-full`}
+                    className={`
+                      text-white text-xs font-medium px-3 py-1 rounded-lg
+                      ${
+                        job?.jobStatus === "OPEN"
+                          ? "bg-green-500"
+                          : job?.jobStatus === "ACCEPTED"
+                            ? "bg-blue-500"
+                            : job?.jobStatus === "DECLINED"
+                              ? "bg-red-500"
+                              : job?.jobStatus === "PENDING_REVIEW"
+                                ? "bg-yellow-500"
+                                : job?.jobStatus === "INPROGRESS"
+                                  ? "bg-orange-500"
+                                  : job?.jobStatus === "COMPLITE"
+                                    ? "bg-gray-500"
+                                    : "bg-gray-300"
+                      }
+                    `}
                   >
-                    {job.status}
+                    {job?.jobStatus}
                   </span>
                 </div>
               </div>
 
-              {/* Category + Date */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-sm text-gray-600">
-                <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-md font-medium">
-                  {job.category}
+              <div className="flex flex-wrap mt-6 items-center gap-3 sm:gap-6 text-sm text-gray-600">
+                <span className="px-6 py-2 bg-[#D5FDFF] text-gray-900 rounded-2xl font-medium">
+                  {job.jobType}
                 </span>
                 <div className="flex items-center gap-2">
                   <Calendar size={16} className="text-gray-400" />
-                  <span>{job.postedDate}</span>
+                  <span>Posted recently</span>
                 </div>
               </div>
-
-              {/* Bids + Messages */}
-              <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-3 text-sm text-gray-600">
-                <div className="flex items-center gap-2">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    className="text-gray-400"
-                  >
-                    <path
-                      d="M8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M8 5V8L10 10"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <span>{job.bids} Bids</span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <MessageSquare size={16} className="text-gray-400" />
-                  <span>{job.messages} New Message</span>
-                </div>
+              <div className="flex items-center gap-2 mt-6">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                >
+                  <path
+                    d="M15 5.96602C14.95 5.95769 14.8917 5.95769 14.8417 5.96602C13.6917 5.92435 12.775 4.98268 12.775 3.81602C12.775 2.62435 13.7333 1.66602 14.925 1.66602C16.1167 1.66602 17.075 2.63268 17.075 3.81602C17.0667 4.98268 16.15 5.92435 15 5.96602Z"
+                    stroke="#292D32"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M14.1417 12.0328C15.2833 12.2245 16.5417 12.0245 17.425 11.4328C18.6 10.6495 18.6 9.36615 17.425 8.58282C16.5333 7.99115 15.2583 7.79115 14.1167 7.99115"
+                    stroke="#292D32"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M4.97503 5.96602C5.02503 5.95769 5.08336 5.95769 5.13336 5.96602C6.28336 5.92435 7.20002 4.98268 7.20002 3.81602C7.20002 2.62435 6.24169 1.66602 5.05003 1.66602C3.85836 1.66602 2.90002 2.63268 2.90002 3.81602C2.90836 4.98268 3.82503 5.92435 4.97503 5.96602Z"
+                    stroke="#292D32"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M5.83334 12.0328C4.69168 12.2245 3.43335 12.0245 2.55001 11.4328C1.37501 10.6495 1.37501 9.36615 2.55001 8.58282C3.44168 7.99115 4.71668 7.79115 5.85834 7.99115"
+                    stroke="#292D32"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M9.99999 12.1926C9.94999 12.1842 9.89166 12.1842 9.84166 12.1926C8.69166 12.1509 7.77499 11.2092 7.77499 10.0426C7.77499 8.85091 8.73333 7.89258 9.92499 7.89258C11.1167 7.89258 12.075 8.85925 12.075 10.0426C12.0667 11.2092 11.15 12.1592 9.99999 12.1926Z"
+                    stroke="#292D32"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M7.57501 14.8168C6.40001 15.6001 6.40001 16.8835 7.57501 17.6668C8.90834 18.5585 11.0917 18.5585 12.425 17.6668C13.6 16.8835 13.6 15.6001 12.425 14.8168C11.1 13.9335 8.90834 13.9335 7.57501 14.8168Z"
+                    stroke="#292D32"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <h1 className="text-sm font-medium">{job?.bids.length}</h1>
               </div>
             </div>
 
-            {/* Actions */}
             <div
               className="
           flex lg:flex-col
@@ -221,21 +282,36 @@ const MyJobs = () => {
 
       {/* Pagination */}
       <div className="flex items-center justify-center gap-2">
-        <button className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
+        <button
+          onClick={() => handlePageChange(currentPage - 1)}
+          className="flex items-center gap-1 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 rounded-lg"
+        >
           <ChevronLeft size={16} />
           Previous
         </button>
-        <button className="px-3 py-2 text-sm bg-slate-900 text-white rounded-lg">
-          1
-        </button>
-        <button className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-          2
-        </button>
-        <button className="px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
-          3
-        </button>
-        <span className="px-3 py-2 text-sm text-gray-600">...</span>
-        <button className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg">
+
+        {getPageNumbers().map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageChange(page)}
+            className={`px-3 py-2 text-sm rounded-lg ${
+              page === currentPage
+                ? "bg-slate-900 text-white"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+
+        {totalPages > 5 && currentPage < totalPages - 2 && (
+          <span className="px-3 py-2 text-sm text-gray-900">...</span>
+        )}
+
+        <button
+          onClick={() => handlePageChange(currentPage + 1)}
+          className="flex items-center gap-1 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 rounded-lg"
+        >
           Next
           <ChevronRight size={16} />
         </button>

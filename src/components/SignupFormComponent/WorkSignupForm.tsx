@@ -32,7 +32,7 @@ export default function WorkSignupForm() {
     formData.append("email", email);
     formData.append("phone", phone);
     formData.append("password", password);
-    formData.append("role", "ELEVATOR");
+    formData.append("role", "USER");
 
     try {
       const response = await register(formData).unwrap();

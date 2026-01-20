@@ -4,9 +4,11 @@ import LocationStep from "@/components/createdJobFromStep/LocationStep";
 import ReviewStep from "@/components/createdJobFromStep/ReviewStep";
 import StepperHeader from "@/components/createdJobFromStep/StepperHeader";
 import UploadDocumentsStep from "@/components/createdJobFromStep/UploadDocumentsStep";
+import { useCreateNewJobMutation } from "@/Redux/features/userDa/userJob/userJobApi";
 import { useState } from "react";
 
 export default function CreatedPostElevatorJob() {
+  const [createNewJob, { isLoading }] = useCreateNewJobMutation();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -40,9 +42,48 @@ export default function CreatedPostElevatorJob() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log("Form submitted:", formData);
-    // Handle form submission
+  const handleSubmit = async () => {
+    const form = new FormData();
+
+    // ===== TEXT & NUMBER FIELDS =====
+    form.append("jobTitle", formData.jobTitle.trim());
+    form.append("jobType", formData.serviceType);
+    form.append("projectDescription", formData.description);
+    form.append("elevatorType", formData.elevatorType);
+    form.append("numberOfElevator", String(formData.numberOfElevators)); // number → string
+    form.append("capacity", String(formData.capacity)); // if numeric
+    form.append("speed", String(formData.speed)); // if numeric
+    form.append("address", formData.address);
+    form.append("streetAddress", formData.streetAddress);
+    form.append("city", formData.city);
+    form.append("zipCode", formData.zipCode);
+    form.append("estimatedBudget", formData.estimatedBudget);
+
+    // ===== ARRAY OF STRINGS =====
+    formData.technicalRequirements?.forEach((item) => {
+      form.append("technicalRequirementsAndCertifications", item);
+    });
+
+    // ===== FILES =====
+    formData.photos?.forEach((file: any) => {
+      if (file instanceof File) {
+        form.append("photos", file, file.name);
+      }
+    });
+
+    formData.documents?.forEach((file: any) => {
+      if (file instanceof File) {
+        form.append("documents", file, file.name);
+      }
+    });
+
+    // ===== SUBMIT FORM =====
+    try {
+      const res = await createNewJob(form).unwrap();
+      console.log("Job created successfully", res);
+    } catch (err) {
+      console.error("Create job failed", err);
+    }
   };
 
   const renderStep = () => {
@@ -89,6 +130,7 @@ export default function CreatedPostElevatorJob() {
             formData={formData}
             onBack={handleBack}
             onSubmit={handleSubmit}
+            loading={isLoading}
           />
         );
       default:

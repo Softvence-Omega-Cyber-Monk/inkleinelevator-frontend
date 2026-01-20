@@ -6,12 +6,14 @@ import { toast } from "sonner";
 
 import { useAppDispatch } from "@/Redux/hooks";
 import { setUser } from "@/Redux/features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import BeatLoader from "react-spinners/BeatLoader";
 
 const Login: React.FC = () => {
   // const location = useLocation();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const [login] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -46,12 +48,15 @@ const Login: React.FC = () => {
 
       console.log("Login successful:", response);
       // Save in localStorage for refresh
-      localStorage.setItem("accessToken", tokens.accessToken);
-      localStorage.setItem("refreshToken", tokens.refreshToken);
+      // localStorage.setItem("accessToken", tokens.accessToken);
+      // localStorage.setItem("refreshToken", tokens.refreshToken);
 
       // Show success toast
       if (response.success) {
         toast.success(response.message || "Login successful!");
+        if (user.role === "USER") {
+          navigate("/user");
+        }
       } else {
         toast.error(response.message || "Login failed!");
       }
@@ -188,9 +193,10 @@ const Login: React.FC = () => {
               {/* Login Button */}
               <button
                 type="submit"
-                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                disabled={isLoading} // disable button while loading
               >
-                Log In
+                {isLoading ? <BeatLoader size={8} color="#fff" /> : "Log In"}
               </button>
 
               {/* Registration Link */}
