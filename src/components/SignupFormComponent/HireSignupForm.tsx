@@ -51,7 +51,7 @@ export default function HireSignupForm() {
     formData.append("email", email);
     formData.append("phone", phone);
     formData.append("password", password);
-    formData.append("role", "USER");
+    formData.append("role", "ELEVATOR");
     formData.append("companyName", companyName);
     if (businessLogo) formData.append("businessLogo", businessLogo);
     if (licenseFile) formData.append("licenseInfo", licenseFile);

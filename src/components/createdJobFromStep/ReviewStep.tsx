@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { MapPin, DollarSign, FileIcon } from "lucide-react";
+import BeatLoader from "react-spinners/BeatLoader";
 
 interface ReviewStepProps {
   formData: any;
   onBack: () => void;
   onSubmit: () => void;
+  loading?: boolean;
 }
 
 export default function ReviewStep({
   formData,
   onBack,
   onSubmit,
+  loading = false,
 }: ReviewStepProps) {
   return (
     <div>
@@ -78,7 +81,7 @@ export default function ReviewStep({
       </div>
 
       {/* Project Description */}
-      <div className="mt-4">
+      {/* <div className="mt-4">
         {formData.description && (
           <div className="mb-8 pb-6 ">
             <h4 className="text-lg font-medium text-gray-900 mb-3">
@@ -89,26 +92,46 @@ export default function ReviewStep({
             </p>
           </div>
         )}
+      </div> */}
+      <div className="mt-4">
+        {formData.description && (
+          <div className="mb-8 pb-6">
+            <h4 className="text-lg font-medium text-gray-900 mb-3">
+              Project Description
+            </h4>
+
+            <div
+              className="
+          text-[#0A0A0A] mt-6 text-base
+          [&_ul]:list-disc [&_ul]:pl-6
+          [&_ol]:list-decimal [&_ol]:pl-6
+          [&_li]:mb-1
+        "
+              dangerouslySetInnerHTML={{
+                __html: formData.description,
+              }}
+            />
+          </div>
+        )}
       </div>
       {/* Technical Requirements */}
 
-      {formData.technicalRequirementsFiles &&
-        formData.technicalRequirementsFiles.length > 0 && (
-          <div className="mb-8 pb-6 ">
+      {formData.technicalRequirements &&
+        formData.technicalRequirements.length > 0 && (
+          <div className="mb-8 pb-6">
             <h4 className="text-lg font-medium text-gray-900 mb-3">
-              Technical Requirements Files
+              Technical Requirements & Certifications
             </h4>
             <div className="flex flex-wrap gap-2">
-              {formData.technicalRequirementsFiles.map(
-                (file: File, i: number) => (
+              {formData.technicalRequirements.map(
+                (keyword: string, index: number) => (
                   <div
-                    key={i}
-                    className="  bg-[#ECEEF2]  px-3 py-2 rounded-lg flex items-center gap-2"
+                    key={index}
+                    className="bg-[#ECEEF2] px-3 py-2 rounded-lg flex items-center gap-2"
                   >
-                    <FileIcon size={16} className="text-gray-600" />
-                    <span className="text-sm text-gray-700">{file.name}</span>
+                    <span className="text-sm text-gray-700">{keyword}</span>
                   </div>
-                )
+                ),
               )}
             </div>
           </div>
@@ -128,7 +151,7 @@ export default function ReviewStep({
             {" "}
             {/* one column for each row */}
             {formData.elevatorType && (
-              <div className="flex justify-between bg-pink-50 px-4 py-2 rounded">
+              <div className="flex justify-between px-4 py-2 rounded">
                 <span className="text-gray-500 text-sm">Elevator Type:</span>
                 <span className="text-gray-900 font-semibold">
                   {formData.elevatorType}
@@ -223,9 +246,10 @@ export default function ReviewStep({
         </button>
         <button
           onClick={onSubmit}
-          className="px-6 py-2 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors"
+          disabled={loading}
+          className="px-6 py-2 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
         >
-          Publish Job
+          {loading ? <BeatLoader size={8} color="#fff" /> : "Publish Job"}
         </button>
       </div>
     </div>
