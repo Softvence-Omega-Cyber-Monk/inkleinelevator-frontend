@@ -88,6 +88,7 @@ const routes = createBrowserRouter([
         element: <UserDashboard />,
         children: [
           { path: "", element: <UserDashboardOverview /> }, // Add this!
+          // { path: "", element: <div>h</div> }, // Add this!
           { path: "my-jobs", element: <MyJobs /> },
           { path: "message", element: <MessagesPage /> },
           { path: "setting", element: <SettingOverview /> },
