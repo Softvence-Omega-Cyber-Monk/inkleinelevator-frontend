@@ -79,27 +79,34 @@ const AdminDashboardOverview = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
         {stats.map((stat, index) => (
           <div
             key={index}
-            className="bg-white p-6 rounded-lg border border-gray-200"
+            className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200"
           >
-            <div className="flex items-start justify-between mb-4">
+            {/* Title + Icon */}
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
               <div className="text-gray-600 text-sm font-medium">
                 {stat.title}
               </div>
-
-              <img src={stat.icon} alt={stat.title} className="w-6 h-6" />
+              <img
+                src={stat.icon}
+                alt={stat.title}
+                className="w-5 h-5 sm:w-6 sm:h-6"
+              />
             </div>
 
-            <div className="text-2xl font-medium text-gray-900 mb-1">
+            {/* Value */}
+            <div className="text-2xl sm:text-3xl font-medium text-gray-900 mb-1">
               {stat.value}
             </div>
-            <div className="text-xs text-gray-500 leading-none mt-2">
-              <span className="inline-flex items-center gap-1 text-green-500 align-middle">
+
+            {/* Subtitle + Percent */}
+            <div className="text-xs sm:text-sm text-gray-500 leading-tight mt-2">
+              <span className="inline-flex items-center gap-1 text-green-500">
                 <ArrowUpRight className="w-3 h-3 shrink-0" />
-                <span className="leading-none">{stat.persent}</span>
+                <span>{stat.persent}</span>
               </span>{" "}
               {stat.subtitle}
             </div>
@@ -107,10 +114,11 @@ const AdminDashboardOverview = () => {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+        {/* Contractor Approval */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
           <div className="mb-4">
-            <h2 className="text-lg font-bold text-[#0A0A0A] mb-2">
+            <h2 className="text-lg sm:text-xl font-bold text-[#0A0A0A] mb-2">
               Contractor Approval
             </h2>
             <p className="text-sm text-[#717182]">
@@ -121,7 +129,7 @@ const AdminDashboardOverview = () => {
             {activeJobs.map((job, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-3 border-b border-gray-100 last:border-0 gap-2 sm:gap-0"
               >
                 <div className="flex-1">
                   <div className="font-medium text-gray-900 text-sm mb-1">
@@ -129,7 +137,7 @@ const AdminDashboardOverview = () => {
                   </div>
                   <div className="text-xs text-gray-500">{job.subtitle}</div>
                 </div>
-                <button className="px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800">
+                <button className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800">
                   Review
                 </button>
               </div>
@@ -137,20 +145,23 @@ const AdminDashboardOverview = () => {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg border border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+        {/* Recent Activity */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
             Recent Activity
           </h2>
           <div className="space-y-4">
             {recentActivity.map((activity, index) => (
               <div
                 key={index}
-                className="py-3 border-b border-gray-100 last:border-0"
+                className="flex flex-col sm:flex-row justify-between py-3 border-b border-gray-100 last:border-0 gap-2 sm:gap-0"
               >
-                <div className="font-medium text-gray-900 text-base mb-2">
+                <div className="font-medium text-gray-900 text-sm sm:text-base mb-1 sm:mb-0">
                   {activity.text}
                 </div>
-                <div className="text-sm text-gray-500">{activity.time}</div>
+                <div className="text-xs sm:text-sm text-gray-500">
+                  {activity.time}
+                </div>
               </div>
             ))}
           </div>
