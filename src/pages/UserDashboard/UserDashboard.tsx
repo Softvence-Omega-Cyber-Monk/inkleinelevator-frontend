@@ -8,7 +8,9 @@ import {
   Settings,
   User,
   Search,
+  BellDot,
 } from "lucide-react";
+import DashboardNavbar from "@/common/DashboardNavbar";
 
 const UserDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -129,49 +131,10 @@ const UserDashboard = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-            {/* LEFT */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <Menu size={22} />
-              </button>
-
-              <div className="flex items-center gap-2">
-                <Building2 className="text-blue-600" size={22} />
-                <span className="font-bold text-lg sm:text-xl whitespace-nowrap">
-                  IN KLEIN
-                </span>
-
-                {/* hide subtitle on small screens */}
-                <span className="hidden md:inline text-xs text-gray-500 ml-2">
-                  ELEVATOR SOFTWARE
-                </span>
-              </div>
-            </div>
-
-            {/* RIGHT */}
-            <div className="flex items-center gap-3 w-full sm:w-auto">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="
-          w-full sm:w-64 lg:w-80
-          px-3 py-2
-          border border-gray-300 rounded-lg
-          focus:outline-none focus:ring-2 focus:ring-blue-500
-        "
-              />
-
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0">
-                <User size={22} />
-              </button>
-            </div>
-          </div>
-        </header>
+        <DashboardNavbar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+        />
 
         {/* Dashboard Content - This will render child routes */}
         <div className="p-4">

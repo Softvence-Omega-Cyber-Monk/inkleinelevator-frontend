@@ -60,7 +60,7 @@ export default function SettingOverview() {
       </div>
 
       {/* Content */}
-      <div className="px-0 bg-amber-600 py-8 w-full">
+      <div className="px-0  py-8 w-full">
         {activeTab === "profile" && (
           <>
             {/* Profile Picture Section */}
