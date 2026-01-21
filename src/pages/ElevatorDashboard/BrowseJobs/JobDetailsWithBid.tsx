@@ -22,7 +22,7 @@ export default function JobDetailsWithBid() {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
 
   // Use JSON data - in production, fetch by ID
-  const jobData = jobDetailsData.jobDetails
+  const jobData = jobDetailsData.getJobById(id || 1) || jobDetailsData.jobs[0]
   const projectImages = jobData.photos.map(photo => photo.url)
 
   const {

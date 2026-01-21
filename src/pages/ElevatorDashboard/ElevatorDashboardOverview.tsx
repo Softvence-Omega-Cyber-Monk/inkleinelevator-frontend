@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DollarSign, TrendingUp, Star, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import QuickBidModal from '@/components/ElevatorAllMdal/QuickBidModal';
+import { jobDetailsData } from '@/data/jobDetails';
 
 const ElevatorDashboardOverview = () => {
     const [quickBidModalOpen, setQuickBidModalOpen] = useState(false);
@@ -33,35 +34,16 @@ const ElevatorDashboardOverview = () => {
         },
     ];
 
-    const activeJobs = [
-        {
-            id: 1,
-            title: 'Elevator Modernization - Tower A',
-            type: 'Modernization',
-            budget: '$ 275K - $375K',
-            budgetMin: 275000,
-            budgetMax: 375000,
-            location: 'Manhattan, NY',
-        },
-        {
-            id: 2,
-            title: 'Elevator Modernization - Tower A',
-            type: 'Repairs',
-            budget: '$ 150K - $180K',
-            budgetMin: 150000,
-            budgetMax: 180000,
-            location: 'Manhattan, NY',
-        },
-        {
-            id: 3,
-            title: 'Elevator Modernization - Tower A',
-            type: 'Modernization',
-            budget: '$ 275K - $375K',
-            budgetMin: 275000,
-            budgetMax: 375000,
-            location: 'Manhattan, NY',
-        },
-    ];
+    // Use jobs from JSON data
+    const activeJobs = jobDetailsData.jobs.map((job) => ({
+        id: job.id,
+        title: job.title,
+        type: job.type,
+        budget: job.budget.display,
+        budgetMin: job.budget.min,
+        budgetMax: job.budget.max,
+        location: job.location.city + ', NY',
+    }));
 
     const recentBids = [
         {
