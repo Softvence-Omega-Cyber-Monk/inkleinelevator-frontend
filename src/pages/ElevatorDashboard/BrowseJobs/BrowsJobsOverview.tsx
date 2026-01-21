@@ -318,7 +318,7 @@ const BrowsJobsOverview = () => {
             {activeTab === 'browse' ? (
                 <BrowseJobsContent jobs={filteredBrowseJobs} isLoading={isLoading} />
             ) : (
-                <MyJobsContent jobs={filteredMyJobs} isLoading={isLoading} />
+                <MyJobsContent isLoading={isLoading} />
             )}
         </div>
     );

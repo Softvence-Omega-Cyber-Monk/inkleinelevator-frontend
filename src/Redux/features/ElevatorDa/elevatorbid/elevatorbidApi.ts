@@ -60,6 +60,46 @@ interface MyBidsQueryParams {
   searchTerm?: string;
 }
 
+interface RecentBidItem {
+  bidId: string;
+  userId: string;
+  jobId: string;
+  bidAmount: number;
+  timeline: number;
+  completionTimeline: string;
+  brefProposal: string;
+  status: string;
+  job: {
+    jobId: string;
+    userId: string;
+    jobTitle: string;
+    jobType: string;
+    projectDescription: string;
+    technicalRequermentAndCertification?: string[];
+    elevatorType?: string;
+    numberOfElevator?: number;
+    capasity?: string;
+    speed?: string;
+    address?: string;
+    streetAddress?: string;
+    city?: string;
+    zipCode?: string;
+    photo?: string[];
+    documents?: string[];
+    estimitedBudget?: string;
+    jobStatus?: string;
+    paymentStatus?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  };
+}
+
+interface GetElevatorRecentBidsResponse {
+  success: boolean;
+  message: string;
+  data: RecentBidItem[];
+}
+
 const elevatorbidApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Bid on a job
@@ -82,7 +122,14 @@ const elevatorbidApi = baseApi.injectEndpoints({
         },
       }),
     }),
+    // Get elevator all recent bids
+    getElevatorAllRecentBid: builder.query<GetElevatorRecentBidsResponse, void>({
+      query: () => ({
+        url: "/user/get-elevator-all-recent-bid",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useBidJobMutation, useGetMyBidsQuery } = elevatorbidApi;
+export const { useBidJobMutation, useGetMyBidsQuery, useGetElevatorAllRecentBidQuery } = elevatorbidApi;

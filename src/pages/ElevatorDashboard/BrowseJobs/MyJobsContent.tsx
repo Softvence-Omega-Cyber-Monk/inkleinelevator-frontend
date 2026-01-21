@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { jobDetailsData } from '@/data/jobDetails';
+import { useGetElevatorAllRecentBidQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 
 interface Job {
     id: number;
@@ -26,14 +27,92 @@ interface MyJobsContentProps {
     isLoading?: boolean;
 }
 
-// My Jobs Component - Now accepts props for Redux integration
-const MyJobsContent = ({ jobs: propJobs, isLoading = false }: MyJobsContentProps) => {
+// My Jobs Component - Uses recent bids API to get jobs
+const MyJobsContent = ({ jobs: propJobs, isLoading: propIsLoading = false }: MyJobsContentProps) => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    // Use prop jobs if provided (from Redux), otherwise use JSON data
-    const allJobs = propJobs || jobDetailsData.jobs.map((job) => ({
+    // Fetch recent bids to get jobs (only if no propJobs provided)
+    const { data: recentBidsData, isLoading: isLoadingRecentBids } = useGetElevatorAllRecentBidQuery(undefined, {
+        skip: !!propJobs, // Skip if propJobs are provided
+    });
+
+    // Transform recent bids data to jobs format
+    const jobsFromBids = useMemo(() => {
+        if (!recentBidsData?.data || !Array.isArray(recentBidsData.data)) return [];
+
+        return recentBidsData.data.map((bid) => {
+            const job = bid.job;
+            
+            // Parse budget range (format: "6300-3594")
+            const parseBudget = (budgetStr?: string) => {
+                if (!budgetStr) return { min: 0, max: 0, display: '$0' };
+                const parts = budgetStr.split('-').map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
+                if (parts.length === 2) {
+                    return {
+                        min: Math.min(parts[0], parts[1]),
+                        max: Math.max(parts[0], parts[1]),
+                        display: `$${Math.min(parts[0], parts[1])}-$${Math.max(parts[0], parts[1])}`
+                    };
+                }
+                return { min: 0, max: 0, display: `$${budgetStr}` };
+            };
+
+            const budget = parseBudget(job.estimitedBudget);
+            
+            // Combine location fields
+            const locationParts = [
+                job.streetAddress,
+                job.address,
+                job.city,
+                job.zipCode
+            ].filter(Boolean);
+            const fullLocation = locationParts.join(', ') || job.address || job.city || 'Location not specified';
+
+            // Strip HTML from description
+            const stripHtml = (html: string) => {
+                if (!html) return '';
+                const tmp = document.createElement('DIV');
+                tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || '';
+            };
+
+            // Capitalize job type
+            const capitalize = (str: string) => {
+                if (!str) return '';
+                return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+            };
+
+            // Map bid status to job status
+            const statusMap: Record<string, { status: string; color: string }> = {
+                'PENDING_REVIEW': { status: 'Pending', color: 'bg-yellow-500' },
+                'ACCEPTED': { status: 'Accepted', color: 'bg-green-500' },
+                'REJECTED': { status: 'Not Accepted', color: 'bg-red-500' },
+                'APPROVED': { status: 'Approved', color: 'bg-green-500' },
+            };
+            const statusInfo = statusMap[bid.status] || { status: 'Active', color: 'bg-orange-500' };
+
+            return {
+                id: parseInt(job.jobId.slice(0, 8), 16) || 0, // Generate numeric ID from jobId for compatibility
+                jobId: job.jobId,
+                title: job.jobTitle || 'Untitled Job',
+                location: fullLocation,
+                budget: budget.display,
+                budgetMin: budget.min,
+                budgetMax: budget.max,
+                postedTime: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '',
+                type: capitalize(job.jobType || ''),
+                status: statusInfo.status,
+                statusColor: statusInfo.color,
+                description: stripHtml(job.projectDescription || ''),
+            };
+        });
+    }, [recentBidsData]);
+
+    // Use prop jobs if provided, otherwise use jobs from recent bids API, fallback to JSON data
+    const allJobs = propJobs || (jobsFromBids.length > 0 ? jobsFromBids : jobDetailsData.jobs.map((job) => ({
         id: job.id,
+        jobId: job.id.toString(),
         title: job.title,
         location: job.location.address,
         budget: job.budget.display,
@@ -42,12 +121,14 @@ const MyJobsContent = ({ jobs: propJobs, isLoading = false }: MyJobsContentProps
         status: job.status || 'Active',
         statusColor: job.statusColor || 'bg-orange-500',
         description: job.description,
-    }));
+    })));
+
+    const isLoading = propIsLoading || isLoadingRecentBids;
 
     // Reset pagination when jobs change
     useEffect(() => {
         setCurrentPage(1);
-    }, [propJobs]);
+    }, [propJobs, jobsFromBids]);
 
     // Pagination logic
     const totalPages = Math.ceil(allJobs.length / itemsPerPage);
