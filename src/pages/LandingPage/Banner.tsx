@@ -1,6 +1,10 @@
-import { Linkedin, Facebook, Youtube, ArrowRight } from "lucide-react"
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useAppSelector } from "@/Redux/hooks";
+import { Linkedin, Facebook, Youtube, ArrowRight } from "lucide-react";
 
 const Banner = () => {
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
   return (
     <div className="bg-[#0A1A3A] min-h-screen">
       <div className="relative w-full flex items-center">
@@ -11,13 +15,25 @@ const Banner = () => {
             <div className="text-white py-12 lg:py-20 relative">
               {/* Social Media Icons - Vertical Left Side with "FOLLOW US" */}
               <div className="hidden lg:flex absolute -left-20 top-1/2 -translate-y-1/2 flex-col items-center gap-4 z-10">
-                <a href="#" className="text-white hover:text-teal-400 transition-colors" aria-label="LinkedIn">
+                <a
+                  href="#"
+                  className="text-white hover:text-teal-400 transition-colors"
+                  aria-label="LinkedIn"
+                >
                   <Linkedin className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-white hover:text-teal-400 transition-colors" aria-label="Facebook">
+                <a
+                  href="#"
+                  className="text-white hover:text-teal-400 transition-colors"
+                  aria-label="Facebook"
+                >
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-white hover:text-teal-400 transition-colors" aria-label="YouTube">
+                <a
+                  href="#"
+                  className="text-white hover:text-teal-400 transition-colors"
+                  aria-label="YouTube"
+                >
                   <Youtube className="w-5 h-5" />
                 </a>
                 <div className="h-8 w-px bg-teal-400 my-1"></div>
@@ -28,19 +44,33 @@ const Banner = () => {
 
               {/* Mobile Social Icons - Horizontal */}
               <div className="flex lg:hidden gap-4 mb-8">
-                <a href="#" className="text-white hover:text-teal-400 transition-colors" aria-label="LinkedIn">
+                <a
+                  href="#"
+                  className="text-white hover:text-teal-400 transition-colors"
+                  aria-label="LinkedIn"
+                >
                   <Linkedin className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-white hover:text-teal-400 transition-colors" aria-label="Facebook">
+                <a
+                  href="#"
+                  className="text-white hover:text-teal-400 transition-colors"
+                  aria-label="Facebook"
+                >
                   <Facebook className="w-5 h-5" />
                 </a>
-                <a href="#" className="text-white hover:text-teal-400 transition-colors" aria-label="YouTube">
+                <a
+                  href="#"
+                  className="text-white hover:text-teal-400 transition-colors"
+                  aria-label="YouTube"
+                >
                   <Youtube className="w-5 h-5" />
                 </a>
               </div>
 
               {/* Small Title */}
-              <p className="text-teal-400 text-sm font-medium mb-6 tracking-wide">in-Klein Elevators</p>
+              <p className="text-teal-400 text-sm font-medium mb-6 tracking-wide">
+                in-Klein Elevators
+              </p>
 
               {/* Main Heading */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
@@ -49,8 +79,9 @@ const Banner = () => {
 
               {/* Description */}
               <p className="text-gray-300 text-base sm:text-lg mb-8 leading-relaxed max-w-xl">
-                The premier marketplace for elevator installation, modernization, maintenance, and repair. Trusted by
-                property managers and building owners nationwide.
+                The premier marketplace for elevator installation,
+                modernization, maintenance, and repair. Trusted by property
+                managers and building owners nationwide.
               </p>
 
               {/* CTA Buttons */}
@@ -82,7 +113,7 @@ const Banner = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Banner
+export default Banner;
