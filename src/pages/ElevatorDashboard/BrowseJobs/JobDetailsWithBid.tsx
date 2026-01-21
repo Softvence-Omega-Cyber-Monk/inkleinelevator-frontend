@@ -1,8 +1,8 @@
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { ChevronLeft, ChevronRight, MapPin, DollarSign, FileText } from "lucide-react"
-import { Button } from "@/components/ui/button"
+// import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { jobDetailsData } from "@/data/jobDetails"
 import { toast } from "sonner"
@@ -16,7 +16,7 @@ interface BidFormData {
 
 export default function JobDetailsWithBid() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccessModal, setShowSuccessModal] = useState(false)
@@ -47,6 +47,7 @@ export default function JobDetailsWithBid() {
   }
 
   const onSubmitBid = async (data: BidFormData) => {
+    console.log(data)
     setIsSubmitting(true)
     try {
       // TODO: Add API call here when backend is ready
