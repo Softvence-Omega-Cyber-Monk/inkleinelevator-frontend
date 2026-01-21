@@ -52,6 +52,20 @@ const MyJobs = () => {
     return pages;
   };
 
+  // time calculated  functione
+  function timeAgo(date: string | Date): string {
+    const past = new Date(date).getTime();
+    const now = Date.now();
+
+    const diff = Math.floor((now - past) / 1000);
+
+    if (diff < 60) return "Recently";
+    if (diff < 3600) return `${Math.floor(diff / 60)} minutes ago`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} hours ago`;
+
+    return `${Math.floor(diff / 86400)} days ago`;
+  }
+
   return (
     <div>
       {/* Header */}
@@ -196,7 +210,7 @@ const MyJobs = () => {
                 </span>
                 <div className="flex items-center gap-2">
                   <Calendar size={16} className="text-gray-400" />
-                  <span>Posted recently</span>
+                  <span>{timeAgo(job?.createdAt)}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-6">
@@ -262,6 +276,7 @@ const MyJobs = () => {
         "
             >
               <button
+                onClick={() => navigate(`/user/my-jobs-details/${job.jobId}`)}
                 className="
             w-full lg:w-auto
             px-5 py-2

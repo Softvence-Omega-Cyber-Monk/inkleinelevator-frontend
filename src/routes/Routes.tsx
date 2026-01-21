@@ -34,6 +34,7 @@ import PaymentProcessing from "@/pages/AdminDashboard/Payment/PaymentOverview";
 import ContentManagement from "@/pages/AdminDashboard/ContentManagement/ContentManagement";
 import SystemSettings from "@/pages/AdminDashboard/SystemSetting/SystemSettingOverview";
 import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
+import MyJobDetailesPage from "@/pages/UserDashboard/MyJobs/MyJobDetailesPage";
 
 const routes = createBrowserRouter([
   {
@@ -90,6 +91,7 @@ const routes = createBrowserRouter([
           { path: "", element: <UserDashboardOverview /> }, // Add this!
           // { path: "", element: <div>h</div> }, // Add this!
           { path: "my-jobs", element: <MyJobs /> },
+          { path: "my-jobs-details/:id", element: <MyJobDetailesPage /> },
           { path: "message", element: <MessagesPage /> },
           { path: "setting", element: <SettingOverview /> },
           {
