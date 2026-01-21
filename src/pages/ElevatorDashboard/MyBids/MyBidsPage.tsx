@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Info, ChevronLeft, ChevronRight, MoreHorizontal, X, Eye, Edit, Trash2, Download } from 'lucide-react';
+import { useGetMyBidsQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 
 // Types
 interface ActionItem {
@@ -65,8 +67,15 @@ const ActionsModal: React.FC<ActionsModalProps> = ({ isOpen, onClose, onAction }
                     isOpen ? 'scale-100' : 'scale-95'
                 }`}>
                     {/* Header */}
-                    <div className="px-4 py-3 border-b border-gray-200">
+                    <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
                         <h3 className="text-base font-semibold text-gray-900">Actions</h3>
+                        <button
+                            onClick={onClose}
+                            className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
+                            aria-label="Close"
+                        >
+                            <X size={20} />
+                        </button>
                     </div>
 
                     {/* Actions List */}
@@ -198,109 +207,111 @@ const PaymentInfoModal: React.FC<PaymentInfoModalProps> = ({ isOpen, onClose }) 
 };
 
 const MyBidsPage = () => {
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [isActionsModalOpen, setIsActionsModalOpen] = useState(false);
-    const [selectedBid, setSelectedBid] = useState<number | null>(null);
+    const [selectedBid, setSelectedBid] = useState<{ bidId: string; jobId: string } | null>(null);
+    const itemsPerPage = 10;
 
-    const handleActionClick = (bidId: number) => {
-        setSelectedBid(bidId);
+    // Fetch bids using API
+    const { data: bidsData, isLoading: isLoadingBids } = useGetMyBidsQuery({
+        page: currentPage - 1, // API uses 0-based indexing
+        limit: itemsPerPage,
+    });
+
+    // Transform API response to match component structure
+    const bids = useMemo(() => {
+        if (!bidsData?.data?.data || !Array.isArray(bidsData.data.data)) return [];
+
+        return bidsData.data.data.map((bid) => {
+            // Map status to display text and color
+            const statusMap: Record<string, { status: string; color: string }> = {
+                'PENDING_REVIEW': { status: 'Pending Review', color: 'bg-orange-100 text-orange-700' },
+                'ACCEPTED': { status: 'Accepted', color: 'bg-green-100 text-green-700' },
+                'REJECTED': { status: 'Declined', color: 'bg-red-100 text-red-700' },
+                'APPROVED': { status: 'Approved', color: 'bg-green-100 text-green-700' },
+            };
+            const statusInfo = statusMap[bid.status] || { status: bid.status, color: 'bg-gray-100 text-gray-700' };
+
+            // Calculate payout (90% of bid amount after 10% fee)
+            const bidAmountNum = bid.bidAmount;
+            const payoutAmount = bidAmountNum * 0.9;
+
+            // Format currency
+            const formatCurrency = (amount: number) => {
+                return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+            };
+
+            return {
+                id: bid.bidId, // Use bidId as string identifier
+                bidId: bid.bidId,
+                jobId: bid.jobId,
+                jobTitle: bid.job?.jobTitle || 'Untitled Job',
+                client: 'Client Name', // API doesn't provide client name, using placeholder
+                bidAmount: formatCurrency(bidAmountNum),
+                payout: formatCurrency(payoutAmount),
+                status: statusInfo.status,
+                statusColor: statusInfo.color,
+            };
+        });
+    }, [bidsData]);
+
+    // Pagination logic
+    const totalPages = bidsData?.data?.meta?.totalPage || 1;
+
+    const handleActionClick = (bidId: string, jobId: string) => {
+        setSelectedBid({ bidId, jobId });
         setIsActionsModalOpen(true);
     };
 
     const handleAction = (action: string) => {
-        console.log(`Action: ${action} for Bid ID: ${selectedBid}`);
-        // Handle different actions here
+        if (!selectedBid) return;
+
         switch(action) {
             case 'view':
-                alert('View Details clicked');
+                // Navigate to job details page
+                navigate(`/elevator/job-bid/${selectedBid.jobId}`);
+                setIsActionsModalOpen(false);
                 break;
             case 'edit':
-                alert('Edit Bid clicked');
+                // Navigate to edit bid page or open edit modal
+                // For now, navigate to job details where they can edit
+                navigate(`/elevator/job-bid/${selectedBid.jobId}`);
+                setIsActionsModalOpen(false);
                 break;
             case 'withdraw':
-                alert('Withdraw Bid clicked');
+                // TODO: Implement withdraw bid functionality
+                console.log('Withdraw bid:', selectedBid.bidId);
+                setIsActionsModalOpen(false);
+                // You can add a confirmation modal here before withdrawing
                 break;
             case 'download':
-                alert('Download Proposal clicked');
+                // TODO: Implement download proposal functionality
+                console.log('Download proposal for bid:', selectedBid.bidId);
+                setIsActionsModalOpen(false);
+                // You can add download logic here
                 break;
+            default:
+                setIsActionsModalOpen(false);
         }
     };
 
-    const bids = [
-        {
-            id: 1,
-            jobTitle: 'Elevator Modernization - 8 Units',
-            client: 'Queens Property Management',
-            bidAmount: '$195,000',
-            payout: '$175,500',
-            status: 'Pending Review',
-            statusColor: 'bg-orange-100 text-orange-700'
-        },
-        {
-            id: 2,
-            jobTitle: 'MRL Installation - 6-Story Building',
-            client: 'Queens Property Management',
-            bidAmount: '$98,500',
-            payout: '$175,500',
-            status: 'Accepted',
-            statusColor: 'bg-green-100 text-green-700'
-        },
-        {
-            id: 3,
-            jobTitle: 'Hydraulic System Repair',
-            client: 'Queens Property Management',
-            bidAmount: '$9,200',
-            payout: '$175,500',
-            status: 'Declined',
-            statusColor: 'bg-red-100 text-red-700'
-        },
-        {
-            id: 4,
-            jobTitle: 'Annual Maintenance Contract - 12 Elevators',
-            client: 'Queens Property Management',
-            bidAmount: '$4,500',
-            payout: '$175,500',
-            status: 'Pending Review',
-            statusColor: 'bg-orange-100 text-orange-700'
-        },
-        {
-            id: 5,
-            jobTitle: 'Elevator Modernization - 8 Units',
-            client: 'Queens Property Management',
-            bidAmount: '$195,000',
-            payout: '$175,500',
-            status: 'Pending Review',
-            statusColor: 'bg-orange-100 text-orange-700'
-        },
-        {
-            id: 6,
-            jobTitle: 'Elevator Modernization - 8 Units',
-            client: 'Queens Property Management',
-            bidAmount: '$195,000',
-            payout: '$175,500',
-            status: 'Pending Review',
-            statusColor: 'bg-orange-100 text-orange-700'
-        },
-        {
-            id: 7,
-            jobTitle: 'Elevator Modernization - 8 Units',
-            client: 'Queens Property Management',
-            bidAmount: '$195,000',
-            payout: '$175,500',
-            status: 'Pending Review',
-            statusColor: 'bg-orange-100 text-orange-700'
-        },
-        {
-            id: 8,
-            jobTitle: 'Elevator Modernization - 8 Units',
-            client: 'Queens Property Management',
-            bidAmount: '$195,000',
-            payout: '$175,500',
-            status: 'Pending Review',
-            statusColor: 'bg-orange-100 text-orange-700'
-        },
-    ];
+    const handlePrevious = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+
+    const handleNext = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
+    };
+
+    const handlePageClick = (page: number) => {
+        setCurrentPage(page);
+    };
 
     return (
         <div className="space-y-4 md:space-y-6 pb-8">
@@ -326,148 +337,177 @@ const MyBidsPage = () => {
                     <p className="text-xs md:text-sm text-gray-500 mt-1">Track your bids and view payment breakdowns for accepted jobs.</p>
                 </div>
 
-                {/* Desktop Table View */}
-                <div className="hidden lg:block overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    Job Title
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    Client
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    Bid Amount
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    Your Payout (After 10% Fee)
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                                    Actions
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                {isLoadingBids ? (
+                    <div className="p-8 text-center text-gray-500">
+                        Loading bids...
+                    </div>
+                ) : bids.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500">
+                        No bids found
+                    </div>
+                ) : (
+                    <>
+                        {/* Desktop Table View */}
+                        <div className="hidden lg:block overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50 border-b border-gray-200">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Job Title
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Client
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Bid Amount
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Your Payout (After 10% Fee)
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Status
+                                        </th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {bids.map((bid) => (
+                                        <tr key={bid.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {bid.jobTitle}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                                {bid.client}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                {bid.bidAmount}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                                                {bid.payout}
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${bid.statusColor}`}>
+                                                    {bid.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <button 
+                                                    onClick={() => handleActionClick(bid.bidId, bid.jobId)}
+                                                    className="hover:text-gray-700"
+                                                >
+                                                    <MoreHorizontal size={20} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile/Tablet Card View */}
+                        <div className="lg:hidden divide-y divide-gray-200">
                             {bids.map((bid) => (
-                                <tr key={bid.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {bid.jobTitle}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                        {bid.client}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {bid.bidAmount}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                                        {bid.payout}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${bid.statusColor}`}>
-                                            {bid.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div key={bid.id} className="p-4 hover:bg-gray-50">
+                                    <div className="flex justify-between items-start mb-3">
+                                        <h3 className="text-sm font-semibold text-gray-900 pr-2">{bid.jobTitle}</h3>
                                         <button 
-                                            onClick={() => handleActionClick(bid.id)}
-                                            className="hover:text-gray-700"
+                                            onClick={() => handleActionClick(bid.bidId, bid.jobId)}
+                                            className="text-gray-500 hover:text-gray-700 flex-shrink-0"
                                         >
                                             <MoreHorizontal size={20} />
                                         </button>
-                                    </td>
-                                </tr>
+                                    </div>
+
+                                    <div className="space-y-2 text-xs md:text-sm">
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Client:</span>
+                                            <span className="text-gray-900">{bid.client}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Bid Amount:</span>
+                                            <span className="text-gray-900 font-medium">{bid.bidAmount}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-500">Your Payout:</span>
+                                            <span className="text-green-600 font-medium">{bid.payout}</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-500">Status:</span>
+                                            <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${bid.statusColor}`}>
+                                                {bid.status}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Mobile/Tablet Card View */}
-                <div className="lg:hidden divide-y divide-gray-200">
-                    {bids.map((bid) => (
-                        <div key={bid.id} className="p-4 hover:bg-gray-50">
-                            <div className="flex justify-between items-start mb-3">
-                                <h3 className="text-sm font-semibold text-gray-900 pr-2">{bid.jobTitle}</h3>
-                                <button 
-                                    onClick={() => handleActionClick(bid.id)}
-                                    className="text-gray-500 hover:text-gray-700 flex-shrink-0"
-                                >
-                                    <MoreHorizontal size={20} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-2 text-xs md:text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Client:</span>
-                                    <span className="text-gray-900">{bid.client}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Bid Amount:</span>
-                                    <span className="text-gray-900 font-medium">{bid.bidAmount}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-500">Your Payout:</span>
-                                    <span className="text-green-600 font-medium">{bid.payout}</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500">Status:</span>
-                                    <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${bid.statusColor}`}>
-                                        {bid.status}
-                                    </span>
-                                </div>
-                            </div>
                         </div>
-                    ))}
-                </div>
+                    </>
+                )}
             </div>
 
             {/* Pagination */}
-            <div className="flex justify-center items-center gap-1 md:gap-2 overflow-x-auto pb-2">
-                <button className="flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap">
-                    <ChevronLeft size={16} />
-                    <span className="hidden sm:inline">Previous</span>
-                </button>
+            {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-1 md:gap-2 overflow-x-auto pb-2">
+                    <button 
+                        onClick={handlePrevious}
+                        disabled={currentPage === 1}
+                        className={`flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm rounded-lg transition-colors whitespace-nowrap ${
+                            currentPage === 1
+                                ? 'text-gray-400 cursor-not-allowed'
+                                : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        <ChevronLeft size={16} />
+                        <span className="hidden sm:inline">Previous</span>
+                    </button>
 
-                <button
-                    onClick={() => setCurrentPage(1)}
-                    className={`px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg transition-colors ${
-                        currentPage === 1
-                            ? 'bg-[#1e3a5f] text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                    1
-                </button>
-                <button
-                    onClick={() => setCurrentPage(2)}
-                    className={`px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg transition-colors ${
-                        currentPage === 2
-                            ? 'bg-[#1e3a5f] text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                    2
-                </button>
-                <button
-                    onClick={() => setCurrentPage(3)}
-                    className={`px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg transition-colors ${
-                        currentPage === 3
-                            ? 'bg-[#1e3a5f] text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                >
-                    3
-                </button>
-                <span className="px-1 md:px-2 text-gray-500 text-sm">...</span>
+                    {/* Page Numbers */}
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                        // Show first page, last page, current page, and pages around current
+                        const showPage = 
+                            page === 1 || 
+                            page === totalPages || 
+                            (page >= currentPage - 1 && page <= currentPage + 1);
+                        
+                        if (!showPage) {
+                            // Show ellipsis
+                            if (page === currentPage - 2 || page === currentPage + 2) {
+                                return <span key={page} className="px-1 md:px-2 text-gray-500 text-sm">...</span>;
+                            }
+                            return null;
+                        }
 
-                <button className="flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors whitespace-nowrap">
-                    <span className="hidden sm:inline">Next</span>
-                    <ChevronRight size={16} />
-                </button>
-            </div>
+                        return (
+                            <button
+                                key={page}
+                                onClick={() => handlePageClick(page)}
+                                className={`px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg transition-colors ${
+                                    currentPage === page
+                                        ? 'bg-[#1e3a5f] text-white'
+                                        : 'text-gray-700 hover:bg-gray-100'
+                                }`}
+                            >
+                                {page}
+                            </button>
+                        );
+                    })}
+
+                    <button 
+                        onClick={handleNext}
+                        disabled={currentPage === totalPages}
+                        className={`flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm rounded-lg transition-colors whitespace-nowrap ${
+                            currentPage === totalPages
+                                ? 'text-gray-400 cursor-not-allowed'
+                                : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                    >
+                        <span className="hidden sm:inline">Next</span>
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
+            )}
 
             {/* Actions Modal */}
             <ActionsModal 

@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Plus, CheckCircle2, Circle, X } from 'lucide-react';
+import { useGetMeMutation, useUpdateProfileMutation } from '@/Redux/features/auth/authApi';
+import { toast } from 'sonner';
 
 interface CompanyProfileProps {}
 
@@ -70,7 +72,8 @@ const EditableForm: React.FC<{
   data: CompanyData;
   onSave: (data: CompanyData) => void;
   onCancel: () => void;
-}> = ({ data, onSave, onCancel }) => {
+  isUpdating?: boolean;
+}> = ({ data, onSave, onCancel, isUpdating = false }) => {
   const [formData, setFormData] = useState<CompanyData>(data);
   const [newServiceType, setNewServiceType] = useState('');
 
@@ -270,9 +273,10 @@ const EditableForm: React.FC<{
         </button>
         <button
           type="submit"
-          className="px-6 py-2 bg-[#1e293b] text-white rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors"
+          disabled={isUpdating}
+          className="px-6 py-2 bg-[#1e293b] text-white rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Save Changes
+          {isUpdating ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
     </form>
@@ -283,26 +287,154 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
   const [activeTab, setActiveTab] = useState<'details' | 'portfolio'>('details');
   const [isEditing, setIsEditing] = useState(false);
   const [companyData, setCompanyData] = useState<CompanyData>({
-    companyName: 'Elite Elevator Solutions',
-    licenseNumber: 'EL-12345-NY',
-    companyDescription: 'Elite Elevator Solutions has been providing top-tier elevator installation, modernization, and maintenance services for over 25 years. We specialize in high-rise commercial buildings and complex modernization projects.',
-    serviceTypes: ['Repairing', 'New Installation'],
-    yearFounded: '1998',
-    numberOfEmployees: '45',
-    phoneNumber: '(212) 555-0123',
-    email: 'contact@eliteelevators.com',
-    website: 'www.eliteelevators.com',
-    businessAddress: '123 Industrial Pkwy, New York, NY 10001',
+    companyName: '',
+    licenseNumber: '',
+    companyDescription: '',
+    serviceTypes: [],
+    yearFounded: '',
+    numberOfEmployees: '',
+    phoneNumber: '',
+    email: '',
+    website: '',
+    businessAddress: '',
   });
 
-  const handleSave = (data: CompanyData) => {
-    setCompanyData(data);
-    setIsEditing(false);
+  const [getMe, { isLoading: isLoadingProfile }] = useGetMeMutation();
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await getMe().unwrap();
+        if (response.success && response.data) {
+          const userData = response.data;
+          
+          // Map API response to component state
+          setCompanyData({
+            companyName: userData.companyName || '',
+            licenseNumber: userData.licenseNo || '',
+            companyDescription: userData.companyDescription || '',
+            serviceTypes: userData.servicesType 
+              ? userData.servicesType.split(',').map(s => s.trim()).filter(Boolean)
+              : [],
+            yearFounded: userData.yearFounded || '',
+            numberOfEmployees: userData.numberOfEmployee || '',
+            phoneNumber: userData.phone || '',
+            email: userData.email || '',
+            website: userData.website || '',
+            businessAddress: userData.businessAddress || '',
+          });
+        }
+      } catch (error: any) {
+        console.error('Error fetching profile:', error);
+        toast.error(error?.data?.message || 'Failed to load profile');
+      }
+    };
+
+    fetchProfile();
+  }, [getMe]);
+
+  const handleSave = async (data: CompanyData) => {
+    try {
+      // Prepare update payload - only include fields that user wants to update
+      // NOTE: phone is NOT included as the API doesn't accept it
+      const updatePayload: {
+        name?: string;
+        companyName?: string;
+        companyDescription?: string;
+        servicesType?: string;
+        yearFounded?: string;
+        numberOfEmployee?: string;
+        website?: string;
+        businessAddress?: string;
+        licenseNo?: string;
+      } = {};
+
+      // Only include fields that have values (user can update any field they want)
+      if (data.companyName) updatePayload.companyName = data.companyName;
+      if (data.companyDescription) updatePayload.companyDescription = data.companyDescription;
+      if (data.serviceTypes.length > 0) updatePayload.servicesType = data.serviceTypes.join(', ');
+      if (data.yearFounded) updatePayload.yearFounded = data.yearFounded;
+      if (data.numberOfEmployees) updatePayload.numberOfEmployee = data.numberOfEmployees;
+      if (data.website) updatePayload.website = data.website;
+      if (data.businessAddress) updatePayload.businessAddress = data.businessAddress;
+      if (data.licenseNumber) updatePayload.licenseNo = data.licenseNumber;
+      // Phone number is NOT included in update payload as API doesn't accept it
+
+      const response = await updateProfile(updatePayload).unwrap();
+      
+      if (response.success) {
+        setCompanyData(data);
+        setIsEditing(false);
+        toast.success('Profile updated successfully');
+        
+        // Optionally refetch profile to get latest data
+        const refreshResponse = await getMe().unwrap();
+        if (refreshResponse.success && refreshResponse.data) {
+          const userData = refreshResponse.data;
+          setCompanyData({
+            companyName: userData.companyName || '',
+            licenseNumber: userData.licenseNo || '',
+            companyDescription: userData.companyDescription || '',
+            serviceTypes: userData.servicesType 
+              ? userData.servicesType.split(',').map(s => s.trim()).filter(Boolean)
+              : [],
+            yearFounded: userData.yearFounded || '',
+            numberOfEmployees: userData.numberOfEmployee || '',
+            phoneNumber: userData.phone || '',
+            email: userData.email || '',
+            website: userData.website || '',
+            businessAddress: userData.businessAddress || '',
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
+      toast.error(error?.data?.message || 'Failed to update profile');
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    // Refetch original data to reset form
+    const fetchProfile = async () => {
+      try {
+        const response = await getMe().unwrap();
+        if (response.success && response.data) {
+          const userData = response.data;
+          setCompanyData({
+            companyName: userData.companyName || '',
+            licenseNumber: userData.licenseNo || '',
+            companyDescription: userData.companyDescription || '',
+            serviceTypes: userData.servicesType 
+              ? userData.servicesType.split(',').map(s => s.trim()).filter(Boolean)
+              : [],
+            yearFounded: userData.yearFounded || '',
+            numberOfEmployees: userData.numberOfEmployee || '',
+            phoneNumber: userData.phone || '',
+            email: userData.email || '',
+            website: userData.website || '',
+            businessAddress: userData.businessAddress || '',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching profile:', error);
+      }
+    };
+    fetchProfile();
   };
+
+  if (isLoadingProfile) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-2 sm:p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1e293b] mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-2 sm:p-6">
@@ -329,6 +461,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             data={companyData}
             onSave={handleSave}
             onCancel={handleCancel}
+            isUpdating={isUpdating}
           />
         ) : (
           /* View Mode */

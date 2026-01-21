@@ -83,7 +83,7 @@ const Navbar = () => {
               Login
             </button>
             <button
-              onClick={() => navigate("/get-started")}
+              onClick={() => navigate("/admin")}
               className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
             >
               Get Started
