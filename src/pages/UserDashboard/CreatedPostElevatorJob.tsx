@@ -71,12 +71,16 @@ export default function CreatedPostElevatorJob() {
       }
     });
 
-    formData.documents?.forEach((file: any) => {
-      if (file instanceof File) {
-        form.append("documents", file, file.name);
+    // formData.documents?.forEach((file: any) => {
+    //   if (file instanceof File) {
+    //     form.append("documents", file, file.name);
+    //   }
+    // });
+    formData.documents?.forEach((doc: any) => {
+      if (doc.file instanceof File) {
+        form.append("documents", doc.file, doc.name);
       }
     });
-
     // ===== SUBMIT FORM =====
     try {
       const res = await createNewJob(form).unwrap();
