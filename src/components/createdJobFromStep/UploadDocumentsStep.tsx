@@ -17,27 +17,12 @@ export default function UploadDocumentsStep({
   onNext,
   onBack,
 }: UploadDocumentsStepProps) {
-  //   const handlePhotoUpload = (e: ChangeEvent<HTMLInputElement>) => {
-  //     const files = e.target.files;
-  //     if (files) {
-  //       const newPhotos = Array.from(files).map((file, index) => ({
-  //         id: Date.now() + index,
-  //         name: file.name,
-  //         type: "photo",
-  //       }));
-  //       setFormData({
-  //         ...formData,
-  //         photos: [...(formData.photos || []), ...newPhotos],
-  //       });
-  //     }
-  //     e.target.value = "";
-  //   };
-
   const handleDocumentUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      const newDocuments = Array.from(files).map((file, index) => ({
-        id: Date.now() + index,
+      const newDocuments = Array.from(files).map((file) => ({
+        // id: Date.now() + index,
+        id: crypto.randomUUID(),
         name: file.name,
       }));
       setFormData({
