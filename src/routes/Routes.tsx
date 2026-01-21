@@ -25,8 +25,7 @@ import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOve
 import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
 import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
 import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
-import ElevatorJobDetails from "@/pages/ElevatorDashboard/BrowseJobs/ElevatorJobDetails";
-import JobDetailsWithBid from "@/pages/ElevatorDashboard/BrowseJobs/JobDetailsWithBid";
+ import JobDetailsWithBid from "@/pages/ElevatorDashboard/BrowseJobs/JobDetailsWithBid";
 import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement";
 import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
 import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
@@ -36,6 +35,7 @@ import ContentManagement from "@/pages/AdminDashboard/ContentManagement/ContentM
 import SystemSettings from "@/pages/AdminDashboard/SystemSetting/SystemSettingOverview";
 import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
 import MyJobDetailesPage from "@/pages/UserDashboard/MyJobs/MyJobDetailesPage";
+import ElevatorMyJobDetails from "@/pages/ElevatorDashboard/BrowseJobs/ElevatorMyJobDetails";
 
 const routes = createBrowserRouter([
   {
@@ -118,7 +118,7 @@ const routes = createBrowserRouter([
           { path: "company-profile", element: <CompanyProfile /> },
           { path: "meassages", element: <MessagesPage /> },
           { path: "settings", element: <SettingOverview /> },
-          { path: "jobdetails/:id", element: <ElevatorJobDetails /> },
+          { path: "my-job-details/:id", element: <ElevatorMyJobDetails /> },
           { path: "job-bid/:id", element: <JobDetailsWithBid /> },
         ],
       },

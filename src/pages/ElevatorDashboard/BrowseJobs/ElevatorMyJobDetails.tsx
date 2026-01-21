@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card"
 import QuickBidModal from "@/components/ElevatorAllMdal/QuickBidModal"
 import { jobDetailsData } from "@/data/jobDetails"
 
-export default function ElevatorJobDetails() {
+export default function ElevatorMyJobDetails() {
   const { id } = useParams<{ id: string }>()
   console.log(id)
   const navigate = useNavigate()
