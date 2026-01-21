@@ -18,10 +18,10 @@ interface TransformedJob {
     description: string;
 }
 
-interface TransformedMyJob extends TransformedJob {
-    status: string;
-    statusColor: string;
-}
+// interface TransformedMyJob extends TransformedJob {
+//     status: string;
+//     statusColor: string;
+// }
 
 const BrowsJobsOverview = () => {
     const [activeTab, setActiveTab] = useState('browse');
@@ -96,45 +96,45 @@ const BrowsJobsOverview = () => {
         });
     }, [jobsData]);
 
-    const allMyJobs = useMemo((): TransformedMyJob[] => {
-        if (!jobsData?.data?.jobs || !Array.isArray(jobsData.data.jobs)) return [];
+    // const allMyJobs = useMemo((): TransformedMyJob[] => {
+    //     if (!jobsData?.data?.jobs || !Array.isArray(jobsData.data.jobs)) return [];
         
-        return jobsData.data.jobs.map((job: any, index: number): TransformedMyJob => {
-            const budget = parseBudget(job.estimitedBudget || '');
-            const locationParts = [
-                job.streetAddress,
-                job.address,
-                job.city,
-                job.zipCode
-            ].filter(Boolean);
-            const fullLocation = locationParts.join(', ') || job.address || '';
+    //     return jobsData.data.jobs.map((job: any, index: number): TransformedMyJob => {
+    //         const budget = parseBudget(job.estimitedBudget || '');
+    //         const locationParts = [
+    //             job.streetAddress,
+    //             job.address,
+    //             job.city,
+    //             job.zipCode
+    //         ].filter(Boolean);
+    //         const fullLocation = locationParts.join(', ') || job.address || '';
 
-            // Map jobStatus to status and statusColor
-            const jobStatus = job.jobStatus || 'OPEN';
-            const statusMap: Record<string, { status: string; color: string }> = {
-                'OPEN': { status: 'Active', color: 'bg-orange-500' },
-                'CLOSED': { status: 'Completed', color: 'bg-green-500' },
-                'PENDING': { status: 'Pending', color: 'bg-yellow-500' },
-            };
-            const statusInfo = statusMap[jobStatus] || { status: 'Active', color: 'bg-orange-500' };
+    //         // Map jobStatus to status and statusColor
+    //         const jobStatus = job.jobStatus || 'OPEN';
+    //         const statusMap: Record<string, { status: string; color: string }> = {
+    //             'OPEN': { status: 'Active', color: 'bg-orange-500' },
+    //             'CLOSED': { status: 'Completed', color: 'bg-green-500' },
+    //             'PENDING': { status: 'Pending', color: 'bg-yellow-500' },
+    //         };
+    //         const statusInfo = statusMap[jobStatus] || { status: 'Active', color: 'bg-orange-500' };
 
-            return {
-                id: index + 1, // Use index for React key
-                jobId: job.jobId, // Keep original jobId for navigation
-                title: job.jobTitle || '',
-                location: fullLocation,
-                budget: budget.display,
-                budgetMin: budget.min,
-                budgetMax: budget.max,
-                postedTime: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '',
-                createdAt: job.createdAt ? new Date(job.createdAt).getTime() : 0, // For sorting
-                type: capitalize(job.jobType || ''),
-                status: statusInfo.status,
-                statusColor: statusInfo.color,
-                description: stripHtml(job.projectDescription || ''),
-            };
-        });
-    }, [jobsData]);
+    //         return {
+    //             id: index + 1, // Use index for React key
+    //             jobId: job.jobId, // Keep original jobId for navigation
+    //             title: job.jobTitle || '',
+    //             location: fullLocation,
+    //             budget: budget.display,
+    //             budgetMin: budget.min,
+    //             budgetMax: budget.max,
+    //             postedTime: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '',
+    //             createdAt: job.createdAt ? new Date(job.createdAt).getTime() : 0, // For sorting
+    //             type: capitalize(job.jobType || ''),
+    //             status: statusInfo.status,
+    //             statusColor: statusInfo.color,
+    //             description: stripHtml(job.projectDescription || ''),
+    //         };
+    //     });
+    // }, [jobsData]);
 
     // Filter and sort logic for Browse Jobs
     const filteredBrowseJobs = useMemo(() => {
@@ -178,45 +178,45 @@ const BrowsJobsOverview = () => {
     }, [searchQuery, locationFilter, jobTypeFilter, sortOption, allBrowseJobs]);
 
     // Filter and sort logic for My Jobs
-    const filteredMyJobs = useMemo(() => {
-        let filtered = allMyJobs.filter((job: TransformedMyJob) => {
-            // Search filter (already handled by API, but keep for location filtering)
-            const matchesSearch = searchQuery === '' || 
-                job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                job.description.toLowerCase().includes(searchQuery.toLowerCase());
+    // const filteredMyJobs = useMemo(() => {
+    //     let filtered = allMyJobs.filter((job: TransformedMyJob) => {
+    //         // Search filter (already handled by API, but keep for location filtering)
+    //         const matchesSearch = searchQuery === '' || 
+    //             job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    //             job.description.toLowerCase().includes(searchQuery.toLowerCase());
             
-            // Location filter
-            const matchesLocation = locationFilter === '' || 
-                job.location.toLowerCase().includes(locationFilter.toLowerCase());
+    //         // Location filter
+    //         const matchesLocation = locationFilter === '' || 
+    //             job.location.toLowerCase().includes(locationFilter.toLowerCase());
             
-            // Job type filter (case-insensitive)
-            const matchesJobType = jobTypeFilter === '' || 
-                jobTypeFilter === 'Job Type' ||
-                job.type.toLowerCase() === jobTypeFilter.toLowerCase();
+    //         // Job type filter (case-insensitive)
+    //         const matchesJobType = jobTypeFilter === '' || 
+    //             jobTypeFilter === 'Job Type' ||
+    //             job.type.toLowerCase() === jobTypeFilter.toLowerCase();
             
-            return matchesSearch && matchesLocation && matchesJobType;
-        });
+    //         return matchesSearch && matchesLocation && matchesJobType;
+    //     });
 
-        // Sort logic
-        switch (sortOption) {
-            case 'Newest First':
-                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (b.createdAt || 0) - (a.createdAt || 0));
-                break;
-            case 'Oldest First':
-                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (a.createdAt || 0) - (b.createdAt || 0));
-                break;
-            case 'Budget: High to Low':
-                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (b.budgetMax || 0) - (a.budgetMax || 0));
-                break;
-            case 'Budget: Low to High':
-                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (a.budgetMin || 0) - (b.budgetMin || 0));
-                break;
-            default:
-                break;
-        }
+    //     // Sort logic
+    //     switch (sortOption) {
+    //         case 'Newest First':
+    //             filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (b.createdAt || 0) - (a.createdAt || 0));
+    //             break;
+    //         case 'Oldest First':
+    //             filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (a.createdAt || 0) - (b.createdAt || 0));
+    //             break;
+    //         case 'Budget: High to Low':
+    //             filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (b.budgetMax || 0) - (a.budgetMax || 0));
+    //             break;
+    //         case 'Budget: Low to High':
+    //             filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (a.budgetMin || 0) - (b.budgetMin || 0));
+    //             break;
+    //         default:
+    //             break;
+    //     }
 
-        return filtered;
-    }, [searchQuery, locationFilter, jobTypeFilter, sortOption, allMyJobs]);
+    //     return filtered;
+    // }, [searchQuery, locationFilter, jobTypeFilter, sortOption, allMyJobs]);
 
     // Reset pagination when filters change
     const handleTabChange = (tab: string) => {

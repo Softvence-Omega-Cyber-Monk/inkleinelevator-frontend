@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useParams } from "react-router-dom"
 import { ChevronLeft, ChevronRight, MapPin, DollarSign, FileText } from "lucide-react"
@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { toast } from "sonner"
 import BidSubmissionSuccessModal from "@/components/ElevatorAllMdal/BidSubmissionSuccessModal"
 import { useGetSingleJobByIdQuery } from "@/Redux/features/userDa/userJob/userJobApi"
-import { useBidJobMutation } from "@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi"
+import { useBidJobMutation, useGetElevatorAllRecentBidQuery } from "@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi"
 
 interface BidFormData {
   bidAmount: string;
@@ -29,6 +29,15 @@ export default function JobDetailsWithBid() {
   const { data: jobResponse, isLoading, isError } = useGetSingleJobByIdQuery(id || '', {
     skip: !id,
   })
+
+  // Fetch user's existing bid for this job
+  const { data: recentBidsData } = useGetElevatorAllRecentBidQuery();
+
+  // Find existing bid for this job
+  const existingBid = useMemo(() => {
+    if (!recentBidsData?.data || !id) return null;
+    return recentBidsData.data.find((bid) => bid.jobId === id);
+  }, [recentBidsData, id]);
 
   // Transform API response to match component structure
   const jobData = useMemo(() => {
@@ -110,7 +119,25 @@ export default function JobDetailsWithBid() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<BidFormData>()
+
+  // Pre-fill form with existing bid data
+  useEffect(() => {
+    if (existingBid) {
+      // Format bid amount
+      setValue('bidAmount', existingBid.bidAmount.toString());
+      
+      // Format completion timeline (convert from date to readable format)
+      // The API returns completionTimeline as "01-01-2027", but form expects "8-10 weeks" format
+      // We'll show the date or convert timeline weeks back to readable format
+      const timelineWeeks = existingBid.timeline;
+      setValue('completionTimeline', `${timelineWeeks} weeks`);
+      
+      // Set proposal
+      setValue('briefProposal', existingBid.brefProposal);
+    }
+  }, [existingBid, setValue]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % projectImages.length)
@@ -418,11 +445,25 @@ export default function JobDetailsWithBid() {
               {/* Form Header */}
               <div className="mb-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                  Submit Your Bid
+                  {existingBid ? 'Update Your Bid' : 'Submit Your Bid'}
                 </h2>
                 <p className="text-sm text-gray-500">
-                  Provide your proposal details for this project
+                  {existingBid 
+                    ? 'Update your existing bid details for this project' 
+                    : 'Provide your proposal details for this project'}
                 </p>
+                {existingBid && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-xs text-blue-800">
+                      <strong>Current Bid Status:</strong> {existingBid.status === 'PENDING_REVIEW' ? 'Pending Review' : 
+                                                           existingBid.status === 'ACCEPTED' ? 'Accepted' :
+                                                           existingBid.status === 'REJECTED' ? 'Rejected' : existingBid.status}
+                    </p>
+                    <p className="text-xs text-blue-700 mt-1">
+                      Your current bid: ${existingBid.bidAmount.toLocaleString()}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Form */}
@@ -531,7 +572,7 @@ export default function JobDetailsWithBid() {
                   disabled={isSubmitting || isBidding}
                   className="w-full px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {(isSubmitting || isBidding) ? "Submitting..." : "Submit Bid"}
+                  {(isSubmitting || isBidding) ? (existingBid ? "Updating..." : "Submitting...") : (existingBid ? "Update Bid" : "Submit Bid")}
                 </button>
               </form>
             </div>

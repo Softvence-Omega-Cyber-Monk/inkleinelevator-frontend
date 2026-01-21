@@ -114,7 +114,7 @@ const BrowseJobsContent = ({ jobs: propJobs, isLoading = false }: BrowseJobsCont
                         </p>
 
                         <Link 
-                            to={`/elevator/job-bid/${job.jobId  || job.id}`}
+                            to={`/elevator/job-bid/${(job as Job).jobId || job.id}`}
                             className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
                         >
                             View Details & Bid

@@ -36,13 +36,13 @@ const ElevatorDashboardOverview = () => {
     ];
 
     // Fetch active jobs using API
-    const { data: activeJobsData, isLoading: isLoadingActiveJobs } = useGetElevatorAllActiveJobsQuery();
+    const { data: activeJobsData, isLoading: isLoadingActiveJobs } = useGetElevatorAllActiveJobsQuery({});
 
     // Transform API response to match component structure
     const activeJobs = useMemo(() => {
         if (!activeJobsData?.data || !Array.isArray(activeJobsData.data)) return [];
 
-        return activeJobsData.data.map((job) => {
+        return activeJobsData.data.map((job: any) => {
             // Parse budget range (format: "6300-3594")
             const parseBudget = (budgetStr?: string) => {
                 if (!budgetStr) return { min: 0, max: 0, display: '$0' };
@@ -163,7 +163,7 @@ const ElevatorDashboardOverview = () => {
                         </div>
                     ) : (
                         <div className="divide-y divide-gray-200">
-                            {activeJobs.map((job) => (
+                            {activeJobs.map((job: any) => (
                                 <div key={job.jobId || job.id} className="p-4 md:p-6">
                                     <h3 className="font-semibold text-sm md:text-base text-gray-900 mb-3">{job.title}</h3>
                                     <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-4 text-xs md:text-sm text-gray-600">

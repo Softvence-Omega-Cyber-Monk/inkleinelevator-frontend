@@ -1,23 +1,23 @@
 import { baseApi } from "@/Redux/api/baseApi";
 
-interface ActiveJob {
-  jobId: string;
-  jobTitle: string;
-  jobType: string;
-  projectDescription: string;
-  address?: string;
-  streetAddress?: string;
-  city?: string;
-  zipCode?: string;
-  estimitedBudget?: string;
-  [key: string]: any;
-}
+// interface ActiveJob {
+//   jobId: string;
+//   jobTitle: string;
+//   jobType: string;
+//   projectDescription: string;
+//   address?: string;
+//   streetAddress?: string;
+//   city?: string;
+//   zipCode?: string;
+//   estimitedBudget?: string;
+//   [key: string]: any;
+// }
 
-interface GetElevatorActiveJobsResponse {
-  success: boolean;
-  message: string;
-  data: ActiveJob[];
-}
+// interface GetElevatorActiveJobsResponse {
+//   success: boolean;
+//   message: string;
+//   data: ActiveJob[];
+// }
 
 const elevatorJobApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({

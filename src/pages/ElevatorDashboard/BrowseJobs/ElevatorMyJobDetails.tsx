@@ -89,7 +89,7 @@ export default function ElevatorMyJobDetails() {
   }, [jobResponse]);
 
   const projectImages = useMemo(() => {
-    return jobData?.photos?.map(photo => photo.url) || [];
+    return jobData?.photos?.map((photo: { url: string }) => photo.url) || [];
   }, [jobData]);
 
   const nextImage = () => {
@@ -211,7 +211,7 @@ export default function ElevatorMyJobDetails() {
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Technical Requirements</h2>
           {jobData.technicalRequirements && jobData.technicalRequirements.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              {jobData.technicalRequirements.map((requirement, index) => (
+              {jobData.technicalRequirements.map((requirement: string, index: number) => (
                 <Card key={index} className="bg-gray-50 border-gray-200 p-4 text-center">
                   <p className="text-xs md:text-sm font-semibold text-gray-700">{requirement}</p>
                 </Card>
@@ -251,14 +251,14 @@ export default function ElevatorMyJobDetails() {
           {jobData.photos && jobData.photos.length > 0 ? (
             <>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {jobData.photos.map((photo, index) => (
+                {jobData.photos.map((photo: { url: string; name: string }, index: number) => (
                   <div key={index} className="aspect-square bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300">
                     <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>
               <div className="mt-4 text-sm text-gray-600">
-                {jobData.photos.map((photo, index) => (
+                {jobData.photos.map((photo: { url: string; name: string }, index: number) => (
                   <p key={index} className={index === 0 ? "font-semibold text-gray-700" : ""}>{photo.name}</p>
                 ))}
               </div>
@@ -273,7 +273,7 @@ export default function ElevatorMyJobDetails() {
           <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-4">Uploaded Documents</h2>
           {jobData.documents && jobData.documents.length > 0 ? (
             <div className="space-y-3">
-              {jobData.documents.map((doc, index) => (
+              {jobData.documents.map((doc: { url: string; name: string }, index: number) => (
                 <a
                   key={index}
                   href={doc.url}
