@@ -73,7 +73,7 @@ export default function DetailsFileTab({
 
             return (
               <li key={index} className="">
-                <div className="flex justify-between items-center mb-4 bg-white px-4 py-6 rounded-lg hover:bg-gray-100 transition">
+                <div className="flex justify-between gap-6 items-center mb-4 bg-white px-4 py-6 rounded-lg hover:bg-gray-100 transition">
                   {/* Left: File icon + name + uploaded time */}
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     <div>

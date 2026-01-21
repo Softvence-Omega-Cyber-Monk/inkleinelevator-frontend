@@ -47,7 +47,7 @@ const UserDashboard = () => {
                     Jane Contractor
                   </div>
                   <div className="text-xs text-gray-400 truncate">
-                    tim.jennings@example.com
+                    tim.jennings@example.comm
                   </div>
                 </div>
               )}

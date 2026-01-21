@@ -45,7 +45,7 @@ export default function DetailsOverviewTab({
     );
   }
 
-  // ✅ Render actual data
+  //  Render actual data
   return (
     <div>
       <div className="bg-[#FFF] p-8 rounded-lg shadow-sm min-h-52 border border-[#0A1A3A33]">
