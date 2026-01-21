@@ -23,6 +23,7 @@ export default function UploadDocumentsStep({
       const newDocuments = Array.from(files).map((file) => ({
         // id: Date.now() + index,
         id: crypto.randomUUID(),
+        file,
         name: file.name,
       }));
       setFormData({

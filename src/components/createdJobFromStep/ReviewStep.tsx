@@ -102,11 +102,11 @@ export default function ReviewStep({
 
             <div
               className="
-          text-[#0A0A0A] mt-6 text-base
-          [&_ul]:list-disc [&_ul]:pl-6
-          [&_ol]:list-decimal [&_ol]:pl-6
-          [&_li]:mb-1
-        "
+                  text-[#0A0A0A] mt-6 text-base
+                  [&_ul]:list-disc [&_ul]:pl-6
+                  [&_ol]:list-decimal [&_ol]:pl-6
+                  [&_li]:mb-1
+                "
               dangerouslySetInnerHTML={{
                 __html: formData.description,
               }}

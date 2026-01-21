@@ -10,10 +10,17 @@ const userJobApi = baseApi.injectEndpoints({
       }),
     }),
     // get all job data data
-    getAllCategoryFee: builder.query({
-      query: () => ({
+
+    getAllJobs: builder.query({
+      query: ({ page = 1, limit = 10, search, jobType }) => ({
         url: "/job/get-all-job",
         method: "GET",
+        params: {
+          page,
+          limit,
+          search, // optional
+          jobType, // optional
+        },
       }),
     }),
     // get all my job data
@@ -29,7 +36,19 @@ const userJobApi = baseApi.injectEndpoints({
         },
       }),
     }),
+    // get single job by id
+    getSingleJobById: builder.query({
+      query: (jobId) => ({
+        url: `/job/get-single-job/${jobId}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useCreateNewJobMutation, useGetAllMyJobsQuery } = userJobApi;
+export const {
+  useCreateNewJobMutation,
+  useGetAllJobsQuery,
+  useGetAllMyJobsQuery,
+  useGetSingleJobByIdQuery,
+} = userJobApi;
