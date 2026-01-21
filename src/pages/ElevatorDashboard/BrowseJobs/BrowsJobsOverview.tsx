@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Browse Jobs Component
@@ -67,9 +68,12 @@ const BrowseJobsContent = () => {
                             {job.description}
                         </p>
 
-                        <button className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors">
+                        <Link 
+                            to={`/elevator/jobdetails/${job.id}`}
+                            className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
+                        >
                             View Details & Bid
-                        </button>
+                        </Link>
                     </div>
                 ))}
             </div>
@@ -197,9 +201,12 @@ const MyJobsContent = () => {
                             {job.description}
                         </p>
 
-                        <button className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors">
+                        <Link 
+                            to={`/elevator/jobdetails/${job.id}`}
+                            className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
+                        >
                             View Details
-                        </button>
+                        </Link>
                     </div>
                 ))}
             </div>

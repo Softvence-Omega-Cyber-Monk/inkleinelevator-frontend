@@ -1,7 +1,11 @@
+import { useState } from 'react';
 import { DollarSign, TrendingUp, Star, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import QuickBidModal from '@/components/ElevatorAllMdal/QuickBidModal';
 
 const ElevatorDashboardOverview = () => {
+    const [quickBidModalOpen, setQuickBidModalOpen] = useState(false);
+    const [selectedJob, setSelectedJob] = useState<{ id: number; title: string; budgetMin: number; budgetMax: number } | null>(null);
     const statsCards = [
         {
             title: 'Active Projects',
@@ -31,21 +35,30 @@ const ElevatorDashboardOverview = () => {
 
     const activeJobs = [
         {
+            id: 1,
             title: 'Elevator Modernization - Tower A',
             type: 'Modernization',
             budget: '$ 275K - $375K',
+            budgetMin: 275000,
+            budgetMax: 375000,
             location: 'Manhattan, NY',
         },
         {
+            id: 2,
             title: 'Elevator Modernization - Tower A',
             type: 'Repairs',
             budget: '$ 150K - $180K',
+            budgetMin: 150000,
+            budgetMax: 180000,
             location: 'Manhattan, NY',
         },
         {
+            id: 3,
             title: 'Elevator Modernization - Tower A',
             type: 'Modernization',
             budget: '$ 275K - $375K',
+            budgetMin: 275000,
+            budgetMax: 375000,
             location: 'Manhattan, NY',
         },
     ];
@@ -120,10 +133,21 @@ const ElevatorDashboardOverview = () => {
                                     <span className="text-xs md:text-sm">{job.location}</span>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-2 md:gap-3">
-                                    <Link to={`/elevator/jobdetails/10`} className="flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <Link to={`/elevator/jobdetails/${job.id}`} className="flex-1 px-3 md:px-4 py-2 border border-gray-300 rounded-lg text-xs md:text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                                         View Details
                                     </Link>
-                                    <button className="flex-1 px-3 md:px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors">
+                                    <button 
+                                        onClick={() => {
+                                            setSelectedJob({
+                                                id: job.id,
+                                                title: job.title,
+                                                budgetMin: job.budgetMin,
+                                                budgetMax: job.budgetMax,
+                                            });
+                                            setQuickBidModalOpen(true);
+                                        }}
+                                        className="flex-1 px-3 md:px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors"
+                                    >
                                         Quick Bid
                                     </button>
                                 </div>
@@ -152,6 +176,21 @@ const ElevatorDashboardOverview = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Quick Bid Modal */}
+            {selectedJob && (
+                <QuickBidModal
+                    isOpen={quickBidModalOpen}
+                    onClose={() => {
+                        setQuickBidModalOpen(false);
+                        setSelectedJob(null);
+                    }}
+                    jobId={selectedJob.id}
+                    jobTitle={selectedJob.title}
+                    budgetMin={selectedJob.budgetMin}
+                    budgetMax={selectedJob.budgetMax}
+                />
+            )}
         </div>
     );
 };

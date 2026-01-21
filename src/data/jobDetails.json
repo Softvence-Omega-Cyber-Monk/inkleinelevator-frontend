@@ -1,0 +1,63 @@
+{
+  "jobDetails": {
+    "id": 1,
+    "title": "Elevator Modernization - Tower A",
+    "type": "Modernization",
+    "postedDate": "2 days ago",
+    "location": {
+      "address": "123 Main Street, New York, 10001",
+      "street": "123 Main Street",
+      "city": "New York",
+      "zipCode": "10001"
+    },
+    "budget": {
+      "min": 180000,
+      "max": 220000,
+      "display": "$180,000 - $220,000"
+    },
+    "description": "Complete modernization of 8 passenger elevators in a 25-story office building.",
+    "tasks": [
+      "Upgrade to destination dispatch technology",
+      "Install new LED lighting and touchscreen panels",
+      "Replace all motors and drives for improved efficiency",
+      "Update safety systems to current ASME A17.1 standards"
+    ],
+    "technicalRequirements": [
+      "Licensed Elevator Contractor",
+      "ASME A17.1 Certified",
+      "DEI Certification",
+      "$1M Insurance Required"
+    ],
+    "elevatorSpecifications": {
+      "type": "Traction (Geared)",
+      "numberOfUnits": 8,
+      "capacity": "3,500 lbs each",
+      "speed": "500 FPM"
+    },
+    "photos": [
+      {
+        "name": "Photo.jpg",
+        "url": "https://images.unsplash.com/photo-1766548729658-0ce12fd07af8?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8"
+      },
+      {
+        "name": "Photo.jpg",
+        "url": "https://images.unsplash.com/photo-1761839258830-81f87b1c6d62?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw4fHx8ZW58MHx8fHx8"
+      }
+    ],
+    "documents": [
+      {
+        "name": "Building_Elevator_Specs.pdf",
+        "url": "#"
+      },
+      {
+        "name": "Building_Elevator_Specs.pdf",
+        "url": "#"
+      }
+    ],
+    "contactInfo": {
+      "company": "Metropolitan Property Management LLC",
+      "contact": "Sarah Johnson",
+      "phone": "(212) 555-0187"
+    }
+  }
+}
