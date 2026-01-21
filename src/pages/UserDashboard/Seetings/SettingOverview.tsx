@@ -1,27 +1,91 @@
 import { useState } from "react";
-import { Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type TabType = "profile" | "security" | "general";
 
-export default function SettingOverview() {
-  const [activeTab, setActiveTab] = useState<TabType>("profile");
-  const [formData, setFormData] = useState({
-    name: "Prop title vendor",
-    email: "vendor@gmail.com",
-    phone: "+44 7700 900002",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-    emailNotifications: true,
-    smsNotifications: false,
-  });
+// Types for props (preparing for Redux API)
+interface SettingsFormData {
+  name: string;
+  email: string;
+  phone: string;
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+  emailNotifications: boolean;
+  smsNotifications: boolean;
+  newBidsAlerts: boolean;
+}
 
-  const handleInputChange = (field: string, value: string) => {
+interface SettingOverviewProps {
+  formData?: SettingsFormData;
+  isLoading?: boolean;
+  onSaveProfile?: (data: { name: string; email: string; phone: string }) => void;
+  onChangePassword?: (data: { currentPassword: string; newPassword: string; confirmPassword: string }) => void;
+  onUpdateNotifications?: (data: { emailNotifications: boolean; smsNotifications: boolean; newBidsAlerts: boolean }) => void;
+  onDeleteAccount?: () => void;
+}
+
+export default function SettingOverview({
+  formData: propFormData,
+  isLoading = false,
+  onSaveProfile,
+  onChangePassword,
+  onUpdateNotifications,
+  onDeleteAccount,
+}: SettingOverviewProps = {} as SettingOverviewProps) {
+  const [activeTab, setActiveTab] = useState<TabType>("profile");
+  const [formData, setFormData] = useState<SettingsFormData>(
+    propFormData || {
+      name: "PropLink Vendor",
+      email: "vendor@gmail.com",
+      phone: "+44 7700 900000",
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+      emailNotifications: true,
+      smsNotifications: true,
+      newBidsAlerts: true,
+    }
+  );
+
+  const handleInputChange = (field: keyof SettingsFormData, value: string | boolean) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleSaveProfile = () => {
+    if (onSaveProfile) {
+      onSaveProfile({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+      });
+    }
+  };
+
+  const handleChangePassword = () => {
+    if (onChangePassword) {
+      onChangePassword({
+        currentPassword: formData.currentPassword,
+        newPassword: formData.newPassword,
+        confirmPassword: formData.confirmPassword,
+      });
+    }
+  };
+
+  const handleToggleNotification = (field: "emailNotifications" | "smsNotifications" | "newBidsAlerts") => {
+    const newValue = !formData[field];
+    handleInputChange(field, newValue);
+    if (onUpdateNotifications) {
+      onUpdateNotifications({
+        emailNotifications: formData.emailNotifications,
+        smsNotifications: formData.smsNotifications,
+        newBidsAlerts: formData.newBidsAlerts,
+        [field]: newValue,
+      });
+    }
   };
 
   const tabs: { id: TabType; label: string }[] = [
@@ -31,26 +95,26 @@ export default function SettingOverview() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="px-8 py-6 border-b border-gray-200">
-        <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-        <p className="text-gray-600 mt-1">
+      <div className="px-8 py-6 border-b border-gray-200 bg-white">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Settings</h1>
+        <p className="text-sm text-gray-500 mt-1">
           Manage your vendor profile and preferences
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="px-8 py-4 border-b border-gray-200">
+      <div className="px-8 py-4 border-b border-gray-200 bg-white">
         <div className="flex gap-2">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 font-medium text-sm rounded-md transition-colors ${
+              className={`px-6 py-2.5 font-medium text-sm rounded-lg transition-colors ${
                 activeTab === tab.id
-                  ? "bg-[#0A1A3A] text-white"
-                  : "text-gray-700 hover:bg-gray-100"
+                  ? "bg-[#1e3a5f] text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               }`}
             >
               {tab.label}
@@ -60,37 +124,11 @@ export default function SettingOverview() {
       </div>
 
       {/* Content */}
-      <div className="px-0  py-8 w-full">
+      <div className="px-8 py-8 w-full">
         {activeTab === "profile" && (
           <>
-            {/* Profile Picture Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6">
-                Profile Picture
-              </h2>
-
-              <div className="flex flex-col items-center">
-                <div className="w-full max-w-xs h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
-                  <Cloud className="w-10 h-10 text-gray-400 mb-3" />
-                  <p className="text-sm font-medium text-gray-600">
-                    Upload Profile Image
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Image format - JPG/PNG
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Image size should be 60 x 60 pixels more...
-                  </p>
-                </div>
-
-                <Button className="mt-6 bg-blue-900 hover:bg-blue-800 text-white px-8 py-2">
-                  Upload Profile
-                </Button>
-              </div>
-            </div>
-
             {/* Profile Information Section */}
-            <div className="bg-white rounded-lg border border-gray-200 p-8">
+            <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">
                 Profile Information
               </h2>
@@ -109,7 +147,7 @@ export default function SettingOverview() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="w-full px-4 py-3 rounded-md bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
                 </div>
 
@@ -126,7 +164,7 @@ export default function SettingOverview() {
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="w-full px-4 py-3 rounded-md bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
                 </div>
 
@@ -143,10 +181,41 @@ export default function SettingOverview() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handleInputChange("phone", e.target.value)}
-                    className="w-full px-4 py-3 rounded-md bg-gray-100 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                    className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
                   />
                 </div>
+
+                {/* Save Changes Button */}
+                <div className="pt-4">
+                  <Button
+                    onClick={handleSaveProfile}
+                    disabled={isLoading}
+                    className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white px-6 py-2.5 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? "Saving..." : "Save Changes"}
+                  </Button>
+                </div>
               </div>
+            </div>
+
+            {/* Delete Account Section */}
+            <div className="bg-white rounded-lg border border-gray-200 p-8">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Delete Account
+              </h2>
+              <p className="text-sm text-gray-600 mb-2">
+                Permanently delete your account and all data
+              </p>
+              <p className="text-sm text-gray-600 mb-6">
+                Once you delete your account, there is no going back. Please be certain.
+              </p>
+              <Button
+                onClick={onDeleteAccount}
+                disabled={isLoading}
+                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Delete Account
+              </Button>
             </div>
           </>
         )}
@@ -155,7 +224,7 @@ export default function SettingOverview() {
         {activeTab === "security" && (
           <div className="bg-white rounded-lg border border-gray-200 p-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              Security Settings
+              Security Information
             </h2>
             <div className="space-y-6">
               <div>
@@ -168,7 +237,7 @@ export default function SettingOverview() {
                   onChange={(e) =>
                     handleInputChange("currentPassword", e.target.value)
                   }
-                  className="w-full px-4 py-3 rounded-md bg-gray-100 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -181,12 +250,31 @@ export default function SettingOverview() {
                   onChange={(e) =>
                     handleInputChange("newPassword", e.target.value)
                   }
-                  className="w-full px-4 py-3 rounded-md bg-gray-100 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <Button className="bg-blue-900 hover:bg-blue-800 text-white">
-                Update Password
-              </Button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) =>
+                    handleInputChange("confirmPassword", e.target.value)
+                  }
+                  className="w-full px-4 py-3 rounded-lg bg-gray-50 border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="pt-2">
+                <Button
+                  onClick={handleChangePassword}
+                  disabled={isLoading}
+                  className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white px-6 py-2.5 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Changing..." : "Change Password"}
+                </Button>
+              </div>
             </div>
           </div>
         )}
@@ -195,48 +283,78 @@ export default function SettingOverview() {
         {activeTab === "general" && (
           <div className="bg-white rounded-lg border border-gray-200 p-8">
             <h2 className="text-lg font-semibold text-gray-900 mb-6">
-              General Settings
+              Notification
             </h2>
             <div className="space-y-6">
+              {/* Email Notification */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900">
-                    Email Notifications
+                    Email Notification
                   </p>
                   <p className="text-sm text-gray-500">
-                    Receive updates via email
+                    Receive lead alerts via email
                   </p>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={formData.emailNotifications}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "emailNotifications",
-                      e.target.checked.toString(),
-                    )
-                  }
-                  className="w-5 h-5 accent-blue-600"
-                />
+                <button
+                  type="button"
+                  onClick={() => handleToggleNotification("emailNotifications")}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    formData.emailNotifications ? "bg-[#1e3a5f]" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.emailNotifications ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
               </div>
+
+              {/* SMS Notifications */}
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-gray-900">SMS Notifications</p>
                   <p className="text-sm text-gray-500">
-                    Receive updates via SMS
+                    Receive urgent alerts via SMS
                   </p>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={formData.smsNotifications}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "smsNotifications",
-                      e.target.checked.toString(),
-                    )
-                  }
-                  className="w-5 h-5 accent-blue-600"
-                />
+                <button
+                  type="button"
+                  onClick={() => handleToggleNotification("smsNotifications")}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    formData.smsNotifications ? "bg-[#1e3a5f]" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.smsNotifications ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* New Bids Alerts */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-gray-900">New Bids Alerts</p>
+                  <p className="text-sm text-gray-500">
+                    Get notified immediately when new leads arrive
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleToggleNotification("newBidsAlerts")}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                    formData.newBidsAlerts ? "bg-[#1e3a5f]" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.newBidsAlerts ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
               </div>
             </div>
           </div>
