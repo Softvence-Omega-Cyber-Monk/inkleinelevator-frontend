@@ -69,7 +69,7 @@ const BrowseJobsContent = () => {
                         </p>
 
                         <Link 
-                            to={`/elevator/jobdetails/${job.id}`}
+                            to={`/elevator/job-bid/${job.id}`}
                             className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
                         >
                             View Details & Bid
@@ -201,12 +201,9 @@ const MyJobsContent = () => {
                             {job.description}
                         </p>
 
-                        <Link 
-                            to={`/elevator/jobdetails/${job.id}`}
-                            className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
-                        >
+                        <button className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors">
                             View Details
-                        </Link>
+                        </button>
                     </div>
                 ))}
             </div>

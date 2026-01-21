@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import BidSubmissionSuccessModal from "./BidSubmissionSuccessModal";
 
 interface QuickBidModalProps {
   isOpen: boolean;
@@ -30,7 +29,6 @@ const QuickBidModal = ({
 }: QuickBidModalProps) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const {
     register,

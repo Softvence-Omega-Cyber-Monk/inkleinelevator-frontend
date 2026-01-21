@@ -26,6 +26,7 @@ import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
 import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
 import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
 import ElevatorJobDetails from "@/pages/ElevatorDashboard/BrowseJobs/ElevatorJobDetails";
+import JobDetailsWithBid from "@/pages/ElevatorDashboard/BrowseJobs/JobDetailsWithBid";
 import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement";
 import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
 import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
@@ -118,6 +119,7 @@ const routes = createBrowserRouter([
           { path: "meassages", element: <MessagesPage /> },
           { path: "settings", element: <SettingOverview /> },
           { path: "jobdetails/:id", element: <ElevatorJobDetails /> },
+          { path: "job-bid/:id", element: <JobDetailsWithBid /> },
         ],
       },
     ],
