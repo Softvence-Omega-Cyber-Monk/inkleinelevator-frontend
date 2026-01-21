@@ -1,344 +1,27 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { MapPin, DollarSign, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { jobDetailsData } from '@/data/jobDetails';
+import { useState, useMemo } from 'react';
+import { Search } from 'lucide-react';
+import { useGetAllJobsQuery } from '@/Redux/features/userDa/userJob/userJobApi';
+import BrowseJobsContent from './BrowseJobsContent';
+import MyJobsContent from './MyJobsContent';
 
-// Types for props (preparing for Redux API)
-interface Job {
+interface TransformedJob {
     id: number;
+    jobId?: string;
     title: string;
     location: string;
     budget: string;
-    budgetMin?: number;
-    budgetMax?: number;
+    budgetMin: number;
+    budgetMax: number;
     postedTime: string;
+    createdAt: number;
     type: string;
     description: string;
 }
 
-interface BrowseJobsContentProps {
-    jobs?: Job[];
-    isLoading?: boolean;
-}
-
-// Browse Jobs Component - Now accepts props for Redux integration
-const BrowseJobsContent = ({ jobs: propJobs, isLoading = false }: BrowseJobsContentProps) => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
-
-    // Use prop jobs if provided (from Redux), otherwise use JSON data
-    const allJobs = propJobs || jobDetailsData.jobs.map((job) => ({
-        id: job.id,
-        title: job.title,
-        location: job.location.address,
-        budget: job.budget.display,
-        postedTime: job.postedDate,
-        type: job.type,
-        description: job.description,
-    }));
-
-    // Reset pagination when jobs change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [propJobs]);
-
-    // Pagination logic
-    const totalPages = Math.ceil(allJobs.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedJobs = allJobs.slice(startIndex, endIndex);
-
-    const handlePrevious = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
-    const handleNext = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const handlePageClick = (page: number) => {
-        setCurrentPage(page);
-    };
-
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center py-12">
-                <div className="text-gray-500">Loading jobs...</div>
-            </div>
-        );
-    }
-
-    if (paginatedJobs.length === 0) {
-        return (
-            <div className="flex justify-center items-center py-12">
-                <div className="text-gray-500">No jobs found</div>
-            </div>
-        );
-    }
-
-    return (
-        <>
-            {/* Job Listings */}
-            <div className="space-y-3 md:space-y-4">
-                {paginatedJobs.map((job) => (
-                    <div key={job.id} className="bg-white border border-gray-200 rounded-lg p-4 md:p-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 md:gap-4 mb-3 md:mb-4">
-                            <h2 className="text-base md:text-lg font-semibold text-gray-900 pr-2">{job.title}</h2>
-                            <span className="bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
-                                {job.type}
-                            </span>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 mb-3 md:mb-4 text-xs md:text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                                <MapPin size={16} className="text-gray-400 flex-shrink-0" />
-                                <span className="break-words">{job.location}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <DollarSign size={16} className="text-gray-400 flex-shrink-0" />
-                                <span className="whitespace-nowrap">Budget: {job.budget}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Clock size={16} className="text-gray-400 flex-shrink-0" />
-                                <span className="whitespace-nowrap">Posted {job.postedTime}</span>
-                            </div>
-                        </div>
-
-                        <p className="text-xs md:text-sm text-gray-700 mb-3 md:mb-4 leading-relaxed">
-                            {job.description}
-                        </p>
-
-                        <Link 
-                            to={`/elevator/job-bid/${job.id}`}
-                            className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
-                        >
-                            View Details & Bid
-                        </Link>
-                    </div>
-                ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-1 md:gap-2 overflow-x-auto pb-2">
-                    <button 
-                        onClick={handlePrevious}
-                        disabled={currentPage === 1}
-                        className={`flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm rounded-lg transition-colors whitespace-nowrap ${
-                            currentPage === 1 
-                                ? 'text-gray-400 cursor-not-allowed' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                        <ChevronLeft size={16} />
-                        <span className="hidden sm:inline">Previous</span>
-                        <span className="sm:hidden">Prev</span>
-                    </button>
-
-                    {/* Page Numbers */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => handlePageClick(page)}
-                            className={`px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg transition-colors ${
-                                currentPage === page
-                                    ? 'bg-[#1e3a5f] text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
-
-                    <button 
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                        className={`flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm rounded-lg transition-colors whitespace-nowrap ${
-                            currentPage === totalPages 
-                                ? 'text-gray-400 cursor-not-allowed' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                        <span className="hidden sm:inline">Next</span>
-                        <ChevronRight size={16} />
-                    </button>
-                </div>
-            )}
-        </>
-    );
-};
-
-interface MyJob extends Job {
+interface TransformedMyJob extends TransformedJob {
     status: string;
     statusColor: string;
 }
-
-interface MyJobsContentProps {
-    jobs?: MyJob[];
-    isLoading?: boolean;
-}
-
-// My Jobs Component - Now accepts props for Redux integration
-const MyJobsContent = ({ jobs: propJobs, isLoading = false }: MyJobsContentProps) => {
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
-
-    // Use prop jobs if provided (from Redux), otherwise use JSON data
-    const allJobs = propJobs || jobDetailsData.jobs.map((job) => ({
-        id: job.id,
-        title: job.title,
-        location: job.location.address,
-        budget: job.budget.display,
-        postedTime: job.postedDate,
-        type: job.type,
-        status: job.status || 'Active',
-        statusColor: job.statusColor || 'bg-orange-500',
-        description: job.description,
-    }));
-
-    // Reset pagination when jobs change
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [propJobs]);
-
-    // Pagination logic
-    const totalPages = Math.ceil(allJobs.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedJobs = allJobs.slice(startIndex, endIndex);
-
-    const handlePrevious = () => {
-        if (currentPage > 1) {
-            setCurrentPage(currentPage - 1);
-        }
-    };
-
-    const handleNext = () => {
-        if (currentPage < totalPages) {
-            setCurrentPage(currentPage + 1);
-        }
-    };
-
-    const handlePageClick = (page: number) => {
-        setCurrentPage(page);
-    };
-
-    if (isLoading) {
-        return (
-            <div className="flex justify-center items-center py-12">
-                <div className="text-gray-500">Loading jobs...</div>
-            </div>
-        );
-    }
-
-    if (paginatedJobs.length === 0) {
-        return (
-            <div className="flex justify-center items-center py-12">
-                <div className="text-gray-500">No jobs found</div>
-            </div>
-        );
-    }
-
-    return (
-        <>
-            {/* Job Listings */}
-            <div className="space-y-3 md:space-y-4">
-                {paginatedJobs.map((job) => (
-                    <div key={job.id} className="bg-white border border-gray-200 rounded-lg p-4 md:p-6">
-                        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 md:gap-4 mb-3 md:mb-4">
-                            <h2 className="text-base md:text-lg font-semibold text-gray-900 pr-2">{job.title}</h2>
-                            <div className="flex gap-2">
-                                <span className="bg-blue-100 text-blue-700 text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap">
-                                    {job.type}
-                                </span>
-                                <span className={`${job.statusColor} text-white text-xs font-medium px-3 py-1 rounded-full whitespace-nowrap`}>
-                                    {job.status}
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-2 sm:gap-4 mb-3 md:mb-4 text-xs md:text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                                <MapPin size={16} className="text-gray-400 flex-shrink-0" />
-                                <span className="break-words">{job.location}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <DollarSign size={16} className="text-gray-400 flex-shrink-0" />
-                                <span className="whitespace-nowrap">Budget: {job.budget}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <Clock size={16} className="text-gray-400 flex-shrink-0" />
-                                <span className="whitespace-nowrap">Posted {job.postedTime}</span>
-                            </div>
-                        </div>
-
-                        <p className="text-xs md:text-sm text-gray-700 mb-3 md:mb-4 leading-relaxed">
-                            {job.description}
-                        </p>
-
-                        <Link 
-                            to={`/elevator/my-job-details/${job.id}`}
-                            className="w-full sm:w-auto bg-[#1e3a5f] text-white px-4 md:px-6 py-2 md:py-2.5 rounded-lg text-xs md:text-sm font-medium hover:bg-[#2d4a6f] transition-colors inline-block text-center"
-                        >
-                            View Details
-                        </Link>
-                    </div>
-                ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-1 md:gap-2 overflow-x-auto pb-2">
-                    <button 
-                        onClick={handlePrevious}
-                        disabled={currentPage === 1}
-                        className={`flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm rounded-lg transition-colors whitespace-nowrap ${
-                            currentPage === 1 
-                                ? 'text-gray-400 cursor-not-allowed' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                        <ChevronLeft size={16} />
-                        <span className="hidden sm:inline">Previous</span>
-                        <span className="sm:hidden">Prev</span>
-                    </button>
-
-                    {/* Page Numbers */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                            key={page}
-                            onClick={() => handlePageClick(page)}
-                            className={`px-2.5 md:px-3 py-2 text-xs md:text-sm rounded-lg transition-colors ${
-                                currentPage === page
-                                    ? 'bg-[#1e3a5f] text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                        >
-                            {page}
-                        </button>
-                    ))}
-
-                    <button 
-                        onClick={handleNext}
-                        disabled={currentPage === totalPages}
-                        className={`flex items-center gap-1 px-2 md:px-4 py-2 text-xs md:text-sm rounded-lg transition-colors whitespace-nowrap ${
-                            currentPage === totalPages 
-                                ? 'text-gray-400 cursor-not-allowed' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                        }`}
-                    >
-                        <span className="hidden sm:inline">Next</span>
-                        <ChevronRight size={16} />
-                    </button>
-                </div>
-            )}
-        </>
-    );
-};
 
 const BrowsJobsOverview = () => {
     const [activeTab, setActiveTab] = useState('browse');
@@ -347,37 +30,116 @@ const BrowsJobsOverview = () => {
     const [jobTypeFilter, setJobTypeFilter] = useState('');
     const [sortOption, setSortOption] = useState('Newest First');
 
-    // Get all jobs data (can be replaced with Redux API later)
-    const allBrowseJobs = jobDetailsData.jobs.map((job) => ({
-        id: job.id,
-        title: job.title,
-        location: job.location.address,
-        budget: job.budget.display,
-        budgetMin: job.budget.min,
-        budgetMax: job.budget.max,
-        postedTime: job.postedDate,
-        type: job.type,
-        description: job.description,
-    }));
+    // Fetch all jobs using Redux API
+    const { data: jobsData, isLoading } = useGetAllJobsQuery({
+        page: 1,
+        limit: 1000, // Get all jobs for filtering/sorting
+        search: searchQuery || undefined,
+        jobType: jobTypeFilter && jobTypeFilter !== 'Job Type' ? jobTypeFilter : undefined,
+    });
 
-    const allMyJobs = jobDetailsData.jobs.map((job) => ({
-        id: job.id,
-        title: job.title,
-        location: job.location.address,
-        budget: job.budget.display,
-        budgetMin: job.budget.min,
-        budgetMax: job.budget.max,
-        postedTime: job.postedDate,
-        type: job.type,
-        status: job.status || 'Active',
-        statusColor: job.statusColor || 'bg-orange-500',
-        description: job.description,
-    }));
+    // Helper function to strip HTML tags
+    const stripHtml = (html: string) => {
+        if (!html) return '';
+        const tmp = document.createElement('DIV');
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || '';
+    };
+
+    // Helper function to parse budget range (format: "6300-3594")
+    const parseBudget = (budgetStr: string) => {
+        if (!budgetStr) return { min: 0, max: 0, display: '$0' };
+        const parts = budgetStr.split('-').map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
+        if (parts.length === 2) {
+            return {
+                min: Math.min(parts[0], parts[1]),
+                max: Math.max(parts[0], parts[1]),
+                display: `$${Math.min(parts[0], parts[1])}-$${Math.max(parts[0], parts[1])}`
+            };
+        }
+        return { min: 0, max: 0, display: `$${budgetStr}` };
+    };
+
+    // Helper function to capitalize first letter
+    const capitalize = (str: string) => {
+        if (!str) return '';
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    };
+
+    // Transform API response to match component structure
+    const allBrowseJobs = useMemo((): TransformedJob[] => {
+        if (!jobsData?.data?.jobs || !Array.isArray(jobsData.data.jobs)) return [];
+        
+        return jobsData.data.jobs.map((job: any, index: number): TransformedJob => {
+            const budget = parseBudget(job.estimitedBudget || '');
+            const locationParts = [
+                job.streetAddress,
+                job.address,
+                job.city,
+                job.zipCode
+            ].filter(Boolean);
+            const fullLocation = locationParts.join(', ') || job.address || '';
+
+            return {
+                id: index + 1, // Use index for React key
+                jobId: job.jobId, // Keep original jobId for navigation
+                title: job.jobTitle || '',
+                location: fullLocation,
+                budget: budget.display,
+                budgetMin: budget.min,
+                budgetMax: budget.max,
+                postedTime: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '',
+                createdAt: job.createdAt ? new Date(job.createdAt).getTime() : 0, // For sorting
+                type: capitalize(job.jobType || ''),
+                description: stripHtml(job.projectDescription || ''),
+            };
+        });
+    }, [jobsData]);
+
+    const allMyJobs = useMemo((): TransformedMyJob[] => {
+        if (!jobsData?.data?.jobs || !Array.isArray(jobsData.data.jobs)) return [];
+        
+        return jobsData.data.jobs.map((job: any, index: number): TransformedMyJob => {
+            const budget = parseBudget(job.estimitedBudget || '');
+            const locationParts = [
+                job.streetAddress,
+                job.address,
+                job.city,
+                job.zipCode
+            ].filter(Boolean);
+            const fullLocation = locationParts.join(', ') || job.address || '';
+
+            // Map jobStatus to status and statusColor
+            const jobStatus = job.jobStatus || 'OPEN';
+            const statusMap: Record<string, { status: string; color: string }> = {
+                'OPEN': { status: 'Active', color: 'bg-orange-500' },
+                'CLOSED': { status: 'Completed', color: 'bg-green-500' },
+                'PENDING': { status: 'Pending', color: 'bg-yellow-500' },
+            };
+            const statusInfo = statusMap[jobStatus] || { status: 'Active', color: 'bg-orange-500' };
+
+            return {
+                id: index + 1, // Use index for React key
+                jobId: job.jobId, // Keep original jobId for navigation
+                title: job.jobTitle || '',
+                location: fullLocation,
+                budget: budget.display,
+                budgetMin: budget.min,
+                budgetMax: budget.max,
+                postedTime: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '',
+                createdAt: job.createdAt ? new Date(job.createdAt).getTime() : 0, // For sorting
+                type: capitalize(job.jobType || ''),
+                status: statusInfo.status,
+                statusColor: statusInfo.color,
+                description: stripHtml(job.projectDescription || ''),
+            };
+        });
+    }, [jobsData]);
 
     // Filter and sort logic for Browse Jobs
     const filteredBrowseJobs = useMemo(() => {
-        let filtered = allBrowseJobs.filter((job) => {
-            // Search filter
+        let filtered = allBrowseJobs.filter((job: TransformedJob) => {
+            // Search filter (already handled by API, but keep for location filtering)
             const matchesSearch = searchQuery === '' || 
                 job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 job.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -386,10 +148,10 @@ const BrowsJobsOverview = () => {
             const matchesLocation = locationFilter === '' || 
                 job.location.toLowerCase().includes(locationFilter.toLowerCase());
             
-            // Job type filter
+            // Job type filter (case-insensitive)
             const matchesJobType = jobTypeFilter === '' || 
                 jobTypeFilter === 'Job Type' ||
-                job.type === jobTypeFilter;
+                job.type.toLowerCase() === jobTypeFilter.toLowerCase();
             
             return matchesSearch && matchesLocation && matchesJobType;
         });
@@ -397,16 +159,16 @@ const BrowsJobsOverview = () => {
         // Sort logic
         switch (sortOption) {
             case 'Newest First':
-                filtered = filtered.sort((a, b) => b.id - a.id);
+                filtered = filtered.sort((a: TransformedJob, b: TransformedJob) => (b.createdAt || 0) - (a.createdAt || 0));
                 break;
             case 'Oldest First':
-                filtered = filtered.sort((a, b) => a.id - b.id);
+                filtered = filtered.sort((a: TransformedJob, b: TransformedJob) => (a.createdAt || 0) - (b.createdAt || 0));
                 break;
             case 'Budget: High to Low':
-                filtered = filtered.sort((a, b) => (b.budgetMax || 0) - (a.budgetMax || 0));
+                filtered = filtered.sort((a: TransformedJob, b: TransformedJob) => (b.budgetMax || 0) - (a.budgetMax || 0));
                 break;
             case 'Budget: Low to High':
-                filtered = filtered.sort((a, b) => (a.budgetMin || 0) - (b.budgetMin || 0));
+                filtered = filtered.sort((a: TransformedJob, b: TransformedJob) => (a.budgetMin || 0) - (b.budgetMin || 0));
                 break;
             default:
                 break;
@@ -417,8 +179,8 @@ const BrowsJobsOverview = () => {
 
     // Filter and sort logic for My Jobs
     const filteredMyJobs = useMemo(() => {
-        let filtered = allMyJobs.filter((job) => {
-            // Search filter
+        let filtered = allMyJobs.filter((job: TransformedMyJob) => {
+            // Search filter (already handled by API, but keep for location filtering)
             const matchesSearch = searchQuery === '' || 
                 job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 job.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -427,10 +189,10 @@ const BrowsJobsOverview = () => {
             const matchesLocation = locationFilter === '' || 
                 job.location.toLowerCase().includes(locationFilter.toLowerCase());
             
-            // Job type filter
+            // Job type filter (case-insensitive)
             const matchesJobType = jobTypeFilter === '' || 
                 jobTypeFilter === 'Job Type' ||
-                job.type === jobTypeFilter;
+                job.type.toLowerCase() === jobTypeFilter.toLowerCase();
             
             return matchesSearch && matchesLocation && matchesJobType;
         });
@@ -438,16 +200,16 @@ const BrowsJobsOverview = () => {
         // Sort logic
         switch (sortOption) {
             case 'Newest First':
-                filtered = filtered.sort((a, b) => b.id - a.id);
+                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (b.createdAt || 0) - (a.createdAt || 0));
                 break;
             case 'Oldest First':
-                filtered = filtered.sort((a, b) => a.id - b.id);
+                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (a.createdAt || 0) - (b.createdAt || 0));
                 break;
             case 'Budget: High to Low':
-                filtered = filtered.sort((a, b) => (b.budgetMax || 0) - (a.budgetMax || 0));
+                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (b.budgetMax || 0) - (a.budgetMax || 0));
                 break;
             case 'Budget: Low to High':
-                filtered = filtered.sort((a, b) => (a.budgetMin || 0) - (b.budgetMin || 0));
+                filtered = filtered.sort((a: TransformedMyJob, b: TransformedMyJob) => (a.budgetMin || 0) - (b.budgetMin || 0));
                 break;
             default:
                 break;
@@ -554,9 +316,9 @@ const BrowsJobsOverview = () => {
 
             {/* Render Content Based on Active Tab */}
             {activeTab === 'browse' ? (
-                <BrowseJobsContent jobs={filteredBrowseJobs} />
+                <BrowseJobsContent jobs={filteredBrowseJobs} isLoading={isLoading} />
             ) : (
-                <MyJobsContent jobs={filteredMyJobs} />
+                <MyJobsContent jobs={filteredMyJobs} isLoading={isLoading} />
             )}
         </div>
     );

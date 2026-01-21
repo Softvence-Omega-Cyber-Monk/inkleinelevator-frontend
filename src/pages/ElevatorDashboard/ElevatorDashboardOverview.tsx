@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { DollarSign, TrendingUp, Star, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import QuickBidModal from '@/components/ElevatorAllMdal/QuickBidModal';
 import { jobDetailsData } from '@/data/jobDetails';
+import { useGetMyBidsQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 
 const ElevatorDashboardOverview = () => {
     const [quickBidModalOpen, setQuickBidModalOpen] = useState(false);
@@ -45,26 +46,36 @@ const ElevatorDashboardOverview = () => {
         location: job.location.city + ', NY',
     }));
 
-    const recentBids = [
-        {
-            title: 'Office Tower Modernization',
-            bid: '$185,000',
-            status: 'Pending',
-            statusColor: 'bg-yellow-500',
-        },
-        {
-            title: 'MRL Installation - New Build',
-            bid: '$98,500',
-            status: 'Accepted',
-            statusColor: 'bg-green-500',
-        },
-        {
-            title: 'MRL Installation - New Build',
-            bid: '$98,500',
-            status: 'Not Accepted',
-            statusColor: 'bg-red-500',
-        },
-    ];
+    // Fetch my bids using API
+    const { data: bidsData, isLoading: isLoadingBids } = useGetMyBidsQuery({
+        page: 0,
+        limit: 10,
+    });
+
+    // Transform API response to match component structure
+    const recentBids = useMemo(() => {
+        if (!bidsData?.data?.data || !Array.isArray(bidsData.data.data)) return [];
+
+        return bidsData.data.data.map((bid) => {
+            // Map status to display text and color
+            const statusMap: Record<string, { status: string; color: string }> = {
+                'PENDING_REVIEW': { status: 'Pending', color: 'bg-yellow-500' },
+                'ACCEPTED': { status: 'Accepted', color: 'bg-green-500' },
+                'REJECTED': { status: 'Not Accepted', color: 'bg-red-500' },
+                'APPROVED': { status: 'Approved', color: 'bg-green-500' },
+            };
+            const statusInfo = statusMap[bid.status] || { status: bid.status, color: 'bg-gray-500' };
+
+            return {
+                title: bid.job?.jobTitle || 'Unknown Job',
+                bid: `$${bid.bidAmount.toLocaleString()}`,
+                status: statusInfo.status,
+                statusColor: statusInfo.color,
+                bidId: bid.bidId,
+                jobId: bid.jobId,
+            };
+        });
+    }, [bidsData]);
 
     return (
         <div className="space-y-4 md:space-y-6">
@@ -143,19 +154,29 @@ const ElevatorDashboardOverview = () => {
                     <div className="p-4 md:p-6 border-b border-gray-200">
                         <h2 className="text-base md:text-lg font-semibold text-gray-900">My Recent Bids</h2>
                     </div>
-                    <div className="divide-y divide-gray-200">
-                        {recentBids.map((bid, index) => (
-                            <div key={index} className="p-4 md:p-6">
-                                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
-                                    <h3 className="font-semibold text-sm md:text-base text-gray-900">{bid.title}</h3>
-                                    <span className={`${bid.statusColor} text-white text-xs font-medium px-3 py-1 rounded-full w-fit`}>
-                                        {bid.status}
-                                    </span>
+                    {isLoadingBids ? (
+                        <div className="p-4 md:p-6 text-center text-gray-500 text-sm">
+                            Loading bids...
+                        </div>
+                    ) : recentBids.length === 0 ? (
+                        <div className="p-4 md:p-6 text-center text-gray-500 text-sm">
+                            No bids found
+                        </div>
+                    ) : (
+                        <div className="divide-y divide-gray-200">
+                            {recentBids.map((bid, index) => (
+                                <div key={bid.bidId || index} className="p-4 md:p-6">
+                                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
+                                        <h3 className="font-semibold text-sm md:text-base text-gray-900">{bid.title}</h3>
+                                        <span className={`${bid.statusColor} text-white text-xs font-medium px-3 py-1 rounded-full w-fit`}>
+                                            {bid.status}
+                                        </span>
+                                    </div>
+                                    <p className="text-xs md:text-sm text-gray-600">Bid: {bid.bid}</p>
                                 </div>
-                                <p className="text-xs md:text-sm text-gray-600">Bid: {bid.bid}</p>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
