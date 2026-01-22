@@ -16,7 +16,7 @@ export const baseApi = createApi({
     },
   }),
   endpoints: () => ({}),
-  tagTypes: ["User", ""],
+  tagTypes: ["User", "ConstructorApproval"],
 });
 
 // with refresh token support

@@ -68,14 +68,16 @@ const userJobApi = baseApi.injectEndpoints({
           url: "/user/constructor-approval-short-list", 
           method: "GET",
         }), 
+        providesTags: ["ConstructorApproval"],
       }),
 
       verifyUserStatus: builder.mutation({
-        query: (userId) => ({
-          url: `/user/verify-status/${userId}`, 
+        query: ({id, status}) => ({
+          url: `/user/verify-status/${id}`, 
           method: "PATCH",
+          body: { "statusType": status }
         }),
-        
+        invalidatesTags: ["ConstructorApproval"],
       }),
   }),
 });
