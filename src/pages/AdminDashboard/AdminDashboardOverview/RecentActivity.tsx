@@ -1,6 +1,6 @@
-import React from 'react'
 import { useGetAdminsRecentActivityQuery } from '@/Redux/features/AdminDashboard/adminApi';
 import { timeAgo } from '@/utils/timeAgo';
+
 
 export default function RecentActivity() {
     const { data: recentActivity, isLoading: isRecentActivityLoading, isError: isRecentActivityError, error: recentActivityError } = useGetAdminsRecentActivityQuery({})
@@ -25,7 +25,11 @@ export default function RecentActivity() {
     <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
         <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4"> Recent Activity </h2>
         <div className="space-y-4">
-        {recentActivity.data.map((activity, index) => (
+        {recentActivity.data.map((activity: {
+  recentActivityId: string
+  description: string
+  createdAt: string
+}) => (
             <div
             key={activity.recentActivityId}
             className="flex flex-col sm:flex-row justify-between py-3 border-b border-gray-100 last:border-0 gap-2 sm:gap-0"

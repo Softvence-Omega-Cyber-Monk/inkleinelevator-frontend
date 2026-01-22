@@ -1,4 +1,3 @@
-import React from 'react'
 import { ArrowUpRight } from "lucide-react";
 import pepol from "@/assets/people.png";
 import dollerBag from "@/assets/money-bag-02.png";

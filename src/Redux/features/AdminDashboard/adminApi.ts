@@ -42,7 +42,11 @@ const userJobApi = baseApi.injectEndpoints({
         
       getAllUserByAdmin: builder.query< GetAllUserByAdminResponse, void | GetAllUserByAdminParams>({
           query: (args) => {
-            const params: Record<string, string | number> = {}
+            const params: Record<string, string | number> = {
+              userType: "USER", 
+              limit: 10,
+              page: 1
+            }
         
             if (args?.userType) params.userType = args.userType
             if (args?.searchTerm) params.search = args.searchTerm
