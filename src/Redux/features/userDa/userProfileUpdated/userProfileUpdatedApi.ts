@@ -18,10 +18,18 @@ export const userProfileApi = baseApi.injectEndpoints({
         body: payload, // pass FormData directly from component
       }),
     }),
+    userChangePassword: builder.mutation({
+      query: (body) => ({
+        url: "/auth/change-password",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
 export const {
   useUpdateUserProfileMutation,
   useUserUploadProfileImageMutation,
+  useUserChangePasswordMutation,
 } = userProfileApi;

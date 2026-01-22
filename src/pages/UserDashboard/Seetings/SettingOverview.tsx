@@ -53,9 +53,7 @@ export default function SettingOverview({ isLoading = false }) {
         )}
 
         {/* Security Settings Tab Content */}
-        {activeTab === "security" && (
-          <UserSettingSecurityTab isLoading={isLoading} />
-        )}
+        {activeTab === "security" && <UserSettingSecurityTab />}
 
         {/* General Settings Tab Content */}
       </div>

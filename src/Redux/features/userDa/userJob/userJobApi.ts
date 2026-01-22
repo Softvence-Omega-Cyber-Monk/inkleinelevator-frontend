@@ -50,6 +50,13 @@ const userJobApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    // close job
+    closeJob: builder.mutation<any, string>({
+      query: (jobId) => ({
+        url: `/job/close-Job?jobId=${jobId}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -59,4 +66,5 @@ export const {
   useGetAllMyJobsQuery,
   useGetSingleJobByIdQuery,
   useGetAllActiveJobsUserDashboardQuery,
+  useCloseJobMutation,
 } = userJobApi;
