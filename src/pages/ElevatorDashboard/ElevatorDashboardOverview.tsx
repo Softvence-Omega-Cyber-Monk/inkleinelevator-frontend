@@ -156,10 +156,10 @@ const ElevatorDashboardOverview = () => {
                     <h1 className="text-xl md:text-2xl font-bold text-gray-900">Dashboard</h1>
                     <p className="text-xs md:text-sm text-gray-500 mt-1">Overview of your elevator jobs, bids, and activity</p>
                 </div>
-                <button className="bg-[#1e3a5f] text-white px-3 md:px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-[#2d4a6f] transition-colors text-sm md:text-base w-full sm:w-auto">
+                {/* <button className="bg-[#1e3a5f] text-white px-3 md:px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-[#2d4a6f] transition-colors text-sm md:text-base w-full sm:w-auto">
                     <Briefcase size={18} />
                     Find Elevator Job
-                </button>
+                </button> */}
             </div>
 
             {/* Stats Cards */}
