@@ -1,0 +1,90 @@
+import { baseApi } from "@/Redux/api/baseApi";
+
+interface GetAllUserByAdminParams {
+  userType?: string
+  searchTerm?: string
+  limit?: number
+  page?: number
+}
+interface User {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+interface PaginationMeta {
+  total: number
+  page: number
+  limit: number
+}
+
+interface GetAllUserByAdminResponse {
+  data: User[]
+  meta: PaginationMeta
+}
+
+const userJobApi = baseApi.injectEndpoints({
+  endpoints: (builder) => ({
+      getAdminAllAnalytics: builder.query({
+        query: () => ({
+          url: "/user/get-all-admin-analytics", 
+          method: "GET",
+        }),
+      }),
+
+      getAdminsRecentActivity: builder.query({
+          query: () => ({
+            url: "/user/get-recent-activity-form-admin", 
+            method: "GET",
+          }),
+        }),
+        
+      getAllUserByAdmin: builder.query< GetAllUserByAdminResponse, void | GetAllUserByAdminParams>({
+          query: (args) => {
+            const params: Record<string, string | number> = {}
+        
+            if (args?.userType) params.userType = args.userType
+            if (args?.searchTerm) params.search = args.searchTerm
+            if (args?.limit) params.limit = args.limit
+            if (args?.page) params.page = args.page
+        
+            return {
+              url: "/user/all-user-by-admin",
+              method: "GET",
+              params,
+            }
+          },
+      }),
+      getAllJobByAdmin: builder.query({
+        query: () => ({
+          url: "/job/get-all-job-by-admin", 
+          method: "GET",
+        }), 
+      }),
+
+      getConstructorApprovalShortList: builder.query({
+        query: () => ({
+          url: "/user/constructor-approval-short-list", 
+          method: "GET",
+        }), 
+      }),
+
+      verifyUserStatus: builder.mutation({
+        query: (userId) => ({
+          url: `/user/verify-status/${userId}`, 
+          method: "PATCH",
+        }),
+        
+      }),
+  }),
+});
+
+export const {
+    useGetAdminAllAnalyticsQuery,
+    useGetConstructorApprovalShortListQuery,
+    useGetAdminsRecentActivityQuery,
+    useGetAllUserByAdminQuery,
+    useGetAllJobByAdminQuery,
+    useVerifyUserStatusMutation
+} = userJobApi;
