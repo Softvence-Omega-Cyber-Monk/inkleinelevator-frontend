@@ -3,7 +3,7 @@ import { DollarSign, TrendingUp, Star, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import QuickBidModal from '@/components/ElevatorAllMdal/QuickBidModal';
 import { useGetMyBidsQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
-import { useGetElevatorAllActiveJobsQuery } from '@/Redux/features/ElevatorDa/elevatorJob/elevatorJobApi';
+import { useGetAllJobsQuery } from '@/Redux/features/userDa/userJob/userJobApi';
 import { useGetDashboardAnalyticsQuery } from '@/Redux/features/ElevatorDa/dashboardAnalytics/dashboardAnalyticsApi';
 
 const ElevatorDashboardOverview = () => {
@@ -65,15 +65,21 @@ const ElevatorDashboardOverview = () => {
         ];
     }, [analyticsData]);
 
-    // Fetch active jobs using API
-    const { data: activeJobsData, isLoading: isLoadingActiveJobs } = useGetElevatorAllActiveJobsQuery({});
+    // Fetch all jobs using API
+    const { data: allJobsData, isLoading: isLoadingActiveJobs } = useGetAllJobsQuery({
+        page: 1,
+        limit: 10, // Limit to 10 jobs for the dashboard
+    });
 
     // Transform API response to match component structure
     const activeJobs = useMemo(() => {
-        if (!activeJobsData?.data || !Array.isArray(activeJobsData.data)) return [];
+        // Handle the API response structure: data.data.jobs
+        const jobsArray = allJobsData?.data?.jobs || allJobsData?.data || [];
+        if (!Array.isArray(jobsArray) || jobsArray.length === 0) return [];
 
-        return activeJobsData.data.map((job: any) => {
-            // Parse budget range (format: "6300-3594")
+        // Limit to 5 jobs for dashboard display
+        return jobsArray.slice(0, 3).map((job: any) => {
+            // Parse budget range (format: "6300-3594" or "50000")
             const parseBudget = (budgetStr?: string) => {
                 if (!budgetStr) return { min: 0, max: 0, display: '$0' };
                 const parts = budgetStr.split('-').map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
@@ -81,7 +87,16 @@ const ElevatorDashboardOverview = () => {
                     return {
                         min: Math.min(parts[0], parts[1]),
                         max: Math.max(parts[0], parts[1]),
-                        display: `$${Math.min(parts[0], parts[1])}-$${Math.max(parts[0], parts[1])}`
+                        display: `$${Math.min(parts[0], parts[1]).toLocaleString()}-$${Math.max(parts[0], parts[1]).toLocaleString()}`
+                    };
+                }
+                // Single value budget
+                const singleValue = parseFloat(budgetStr);
+                if (!isNaN(singleValue)) {
+                    return {
+                        min: singleValue,
+                        max: singleValue,
+                        display: `$${singleValue.toLocaleString()}`
                     };
                 }
                 return { min: 0, max: 0, display: `$${budgetStr}` };
@@ -115,7 +130,7 @@ const ElevatorDashboardOverview = () => {
                 location: fullLocation,
             };
         });
-    }, [activeJobsData]);
+    }, [allJobsData]);
 
     // Fetch my bids using API
     const { data: bidsData, isLoading: isLoadingBids } = useGetMyBidsQuery({
