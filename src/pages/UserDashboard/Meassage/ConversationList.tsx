@@ -1,16 +1,17 @@
 "use client"
 
 interface Conversation {
-  id: number
+  id: number | string
   name: string
   avatar: string
   lastMessage: string
   unread: boolean
+  userId?: string
 }
 
 interface ConversationListProps {
   conversations: Conversation[]
-  selectedConversation: Conversation
+  selectedConversation: Conversation | null
   onSelectConversation: (conversation: Conversation) => void
 }
 
@@ -31,7 +32,7 @@ export default function ConversationList({
             key={conversation.id}
             onClick={() => onSelectConversation(conversation)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-              selectedConversation.id === conversation.id ? "bg-gray-100" : "hover:bg-gray-50"
+              selectedConversation?.id === conversation.id ? "bg-gray-100" : "hover:bg-gray-50"
             }`}
           >
             <div className="relative flex-shrink-0">
