@@ -2,6 +2,9 @@ import { CheckCircle, Eye, MessageCircleMore } from "lucide-react";
 import { useState } from "react";
 import PaymentModal from "./Modal/PaymentModal";
 
+import TmessageModal from "@/components/userDashboardComponent/tmassageModal/TmessageModal";
+import ViewDetailsModal from "@/components/userDashboardComponent/tmassageModal/ViewDetailsModal";
+
 interface DetailesBidsTabProps {
   singleJobData?: any;
   isLoading?: boolean;
@@ -19,6 +22,13 @@ export default function DetailesBidsTab({
   // for modal paumenbt
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBid, setSelectedBid] = useState<any>(null);
+
+  // for Message Modal
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [selectedBidForMessage, setSelectedBidForMessage] = useState<any>(null);
+  // details modal
+  const [veiwedetailesModalOpen, setVeiwedetailesModalOpen] = useState(false);
+  const [selectedViewedetailes, setselectedViewedetailes] = useState<any>(null);
 
   if (isLoading) {
     return <div>Loading bids...</div>;
@@ -84,26 +94,28 @@ export default function DetailesBidsTab({
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 mt-4">
-                <button className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors">
+                <button
+                  onClick={() => {
+                    setselectedViewedetailes(bid);
+                    setVeiwedetailesModalOpen(true);
+                  }}
+                  className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors"
+                >
                   <Eye size={20} className="text-muted-foreground" />
                 </button>
 
-                <button className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors">
+                <button
+                  onClick={() => {
+                    setSelectedBidForMessage(bid); // set the clicked bid info
+                    setIsMessageModalOpen(true); // open the modal
+                  }}
+                  className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors"
+                >
                   <MessageCircleMore
                     size={20}
                     className="text-muted-foreground"
                   />
                 </button>
-
-                {/* <button
-                  onClick={() => {
-                    setSelectedBid(bid);
-                    setIsModalOpen(true);
-                  }}
-                  className="bg-[#0A1A3A] text-nowrap text-white px-5 py-2.5 rounded-lg font-semibold cursor-pointer text-sm hover:opacity-90 transition-opacity"
-                >
-                  Award Contact
-                </button> */}
 
                 <button
                   onClick={() => {
@@ -136,6 +148,26 @@ export default function DetailesBidsTab({
             setSelectedBid(null);
           }}
           refetch={refetch}
+        />
+      )}
+      {/* Message Modal */}
+      {isMessageModalOpen && selectedBidForMessage && (
+        <TmessageModal
+          bidMessage={selectedBidForMessage}
+          onClose={() => {
+            setIsMessageModalOpen(false);
+            setSelectedBidForMessage(null);
+          }}
+        />
+      )}
+      {/* View Details Modal */}
+      {veiwedetailesModalOpen && selectedViewedetailes && (
+        <ViewDetailsModal
+          bid={selectedViewedetailes}
+          onClose={() => {
+            setVeiwedetailesModalOpen(false);
+            setselectedViewedetailes(null);
+          }}
         />
       )}
     </div>
