@@ -19,7 +19,7 @@ interface Conversation {
 export default function MessagesPage() {
   const [getMe] = useGetMeMutation();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  
+  const [selectedUserId, setSelectedUserId] = useState<string |number | null>(null);
   // Socket.IO connection
   const { socket, isConnected } = useSocket(currentUserId);
   
@@ -85,6 +85,15 @@ export default function MessagesPage() {
   );
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Update selectedUserId when conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      const userId = selectedConversation.userId || selectedConversation.id;
+      setSelectedUserId(userId);
+      console.log('✅ Selected user ID updated:', userId);
+    }
+  }, [selectedConversation]);
+
   // Filter conversations based on search
   const filteredConversations = useMemo(() => {
     if (!searchQuery.trim()) return conversations;
@@ -100,6 +109,17 @@ export default function MessagesPage() {
       setSelectedConversation(conversations[0]);
     }
   }, [conversations, selectedConversation]);
+
+  // Update selectedUserId when conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      const userId = selectedConversation.userId || selectedConversation.id;
+      setSelectedUserId(userId);
+      console.log('✅ Selected user ID updated:', userId, 'from conversation:', selectedConversation.name);
+    } else {
+      setSelectedUserId(null);
+    }
+  }, [selectedConversation]);
 
   // Get the OTHER user's ID for message history (not current user's ID)
   // This is the ID of the user selected from the conversation list
@@ -131,14 +151,17 @@ export default function MessagesPage() {
   }, [selectedConversation, currentUserId]);
 
   // Fetch message history when conversation is selected
-  // This API will fetch messages between current user and the selected user (withUserId)
+  // This API will fetch messages between current user and the selected user
+  // Use selectedUserId (set when conversation is selected) as withUserId parameter
   const { data: messageHistoryData, isLoading: isLoadingMessages } = useGetMessageHistoryQuery(
-    { withUserId },
+    { withUserId: selectedUserId || withUserId },
     { 
-      skip: !selectedConversation || !currentUserId || !withUserId || withUserId === String(currentUserId),
+      skip: !selectedConversation || !currentUserId || !selectedUserId || String(selectedUserId) === String(currentUserId),
     }
   );
-
+  
+  console.log('messageHistoryData:', messageHistoryData);
+  console.log('API called with selectedUserId:', selectedUserId);
   // Log when API is called
   useEffect(() => {
     if (withUserId && selectedConversation) {
@@ -158,44 +181,40 @@ export default function MessagesPage() {
 
   // Transform message history to component format
   const messages = useMemo(() => {
-    if (!messageHistoryData?.data || !Array.isArray(messageHistoryData.data)) {
+    // Handle direct array response (API returns array directly, not wrapped in data)
+    let messagesArray: any[] = [];
+    
+    if (Array.isArray(messageHistoryData)) {
+      // Direct array response
+      messagesArray = messageHistoryData;
+    } else if (Array.isArray(messageHistoryData?.data)) {
+      // Wrapped in data property
+      messagesArray = messageHistoryData.data;
+    } else {
       console.log('No message history data or not an array:', messageHistoryData);
       return [];
     }
+
     if (!currentUserId) {
       console.log('No currentUserId available');
       return [];
     }
 
-    const currentUserIdStr = String(currentUserId).trim().toLowerCase();
-    console.log('Transforming messages, currentUserId:', currentUserIdStr, 'total messages:', messageHistoryData.data.length);
+    if (messagesArray.length === 0) {
+      console.log('Message history array is empty');
+      return [];
+    }
 
-    const transformed = messageHistoryData.data.map((msg: any) => {
-      // Convert to string for reliable comparison - handle multiple possible field names
-      // Try different possible field paths for senderId
-      const msgSenderId = String(
-        msg.senderId || 
-        msg.sender?.userId || 
-        msg.sender?.id || 
-        msg.userId || 
-        msg.senderId || 
-        ''
-      ).trim().toLowerCase();
-      
+    const currentUserIdStr = String(currentUserId).trim().toLowerCase();
+    console.log('✅ Transforming messages, currentUserId:', currentUserIdStr, 'total messages:', messagesArray.length);
+
+    const transformed = messagesArray.map((msg: any) => {
+      // Convert to string for reliable comparison - use senderId directly from API
+      const msgSenderId = String(msg.senderId || '').trim().toLowerCase();
       const isCurrentUser = msgSenderId === currentUserIdStr;
       
-      // Debug log for every message
-      console.log('Transforming message:', {
-        msgSenderId,
-        currentUserIdStr,
-        isCurrentUser,
-        messageId: msg.id,
-        text: msg.text,
-        fullMessage: msg,
-      });
-      
       return {
-        id: msg.id || Date.now(),
+        id: msg.messageId || msg.id || Date.now(), // Use messageId from API
         sender: (isCurrentUser ? "user" : "other") as "user" | "other",
         senderName: isCurrentUser ? "You" : selectedConversation?.name || "User",
         text: msg.text || "",
@@ -203,9 +222,9 @@ export default function MessagesPage() {
       };
     });
 
-    console.log('Transformed messages:', transformed);
-    console.log('User messages count:', transformed.filter(m => m.sender === "user").length);
-    console.log('Other messages count:', transformed.filter(m => m.sender === "other").length);
+    console.log('✅ Transformed messages:', transformed.length);
+    console.log('   User messages count:', transformed.filter(m => m.sender === "user").length);
+    console.log('   Other messages count:', transformed.filter(m => m.sender === "other").length);
 
     return transformed;
   }, [messageHistoryData, currentUserId, selectedConversation]);
