@@ -56,6 +56,12 @@ const Login: React.FC = () => {
         toast.success(response.message || "Login successful!");
         if (user.role === "USER") {
           navigate("/user");
+        } else if (user.role === "ELEVATOR") {
+          navigate("/elevator");
+        } else if (user.role === "ADMIN") {
+          navigate("/admin");
+        } else if (user.role === "SUPER_ADMIN") {
+          navigate("/admin");
         }
       } else {
         toast.error(response.message || "Login failed!");

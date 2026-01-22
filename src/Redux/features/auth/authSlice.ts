@@ -8,6 +8,7 @@ export type TUser = {
   role: string;
   email: string;
   name: string;
+  phone: string;
   iat: number;
   exp: number;
   profileImg: string;
