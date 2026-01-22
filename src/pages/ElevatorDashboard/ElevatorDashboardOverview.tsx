@@ -4,36 +4,66 @@ import { Link } from 'react-router-dom';
 import QuickBidModal from '@/components/ElevatorAllMdal/QuickBidModal';
 import { useGetMyBidsQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 import { useGetElevatorAllActiveJobsQuery } from '@/Redux/features/ElevatorDa/elevatorJob/elevatorJobApi';
+import { useGetDashboardAnalyticsQuery } from '@/Redux/features/ElevatorDa/dashboardAnalytics/dashboardAnalyticsApi';
 
 const ElevatorDashboardOverview = () => {
     const [quickBidModalOpen, setQuickBidModalOpen] = useState(false);
     const [selectedJob, setSelectedJob] = useState<{ id: number | string; title: string; budgetMin: number; budgetMax: number } | null>(null);
-    const statsCards = [
-        {
-            title: 'Active Projects',
-            value: '5',
-            subtitle: 'Modernization, 3 Maintenance',
-            icon: Briefcase,
-        },
-        {
-            title: 'Revenue This Month',
-            value: '$427,500',
-            subtitle: '+2% last last month',
-            icon: DollarSign,
-        },
-        {
-            title: 'Win Rate',
-            value: '76%',
-            subtitle: 'Based on 5 bids',
-            icon: TrendingUp,
-        },
-        {
-            title: 'Company Rating',
-            value: '4.9',
-            subtitle: '29 Project Reviews',
-            icon: Star,
-        },
-    ];
+    
+    // Fetch dashboard analytics
+    const { data: analyticsData, isLoading: isLoadingAnalytics } = useGetDashboardAnalyticsQuery();
+    
+    // Format revenue with currency
+    const formatRevenue = (amount: number) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount);
+    };
+    
+    // Format rating
+    const formatRating = (rating: number | null) => {
+        if (rating === null || rating === undefined) return 'N/A';
+        return rating.toFixed(1);
+    };
+    
+    // Create stats cards from API data
+    const statsCards = useMemo(() => {
+        const analytics = analyticsData?.data;
+        const totalBids = analytics?.totalBid || 0;
+        const jobCount = analytics?.jobCount || 0;
+        const revenue = analytics?.totalRevenew || 0;
+        const rating = analytics?.userRatingResult?._avg?.rating || null;
+        
+        return [
+            {
+                title: 'Active Projects',
+                value: jobCount.toString(),
+                subtitle: `${jobCount} ${jobCount === 1 ? 'project' : 'projects'}`,
+                icon: Briefcase,
+            },
+            {
+                title: 'Revenue This Month',
+                value: formatRevenue(revenue),
+                subtitle: revenue > 0 ? 'Total revenue' : 'No revenue yet',
+                icon: DollarSign,
+            },
+            {
+                title: 'Total Bids',
+                value: totalBids.toString(),
+                subtitle: `${totalBids} ${totalBids === 1 ? 'bid' : 'bids'} submitted`,
+                icon: TrendingUp,
+            },
+            {
+                title: 'Company Rating',
+                value: formatRating(rating),
+                subtitle: rating ? 'Average rating' : 'No ratings yet',
+                icon: Star,
+            },
+        ];
+    }, [analyticsData]);
 
     // Fetch active jobs using API
     const { data: activeJobsData, isLoading: isLoadingActiveJobs } = useGetElevatorAllActiveJobsQuery({});
@@ -134,16 +164,29 @@ const ElevatorDashboardOverview = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-                {statsCards.map((card, index) => (
-                    <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
-                        <div className="flex justify-between items-start mb-3 md:mb-4">
-                            <span className="text-xs md:text-sm text-gray-600">{card.title}</span>
-                            <card.icon size={18} className="text-gray-400" />
+                {isLoadingAnalytics ? (
+                    Array.from({ length: 4 }).map((_, index) => (
+                        <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+                            <div className="flex justify-between items-start mb-3 md:mb-4">
+                                <span className="text-xs md:text-sm text-gray-300 bg-gray-200 rounded h-4 w-20 animate-pulse"></span>
+                                <div className="w-4 h-4 bg-gray-200 rounded animate-pulse"></div>
+                            </div>
+                            <div className="text-2xl md:text-3xl font-bold text-gray-200 bg-gray-200 rounded h-8 w-24 mb-1 animate-pulse"></div>
+                            <div className="text-xs text-gray-200 bg-gray-200 rounded h-3 w-32 animate-pulse"></div>
                         </div>
-                        <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{card.value}</div>
-                        <div className="text-xs text-gray-500">{card.subtitle}</div>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    statsCards.map((card, index) => (
+                        <div key={index} className="bg-white rounded-lg border border-gray-200 p-4 md:p-6">
+                            <div className="flex justify-between items-start mb-3 md:mb-4">
+                                <span className="text-xs md:text-sm text-gray-600">{card.title}</span>
+                                <card.icon size={18} className="text-gray-400" />
+                            </div>
+                            <div className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">{card.value}</div>
+                            <div className="text-xs text-gray-500">{card.subtitle}</div>
+                        </div>
+                    ))
+                )}
             </div>
 
             {/* Active Jobs and Recent Bids */}

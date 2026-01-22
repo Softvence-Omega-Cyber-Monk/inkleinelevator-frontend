@@ -1,41 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, DollarSign, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
-import { jobDetailsData } from '@/data/jobDetails';
 import { useGetElevatorAllRecentBidQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 
-interface Job {
-    id: number;
-    jobId?: string;
-    title: string;
-    location: string;
-    budget: string;
-    budgetMin?: number;
-    budgetMax?: number;
-    postedTime: string;
-    type: string;
-    description: string;
-}
-
-interface MyJob extends Job {
-    status: string;
-    statusColor: string;
-}
-
-interface MyJobsContentProps {
-    jobs?: MyJob[];
-    isLoading?: boolean;
-}
 
 // My Jobs Component - Uses recent bids API to get jobs
-const MyJobsContent = ({ jobs: propJobs, isLoading: propIsLoading = false }: MyJobsContentProps) => {
+const MyJobsContent = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
-    // Fetch recent bids to get jobs (only if no propJobs provided)
-    const { data: recentBidsData, isLoading: isLoadingRecentBids } = useGetElevatorAllRecentBidQuery(undefined, {
-        skip: !!propJobs, // Skip if propJobs are provided
-    });
+    // Fetch recent bids to get jobs
+    const { data: recentBidsData, isLoading } = useGetElevatorAllRecentBidQuery();
 
     // Transform recent bids data to jobs format
     const jobsFromBids = useMemo(() => {
@@ -92,15 +67,34 @@ const MyJobsContent = ({ jobs: propJobs, isLoading: propIsLoading = false }: MyJ
             };
             const statusInfo = statusMap[bid.status] || { status: 'Active', color: 'bg-orange-500' };
 
+            // Format date
+            const formatDate = (dateStr?: string) => {
+                if (!dateStr) return 'Recently';
+                try {
+                    const date = new Date(dateStr);
+                    const now = new Date();
+                    const diffTime = Math.abs(now.getTime() - date.getTime());
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 0) return 'Today';
+                    if (diffDays === 1) return 'Yesterday';
+                    if (diffDays < 7) return `${diffDays} days ago`;
+                    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
+                    return date.toLocaleDateString();
+                } catch {
+                    return 'Recently';
+                }
+            };
+
             return {
-                id: parseInt(job.jobId.slice(0, 8), 16) || 0, // Generate numeric ID from jobId for compatibility
+                id: parseInt(job.jobId?.slice(0, 8) || '0', 16) || 0, // Generate numeric ID from jobId for compatibility
                 jobId: job.jobId,
                 title: job.jobTitle || 'Untitled Job',
                 location: fullLocation,
                 budget: budget.display,
                 budgetMin: budget.min,
                 budgetMax: budget.max,
-                postedTime: job.createdAt ? new Date(job.createdAt).toLocaleDateString() : '',
+                postedTime: formatDate(job.createdAt),
                 type: capitalize(job.jobType || ''),
                 status: statusInfo.status,
                 statusColor: statusInfo.color,
@@ -109,26 +103,13 @@ const MyJobsContent = ({ jobs: propJobs, isLoading: propIsLoading = false }: MyJ
         });
     }, [recentBidsData]);
 
-    // Use prop jobs if provided, otherwise use jobs from recent bids API, fallback to JSON data
-    const allJobs = propJobs || (jobsFromBids.length > 0 ? jobsFromBids : jobDetailsData.jobs.map((job) => ({
-        id: job.id,
-        jobId: job.id.toString(),
-        title: job.title,
-        location: job.location.address,
-        budget: job.budget.display,
-        postedTime: job.postedDate,
-        type: job.type,
-        status: job.status || 'Active',
-        statusColor: job.statusColor || 'bg-orange-500',
-        description: job.description,
-    })));
-
-    const isLoading = propIsLoading || isLoadingRecentBids;
+    // Use jobs from recent bids API only
+    const allJobs = jobsFromBids;
 
     // Reset pagination when jobs change
     useEffect(() => {
         setCurrentPage(1);
-    }, [propJobs, jobsFromBids]);
+    }, [jobsFromBids]);
 
     // Pagination logic
     const totalPages = Math.ceil(allJobs.length / itemsPerPage);

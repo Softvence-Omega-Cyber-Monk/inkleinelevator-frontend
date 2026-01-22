@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Star, Plus, CheckCircle2, Circle, X } from 'lucide-react';
-import { useGetMeMutation, useUpdateProfileMutation } from '@/Redux/features/auth/authApi';
+import { useGetMeMutation, useUpdateProfileMutation, useUploadProfileMutation } from '@/Redux/features/auth/authApi';
 import { toast } from 'sonner';
 
 interface CompanyProfileProps {}
@@ -212,9 +212,9 @@ const EditableForm: React.FC<{
                 Phone Number
               </label>
               <div className="flex">
-                <span className="inline-flex items-center px-3 bg-blue-50 border border-r-0 border-blue-100 rounded-l-md text-sm text-gray-700">
+                {/* <span className="inline-flex items-center px-3 bg-blue-50 border border-r-0 border-blue-100 rounded-l-md text-sm text-gray-700">
                   🇺🇸 +1
-                </span>
+                </span> */}
                 <input
                   type="text"
                   value={formData.phoneNumber}
@@ -299,8 +299,17 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
     businessAddress: '',
   });
 
+  // Store additional fields from API that are not in CompanyData form
+  const [userName, setUserName] = useState<string>('');
+  const [businessLogo, setBusinessLogo] = useState<string>('');
+  const [licenseInfo, setLicenseInfo] = useState<string>('');
+  const [isNotification, setIsNotification] = useState<boolean>(false);
+  const [profileImage, setProfileImage] = useState<string>('');
+
   const [getMe, { isLoading: isLoadingProfile }] = useGetMeMutation();
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  const [uploadProfile, { isLoading: isUploadingProfile }] = useUploadProfileMutation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -325,6 +334,13 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             website: userData.website || '',
             businessAddress: userData.businessAddress || '',
           });
+          
+          // Store additional fields for payload
+          setUserName(userData.name || '');
+          setBusinessLogo(userData.businessLogo || '');
+          setLicenseInfo(userData.licenseInfo || '');
+          setIsNotification(userData.isNotification ?? false);
+          setProfileImage(userData.profile || '');
         }
       } catch (error: any) {
         console.error('Error fetching profile:', error);
@@ -335,13 +351,59 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
     fetchProfile();
   }, [getMe]);
 
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('profile', file);
+
+      const response = await uploadProfile(formData).unwrap();
+      
+      if (response.success && response.data?.profile) {
+        setProfileImage(response.data.profile);
+        toast.success('Profile image uploaded successfully');
+        
+        // Optionally refetch profile to get latest data
+        const refreshResponse = await getMe().unwrap();
+        if (refreshResponse.success && refreshResponse.data) {
+          const userData = refreshResponse.data;
+          setProfileImage(userData.profile || '');
+        }
+      }
+    } catch (error: any) {
+      console.error('Error uploading profile image:', error);
+      toast.error(error?.data?.message || 'Failed to upload profile image');
+    } finally {
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleSave = async (data: CompanyData) => {
     try {
-      // Prepare update payload - only include fields that user wants to update
-      // NOTE: phone is NOT included as the API doesn't accept it
+      // Prepare update payload - include ALL fields from API to ensure complete payload
       const updatePayload: {
         name?: string;
+        phone?: string;
+        email?: string;
         companyName?: string;
+        businessLogo?: string;
         companyDescription?: string;
         servicesType?: string;
         yearFounded?: string;
@@ -349,18 +411,25 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         website?: string;
         businessAddress?: string;
         licenseNo?: string;
+        licenseInfo?: string;
+        isNotification?: boolean;
       } = {};
 
-      // Only include fields that have values (user can update any field they want)
-      if (data.companyName) updatePayload.companyName = data.companyName;
-      if (data.companyDescription) updatePayload.companyDescription = data.companyDescription;
-      if (data.serviceTypes.length > 0) updatePayload.servicesType = data.serviceTypes.join(', ');
-      if (data.yearFounded) updatePayload.yearFounded = data.yearFounded;
-      if (data.numberOfEmployees) updatePayload.numberOfEmployee = data.numberOfEmployees;
-      if (data.website) updatePayload.website = data.website;
-      if (data.businessAddress) updatePayload.businessAddress = data.businessAddress;
-      if (data.licenseNumber) updatePayload.licenseNo = data.licenseNumber;
-      // Phone number is NOT included in update payload as API doesn't accept it
+      // Include ALL fields in payload (even if empty) to ensure proper API handling
+      updatePayload.name = userName || '';
+      updatePayload.phone = data.phoneNumber || '';
+      updatePayload.email = data.email || '';
+      updatePayload.companyName = data.companyName || '';
+      updatePayload.businessLogo = businessLogo || '';
+      updatePayload.companyDescription = data.companyDescription || '';
+      updatePayload.servicesType = data.serviceTypes.length > 0 ? data.serviceTypes.join(', ') : '';
+      updatePayload.yearFounded = data.yearFounded || '';
+      updatePayload.numberOfEmployee = data.numberOfEmployees || '';
+      updatePayload.website = data.website || '';
+      updatePayload.businessAddress = data.businessAddress || '';
+      updatePayload.licenseNo = data.licenseNumber || '';
+      updatePayload.licenseInfo = licenseInfo || '';
+      updatePayload.isNotification = isNotification;
 
       const response = await updateProfile(updatePayload).unwrap();
       
@@ -387,6 +456,12 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             website: userData.website || '',
             businessAddress: userData.businessAddress || '',
           });
+          
+          // Update additional fields
+          setUserName(userData.name || '');
+          setBusinessLogo(userData.businessLogo || '');
+          setLicenseInfo(userData.licenseInfo || '');
+          setIsNotification(userData.isNotification ?? false);
         }
       }
     } catch (error: any) {
@@ -417,6 +492,12 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             website: userData.website || '',
             businessAddress: userData.businessAddress || '',
           });
+          
+          // Update additional fields
+          setUserName(userData.name || '');
+          setBusinessLogo(userData.businessLogo || '');
+          setLicenseInfo(userData.licenseInfo || '');
+          setIsNotification(userData.isNotification ?? false);
         }
       } catch (error) {
         console.error('Error fetching profile:', error);
@@ -471,10 +552,20 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
               {/* Company Logo Card */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 <div className="flex flex-col items-center">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center mb-4">
-                    <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mb-4 overflow-hidden border-2 border-gray-200">
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center">
+                        <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                    )}
                   </div>
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center mb-1">
                     {companyData.companyName}
@@ -487,11 +578,22 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     </div>
                     <span className="ml-2 text-sm text-gray-500">(127 reviews)</span>
                   </div>
-                  <button className="w-full bg-[#1e293b] text-white py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors flex items-center justify-center">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleProfileImageUpload}
+                    className="hidden"
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingProfile}
+                    className="w-full bg-[#1e293b] text-white py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    Upload Logo
+                    {isUploadingProfile ? 'Uploading...' : 'Upload Profile'}
                   </button>
                 </div>
               </div>
@@ -636,7 +738,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md text-sm text-gray-700">
-                                🇺🇸 +1
+                                +
                               </span>
                               <input
                                 type="text"
@@ -646,7 +748,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                               />
                             </div>
                           </div>
-                          <div>
+                          {/* <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                             <input
                               type="email"
@@ -654,7 +756,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                               readOnly
                               className="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-900"
                             />
-                          </div>
+                          </div> */}
                         </div>
 
                         <div className="mb-4">

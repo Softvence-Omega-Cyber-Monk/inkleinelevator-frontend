@@ -43,6 +43,16 @@ interface UserProfileResponse {
   };
 }
 
+interface ChangePasswordDto {
+  oldPassword: string;
+  newPassword: string;
+}
+
+interface ChangePasswordResponse {
+  success: boolean;
+  message: string;
+}
+
 const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -82,7 +92,23 @@ const authApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    // Change password
+    changePassword: builder.mutation<ChangePasswordResponse, ChangePasswordDto>({
+      query: (passwordData) => ({
+        url: "/auth/change-password",
+        method: "POST",
+        body: passwordData,
+      }),
+    }),
+    // Upload profile image
+    uploadProfile: builder.mutation<UserProfileResponse, FormData>({
+      query: (formData) => ({
+        url: "/auth/upload-profile",
+        method: "POST",
+        body: formData,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetMeMutation, useUpdateProfileMutation, useDeleteOwnProfileMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation, useGetMeMutation, useUpdateProfileMutation, useDeleteOwnProfileMutation, useChangePasswordMutation, useUploadProfileMutation } = authApi;
