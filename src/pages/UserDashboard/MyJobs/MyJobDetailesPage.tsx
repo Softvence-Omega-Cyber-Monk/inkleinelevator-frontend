@@ -15,7 +15,7 @@ export default function MyJobDetailesPage() {
   const { id } = useParams();
 
   console.log("i am the dynamic id ", id);
-  const { data, isLoading } = useGetSingleJobByIdQuery(id);
+  const { data, isLoading, refetch } = useGetSingleJobByIdQuery(id);
 
   console.log("i am the single the data for job", data);
   const singleJobData = data?.data;
@@ -153,6 +153,7 @@ export default function MyJobDetailesPage() {
           <DetailesBidsTab
             singleJobData={singleJobData}
             isLoading={isLoading}
+            refetch={refetch}
           />
         )}
       </div>
