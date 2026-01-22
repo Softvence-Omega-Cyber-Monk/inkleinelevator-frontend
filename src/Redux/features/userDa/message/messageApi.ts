@@ -57,7 +57,7 @@ const messageApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (result, error, { receiverId }) => [
+      invalidatesTags: (_result, _error, { receiverId }) => [
         { type: "MessageHistory", id: receiverId },
         "MessageChatList",
       ],
@@ -71,7 +71,7 @@ const messageApi = baseApi.injectEndpoints({
           withUserId,
         },
       }),
-      providesTags: (result, error, { withUserId }) => [
+      providesTags: (_result, _error, { withUserId }) => [
         { type: "MessageHistory", id: withUserId },
       ],
     }),

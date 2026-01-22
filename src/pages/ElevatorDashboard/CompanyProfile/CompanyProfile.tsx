@@ -315,7 +315,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getMe().unwrap();
+        const response = await getMe({}).unwrap();
         if (response.success && response.data) {
           const userData = response.data;
           
@@ -325,7 +325,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             licenseNumber: userData.licenseNo || '',
             companyDescription: userData.companyDescription || '',
             serviceTypes: userData.servicesType 
-              ? userData.servicesType.split(',').map(s => s.trim()).filter(Boolean)
+              ? userData.servicesType.split(',').map((s: string) => s.trim()).filter(Boolean)
               : [],
             yearFounded: userData.yearFounded || '',
             numberOfEmployees: userData.numberOfEmployee || '',
@@ -378,7 +378,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         toast.success('Profile image uploaded successfully');
         
         // Optionally refetch profile to get latest data
-        const refreshResponse = await getMe().unwrap();
+        const refreshResponse = await getMe({}).unwrap();
         if (refreshResponse.success && refreshResponse.data) {
           const userData = refreshResponse.data;
           setProfileImage(userData.profile || '');
@@ -439,7 +439,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         toast.success('Profile updated successfully');
         
         // Optionally refetch profile to get latest data
-        const refreshResponse = await getMe().unwrap();
+        const refreshResponse = await getMe({}).unwrap();
         if (refreshResponse.success && refreshResponse.data) {
           const userData = refreshResponse.data;
           setCompanyData({
@@ -447,7 +447,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             licenseNumber: userData.licenseNo || '',
             companyDescription: userData.companyDescription || '',
             serviceTypes: userData.servicesType 
-              ? userData.servicesType.split(',').map(s => s.trim()).filter(Boolean)
+              ? userData.servicesType.split(',').map((s: string) => s.trim()).filter(Boolean)
               : [],
             yearFounded: userData.yearFounded || '',
             numberOfEmployees: userData.numberOfEmployee || '',
@@ -475,7 +475,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
     // Refetch original data to reset form
     const fetchProfile = async () => {
       try {
-        const response = await getMe().unwrap();
+        const response = await getMe({}).unwrap();
         if (response.success && response.data) {
           const userData = response.data;
           setCompanyData({
@@ -483,7 +483,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             licenseNumber: userData.licenseNo || '',
             companyDescription: userData.companyDescription || '',
             serviceTypes: userData.servicesType 
-              ? userData.servicesType.split(',').map(s => s.trim()).filter(Boolean)
+              ? userData.servicesType.split(',').map((s: string) => s.trim()).filter(Boolean)
               : [],
             yearFounded: userData.yearFounded || '',
             numberOfEmployees: userData.numberOfEmployee || '',

@@ -75,7 +75,7 @@ export default function SettingOverview({
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await getMe().unwrap();
+        const response = await getMe({}).unwrap();
         if (response.success && response.data) {
           const userData = response.data;
           setFormData((prev) => ({
@@ -224,7 +224,7 @@ export default function SettingOverview({
     }
 
     try {
-      const response = await deleteOwnProfile().unwrap();
+      const response = await deleteOwnProfile({}).unwrap();
       
       if (response.success) {
         toast.success('Account deleted successfully');
