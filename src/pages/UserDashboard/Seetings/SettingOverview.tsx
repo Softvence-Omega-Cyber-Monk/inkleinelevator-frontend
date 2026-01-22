@@ -3,12 +3,25 @@ import { useState } from "react";
 import UserSettingProfileTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingProfileTab";
 import UserSettingSecurityTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingSecurityTab";
 
-type TabType = "profile" | "security" | "general";
+type TabType = "profile" | "security" | "stripe";
 
 // Types for props (preparing for Redux API)
 
 export default function SettingOverview({ isLoading = false }) {
   const [activeTab, setActiveTab] = useState<TabType>("profile");
+
+  // const handleToggleNotification = (field: "emailNotifications" | "smsNotifications" | "newBidsAlerts") => {
+  //   const newValue = !formData[field];
+  //   handleInputChange(field, newValue);
+  //   if (onUpdateNotifications) {
+  //     onUpdateNotifications({
+  //       emailNotifications: formData.emailNotifications,
+  //       smsNotifications: formData.smsNotifications,
+  //       newBidsAlerts: formData.newBidsAlerts,
+  //       [field]: newValue,
+  //     });
+  //   }
+  // };
 
   const tabs: { id: TabType; label: string }[] = [
     { id: "profile", label: "Profile Settings" },

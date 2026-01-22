@@ -1,19 +1,19 @@
 import { baseApi } from "../../api/baseApi";
 
-interface UpdateUserProfileDto {
-  name?: string;
-  companyName?: string;
-  businessLogo?: string;
-  companyDescription?: string;
-  servicesType?: string;
-  yearFounded?: string;
-  numberOfEmployee?: string;
-  website?: string;
-  businessAddress?: string;
-  licenseNo?: string;
-  licenseInfo?: string;
-  isNotification?: boolean;
-}
+// interface UpdateUserProfileDto {
+//   name?: string;
+//   companyName?: string;
+//   businessLogo?: string;
+//   companyDescription?: string;
+//   servicesType?: string;
+//   yearFounded?: string;
+//   numberOfEmployee?: string;
+//   website?: string;
+//   businessAddress?: string;
+//   licenseNo?: string;
+//   licenseInfo?: string;
+//   isNotification?: boolean;
+// }
 
 interface UserProfileResponse {
   success: boolean;
@@ -43,6 +43,16 @@ interface UserProfileResponse {
   };
 }
 
+// interface ChangePasswordDto {
+//   oldPassword: string;
+//   newPassword: string;
+// }
+
+// interface ChangePasswordResponse {
+//   success: boolean;
+//   message: string;
+// }
+
 const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
@@ -61,14 +71,14 @@ const authApi = baseApi.injectEndpoints({
       }),
     }),
     // Get user own profile
-    getMe: builder.mutation<UserProfileResponse, void>({
+    getMe: builder.mutation({
       query: () => ({
         url: "/auth/getMe",
         method: "POST",
       }),
     }),
     // Update user profile
-    updateProfile: builder.mutation<UserProfileResponse, UpdateUserProfileDto>({
+    updateProfile: builder.mutation({
       query: (profileData) => ({
         url: "/user/update-profile",
         method: "PATCH",
@@ -76,13 +86,29 @@ const authApi = baseApi.injectEndpoints({
       }),
     }),
     // Delete own profile
-    deleteOwnProfile: builder.mutation<{ success: boolean; message: string }, void>({
+    deleteOwnProfile: builder.mutation({
       query: () => ({
         url: "/user/ownProfileDelete",
         method: "DELETE",
       }),
     }),
+    // Change password
+    changePassword: builder.mutation({
+      query: (passwordData) => ({
+        url: "/auth/change-password",
+        method: "POST",
+        body: passwordData,
+      }),
+    }),
+    // Upload profile image
+    uploadProfile: builder.mutation<UserProfileResponse, FormData>({
+      query: (formData) => ({
+        url: "/auth/upload-profile",
+        method: "POST",
+        body: formData,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetMeMutation, useUpdateProfileMutation, useDeleteOwnProfileMutation } = authApi;
+export const { useLoginMutation, useRegisterMutation, useGetMeMutation, useUpdateProfileMutation, useDeleteOwnProfileMutation, useChangePasswordMutation, useUploadProfileMutation } = authApi;
