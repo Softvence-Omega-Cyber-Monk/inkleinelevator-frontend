@@ -43,6 +43,13 @@ const userJobApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    // /user/get-my-all-active-jobs  >> for user dashboard active jobs
+    getAllActiveJobsUserDashboard: builder.query({
+      query: () => ({
+        url: `/user/get-my-all-active-jobs`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -51,4 +58,5 @@ export const {
   useGetAllJobsQuery,
   useGetAllMyJobsQuery,
   useGetSingleJobByIdQuery,
+  useGetAllActiveJobsUserDashboardQuery,
 } = userJobApi;

@@ -9,6 +9,8 @@ import {
   Search,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
+import { useAppDispatch } from "@/Redux/hooks";
+import { logout } from "@/Redux/features/auth/authSlice";
 
 const UserDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -21,9 +23,15 @@ const UserDashboard = () => {
     return false;
   };
 
+  // const user = useAppSelector(selectCurrentUser);
+
+  const dispatch = useAppDispatch();
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
+    // Clear auth state
+    dispatch(logout());
+
+    // Optionally redirect to login page
     navigate("/login");
   };
 
@@ -47,7 +55,7 @@ const UserDashboard = () => {
                     Jane Contractor
                   </div>
                   <div className="text-xs text-gray-400 truncate">
-                    tim.jennings@example.com
+                    tim.jennings@example.comm
                   </div>
                 </div>
               )}
