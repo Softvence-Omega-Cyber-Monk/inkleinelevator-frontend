@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Search, Briefcase, FolderOpen, Users, DollarSign, MoreHorizontal, X, FileText, Camera } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, Briefcase, FolderOpen, Users, DollarSign, MoreHorizontal, X, FileText } from 'lucide-react';
+import { useGetAllJobByAdminQuery } from '@/Redux/features/AdminDashboard/adminApi';
 
 // Types
 interface Job {
@@ -15,6 +16,7 @@ interface Job {
     description?: string;
     requirements?: string[];
     technicalRequirements?: string[];
+    originalJob?: any; // Store original API job data
 }
 
 interface Bid {
@@ -102,8 +104,13 @@ const JobDetailsModal: React.FC<{
                         <div className="flex items-start justify-between mb-4">
                             <div>
                                 <h4 className="text-base sm:text-lg font-semibold text-gray-900">{job.title}</h4>
-                                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-700 mt-2">
-                                    Active
+                                <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium mt-2 ${
+                                    job.status === 'completed' ? 'bg-green-100 text-green-700' :
+                                    job.status === 'in-progress' ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-blue-100 text-blue-700'
+                                }`}>
+                                    {job.status === 'completed' ? 'Completed' :
+                                     job.status === 'in-progress' ? 'In Progress' : 'Active'}
                                 </span>
                             </div>
                             <div className="text-right">
@@ -115,88 +122,97 @@ const JobDetailsModal: React.FC<{
                         {/* Project Description */}
                         <div className="mb-6">
                             <h5 className="text-sm font-semibold text-gray-900 mb-2">Project Description</h5>
-                            <p className="text-sm text-gray-600 leading-relaxed">
-                                Complete Modernization of 7 storey old building to a LUXURY office building. This project includes:
-                            </p>
-                            <ul className="mt-3 space-y-2 text-sm text-gray-600">
-                                <li className="flex items-start gap-2">
-                                    <span className="text-green-600 mt-0.5">•</span>
-                                    <span>3 storey to basement storey to storage</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-green-600 mt-0.5">•</span>
-                                    <span>All floors OLED units TECHNOLOGY brand.</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-green-600 mt-0.5">•</span>
-                                    <span>Replace all shafts shaft heads for new elevator</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="text-green-600 mt-0.5">•</span>
-                                    <span>2 separate middle wall drives on typical elevator</span>
-                                </li>
-                            </ul>
+                            {job.description ? (
+                                <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
+                                    {job.description}
+                                </p>
+                            ) : (
+                                <p className="text-sm text-gray-500 italic">No description provided</p>
+                            )}
                         </div>
 
                         {/* Technical Requirements */}
-                        <div className="mb-6">
-                            <h5 className="text-sm font-semibold text-gray-900 mb-3">Technical Requirements</h5>
-                            <div className="flex flex-wrap gap-2">
-                                <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                                    Hydraulic system
-                                </span>
-                                <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                                    OLED Location
-                                </span>
+                        {(job.technicalRequirements && job.technicalRequirements.length > 0) && (
+                            <div className="mb-6">
+                                <h5 className="text-sm font-semibold text-gray-900 mb-3">Technical Requirements</h5>
+                                <div className="flex flex-wrap gap-2">
+                                    {job.technicalRequirements.map((req, idx) => (
+                                        <span key={idx} className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                                            {req}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Elevator Specifications */}
-                        <div className="mb-6">
-                            <h5 className="text-sm font-semibold text-gray-900 mb-3">Elevator Specifications</h5>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                    <div className="text-gray-500 mb-1">Number of Levels</div>
-                                    <div className="text-gray-900 font-medium">7 Levels</div>
-                                </div>
-                                <div>
-                                    <div className="text-gray-500 mb-1">Capacity</div>
-                                    <div className="text-gray-900 font-medium">10 person</div>
-                                </div>
-                                <div>
-                                    <div className="text-gray-500 mb-1">Speed</div>
-                                    <div className="text-gray-900 font-medium">2.5 m/s</div>
+                        {job.originalJob && (
+                            <div className="mb-6">
+                                <h5 className="text-sm font-semibold text-gray-900 mb-3">Elevator Specifications</h5>
+                                <div className="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <div className="text-gray-500 mb-1">Number of Elevators</div>
+                                        <div className="text-gray-900 font-medium">{job.originalJob.numberOfElevator || 'N/A'}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500 mb-1">Capacity</div>
+                                        <div className="text-gray-900 font-medium">{job.originalJob.capasity || 'N/A'} person</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500 mb-1">Speed</div>
+                                        <div className="text-gray-900 font-medium">{job.originalJob.speed || 'N/A'} m/s</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500 mb-1">Elevator Type</div>
+                                        <div className="text-gray-900 font-medium">{job.originalJob.elevatorType || 'N/A'}</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Uploaded Photos */}
-                        <div>
-                            <h5 className="text-sm font-semibold text-gray-900 mb-3">Uploaded Photos</h5>
-                            <div className="flex gap-3">
-                                <div className="w-20 h-20 bg-gray-900 rounded-lg flex items-center justify-center">
-                                    <Camera className="w-8 h-8 text-white" />
-                                </div>
-                                <div className="w-20 h-20 bg-yellow-500 rounded-lg flex items-center justify-center">
-                                    <Camera className="w-8 h-8 text-white" />
+                        {job.originalJob?.photo && Array.isArray(job.originalJob.photo) && job.originalJob.photo.length > 0 && (
+                            <div>
+                                <h5 className="text-sm font-semibold text-gray-900 mb-3">Uploaded Photos</h5>
+                                <div className="flex gap-3 flex-wrap">
+                                    {job.originalJob.photo.map((photoUrl: string, idx: number) => (
+                                        <img
+                                            key={idx}
+                                            src={photoUrl}
+                                            alt={`Job photo ${idx + 1}`}
+                                            className="w-20 h-20 object-cover rounded-lg"
+                                            onError={(e) => {
+                                                (e.target as HTMLImageElement).style.display = 'none';
+                                            }}
+                                        />
+                                    ))}
                                 </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Uploaded Documents */}
-                        <div className="mt-6">
-                            <h5 className="text-sm font-semibold text-gray-900 mb-3">Uploaded Documents</h5>
-                            <div className="flex flex-wrap gap-2">
-                                <span className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium flex items-center gap-1">
-                                    <FileText className="w-3 h-3" />
-                                    Building Permits Agreement
-                                </span>
-                                <span className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium flex items-center gap-1">
-                                    <FileText className="w-3 h-3" />
-                                    Building Owner Agreement
-                                </span>
+                        {job.originalJob?.documents && Array.isArray(job.originalJob.documents) && job.originalJob.documents.length > 0 && (
+                            <div className="mt-6">
+                                <h5 className="text-sm font-semibold text-gray-900 mb-3">Uploaded Documents</h5>
+                                <div className="flex flex-wrap gap-2">
+                                    {job.originalJob.documents.map((docUrl: string, idx: number) => {
+                                        const fileName = docUrl.split('/').pop() || `Document ${idx + 1}`;
+                                        return (
+                                            <a
+                                                key={idx}
+                                                href={docUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded text-xs font-medium flex items-center gap-1 hover:bg-blue-100 transition-colors"
+                                            >
+                                                <FileText className="w-3 h-3" />
+                                                {fileName}
+                                            </a>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -227,27 +243,36 @@ const BidsModal: React.FC<{
                 </div>
 
                 <div className="p-4 space-y-3">
-                    {bids.map((bid) => (
-                        <div key={bid.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div className="flex items-start justify-between mb-3">
-                                <div>
-                                    <h4 className="text-sm font-semibold text-gray-900">{bid.company}</h4>
-                                    {bid.status === 'active' && (
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700 mt-1">
-                                            Active
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="text-right">
-                                    <div className="text-xs text-gray-500 mb-1">Bid Amount</div>
-                                    <div className="text-base font-bold text-gray-900">{bid.amount}</div>
-                                </div>
-                            </div>
-                            <div className="text-xs text-gray-500">
-                                {bid.timeframe}
-                            </div>
+                    {bids.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500 text-sm">
+                            No bids available for this job
                         </div>
-                    ))}
+                    ) : (
+                        bids.map((bid) => (
+                            <div key={bid.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                                <div className="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h4 className="text-sm font-semibold text-gray-900">{bid.company}</h4>
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium mt-1 ${
+                                            bid.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                                            bid.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                                            'bg-blue-100 text-blue-700'
+                                        }`}>
+                                            {bid.status === 'accepted' ? 'Accepted' :
+                                             bid.status === 'rejected' ? 'Rejected' : 'Pending'}
+                                        </span>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-xs text-gray-500 mb-1">Bid Amount</div>
+                                        <div className="text-base font-bold text-gray-900">{bid.amount}</div>
+                                    </div>
+                                </div>
+                                <div className="text-xs text-gray-500">
+                                    {bid.timeframe}
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>
@@ -389,24 +414,207 @@ const JobsManagement: React.FC = () => {
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
     const [isBidsModalOpen, setIsBidsModalOpen] = useState(false);
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('');
 
-    const jobs: Job[] = Array(7).fill(null).map((_, i) => ({
-        id: i + 1,
-        title: 'Elite Elevator Solutions',
-        requester: 'Elite Elevator Solutions',
-        requesterEmail: 'contact@eliteelevators.com',
-        status: i === 1 ? 'completed' : 'posted',
-        budget: '$100K - $220K',
-        location: 'Manhattan, NY',
-        bids: 87,
-        posted: '2024-12-15',
-    }));
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    const bids: Bid[] = [
-        { id: 1, company: 'Elite Elevator Solutions', amount: '$190,000', timeframe: 'Est. 30-40 days completion timeframe', status: 'active' },
-        { id: 2, company: 'AA Elevator Solutions', amount: '$195,000', timeframe: 'Est. 30-40 days completion timeframe', status: 'active' },
-        { id: 3, company: 'Roba Elevator Solutions', amount: '$195,000', timeframe: 'Est. 30-40 days completion timeframe', status: 'active' },
-    ];
+    // Fetch jobs from API
+    const { data: jobsData, isLoading, isError, error } = useGetAllJobByAdminQuery({
+        page: currentPage,
+        limit: itemsPerPage,
+    });
+
+    // Transform API response to match Job interface
+    const jobs: Job[] = useMemo(() => {
+        // API response structure: { success, message, data: { meta: {...}, data: [...] } }
+        const jobsArray = jobsData?.data?.data || [];
+
+        if (!jobsArray || jobsArray.length === 0) return [];
+
+        return jobsArray.map((job: any, index: number) => {
+            // Parse budget
+            const parseBudget = (budgetStr?: string | number) => {
+                if (!budgetStr && budgetStr !== 0) return '$0';
+                
+                // Handle numeric values
+                if (typeof budgetStr === 'number') {
+                    return `$${budgetStr.toLocaleString()}`;
+                }
+                
+                // Handle string values
+                if (typeof budgetStr === 'string') {
+                    // Check if it's a range
+                    if (budgetStr.includes('-')) {
+                        const parts = budgetStr.split('-').map(p => p.trim().replace(/[^0-9.]/g, ''));
+                        if (parts.length === 2 && parts[0] && parts[1]) {
+                            const min = parseFloat(parts[0]);
+                            const max = parseFloat(parts[1]);
+                            if (!isNaN(min) && !isNaN(max)) {
+                                return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+                            }
+                        }
+                    }
+                    // Single value
+                    const numericValue = parseFloat(budgetStr.replace(/[^0-9.]/g, ''));
+                    if (!isNaN(numericValue)) {
+                        return `$${numericValue.toLocaleString()}`;
+                    }
+                    return `$${budgetStr}`;
+                }
+                
+                return '$0';
+            };
+
+            // Combine location fields
+            const locationParts = [
+                job.streetAddress,
+                job.address,
+                job.city,
+                job.zipCode,
+                job.state
+            ].filter(Boolean);
+            const fullLocation = locationParts.join(', ') || job.location || 'Location not specified';
+
+            // Format date
+            const formatDate = (dateStr?: string) => {
+                if (!dateStr) return 'Recently';
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                } catch {
+                    return 'Recently';
+                }
+            };
+
+            // Map status from API format to component format
+            const mapStatus = (status?: string): 'posted' | 'completed' | 'in-progress' => {
+                if (!status) return 'posted';
+                const upperStatus = status.toUpperCase();
+                if (upperStatus === 'COMPLITE' || upperStatus === 'COMPLETED') return 'completed';
+                if (upperStatus === 'INPROGRESS' || upperStatus === 'IN_PROGRESS') return 'in-progress';
+                if (upperStatus === 'OPEN') return 'posted';
+                return 'posted';
+            };
+
+            // Get requester info from user object
+            const requesterName = job.user?.name || 'Unknown';
+            const requesterEmail = job.user?.email || 'No email';
+
+            // Generate a safe numeric ID from jobId UUID
+            const generateId = () => {
+                if (job.jobId) {
+                    // Extract first 8 characters and convert to number
+                    const hexStr = job.jobId.replace(/-/g, '').substring(0, 8);
+                    const num = parseInt(hexStr, 16);
+                    if (!isNaN(num)) return num;
+                }
+                return index + 1;
+            };
+
+            // Strip HTML from description
+            const stripHtml = (html: string) => {
+                if (!html) return '';
+                const tmp = document.createElement('DIV');
+                tmp.innerHTML = html;
+                return tmp.textContent || tmp.innerText || '';
+            };
+
+            return {
+                id: generateId(),
+                title: job.jobTitle || 'Untitled Job',
+                requester: requesterName,
+                requesterEmail: requesterEmail,
+                status: mapStatus(job.jobStatus),
+                budget: parseBudget(job.estimitedBudget),
+                location: fullLocation,
+                bids: job._count?.bids || (Array.isArray(job.bids) ? job.bids.length : 0),
+                posted: formatDate(job.createdAt),
+                description: stripHtml(job.projectDescription || ''),
+                requirements: [],
+                technicalRequirements: Array.isArray(job.technicalRequermentAndCertification) 
+                    ? job.technicalRequermentAndCertification 
+                    : [],
+                // Store original job data for modals
+                originalJob: job,
+            };
+        });
+    }, [jobsData]);
+
+    // Filter jobs based on search and status
+    const filteredJobs = useMemo(() => {
+        let filtered = jobs;
+
+        if (searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            filtered = filtered.filter(job =>
+                job.title.toLowerCase().includes(searchLower) ||
+                job.requester.toLowerCase().includes(searchLower) ||
+                job.requesterEmail.toLowerCase().includes(searchLower)
+            );
+        }
+
+        if (statusFilter && statusFilter !== 'Status') {
+            filtered = filtered.filter(job => job.status === statusFilter.toLowerCase());
+        }
+
+        return filtered;
+    }, [jobs, searchTerm, statusFilter]);
+
+    // Calculate stats from filtered jobs
+    const stats = useMemo(() => {
+        const totalJobs = filteredJobs.length;
+        const openJobs = filteredJobs.filter(j => j.status === 'posted').length;
+        const totalBids = filteredJobs.reduce((sum, job) => sum + job.bids, 0);
+        const totalValue = filteredJobs.reduce((sum, job) => {
+            const budgetStr = job.budget.replace(/[^0-9-]/g, '');
+            const parts = budgetStr.split('-');
+            if (parts.length === 2) {
+                return sum + (parseInt(parts[1]) || 0);
+            }
+            return sum + (parseInt(parts[0]) || 0);
+        }, 0);
+
+        return {
+            totalJobs,
+            openJobs,
+            totalBids,
+            totalValue: `$${(totalValue / 1000).toFixed(1)}K`
+        };
+    }, [filteredJobs]);
+
+    // Get bids from selected job's original data
+    const bids: Bid[] = useMemo(() => {
+        if (!selectedJob?.originalJob?.bids || !Array.isArray(selectedJob.originalJob.bids)) {
+            return [];
+        }
+
+        return selectedJob.originalJob.bids.map((bid: any, index: number) => {
+            const companyName = bid.user?.companyName || bid.user?.name || 'Unknown Company';
+            const amount = typeof bid.bidAmount === 'number' 
+                ? `$${bid.bidAmount.toLocaleString()}` 
+                : `$${bid.bidAmount || '0'}`;
+            const timeframe = bid.completionTimeline 
+                ? `Completion: ${bid.completionTimeline}` 
+                : bid.timeline 
+                    ? `Est. ${bid.timeline} days completion timeframe`
+                    : 'Timeline not specified';
+            
+            const bidStatus = bid.status?.toLowerCase() || 'active';
+            const status: 'active' | 'accepted' | 'rejected' = 
+                bidStatus.includes('accepted') ? 'accepted' :
+                bidStatus.includes('rejected') ? 'rejected' : 'active';
+
+            return {
+                id: index + 1,
+                company: companyName,
+                amount: amount,
+                timeframe: timeframe,
+                status: status,
+            };
+        });
+    }, [selectedJob]);
 
     const handleActionClick = (job: Job) => {
         setSelectedJob(job);
@@ -436,25 +644,25 @@ const JobsManagement: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <StatsCard
                         title="Total Jobs"
-                        value="5"
+                        value={stats.totalJobs}
                         subtitle="Across all statuses"
                         icon={<Briefcase className="w-5 h-5" />}
                     />
                     <StatsCard
                         title="Open Jobs"
-                        value="02"
+                        value={stats.openJobs.toString().padStart(2, '0')}
                         subtitle="Accepting bids"
                         icon={<FolderOpen className="w-5 h-5" />}
                     />
                     <StatsCard
                         title="Total Bids"
-                        value="50"
-                        subtitle="Avg. 3 bids per job"
+                        value={stats.totalBids}
+                        subtitle={`Avg. ${stats.totalJobs > 0 ? Math.round(stats.totalBids / stats.totalJobs) : 0} bids per job`}
                         icon={<Users className="w-5 h-5" />}
                     />
                     <StatsCard
                         title="Total Value"
-                        value="$1.2M"
+                        value={stats.totalValue}
                         subtitle="Combined job budgets"
                         icon={<DollarSign className="w-5 h-5" />}
                     />
@@ -467,11 +675,20 @@ const JobsManagement: React.FC = () => {
                         <input
                             type="text"
                             placeholder="Search by job title or requester..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                     </div>
-                    <select className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none bg-white w-full sm:w-auto sm:min-w-[140px]">
-                        <option>Status</option>
+                    <select 
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none bg-white w-full sm:w-auto sm:min-w-[140px]"
+                    >
+                        <option value="">All Status</option>
+                        <option value="posted">Posted</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
                     </select>
                 </div>
 
@@ -482,17 +699,73 @@ const JobsManagement: React.FC = () => {
                 </div>
 
                 {/* Jobs Table */}
-                <JobsTable jobs={jobs} onActionClick={handleActionClick} />
+                {isLoading ? (
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                        <p className="text-gray-500">Loading jobs...</p>
+                    </div>
+                ) : isError ? (
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                        <p className="text-red-500">Error loading jobs. Please try again.</p>
+                        {error && 'data' in error && (
+                            <p className="text-xs text-gray-500 mt-2">
+                                {(error.data as any)?.message || 'Unknown error occurred'}
+                            </p>
+                        )}
+                    </div>
+                ) : filteredJobs.length === 0 ? (
+                    <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+                        <p className="text-gray-500">No jobs found.</p>
+                    </div>
+                ) : (
+                    <JobsTable jobs={filteredJobs} onActionClick={handleActionClick} />
+                )}
 
                 {/* Pagination */}
-                <div className="flex items-center justify-center gap-2 mt-6">
-                    <button className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900">‹ Previous</button>
-                    <button className="px-3 py-1.5 text-sm bg-gray-900 text-white rounded">1</button>
-                    <button className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-                    <button className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-                    <span className="px-2 text-sm text-gray-600">...</span>
-                    <button className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900">Next ›</button>
-                </div>
+                {jobsData?.data?.meta && (
+                    <div className="flex items-center justify-center gap-2 mt-6">
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            ‹ Previous
+                        </button>
+                        {Array.from({ length: Math.min(5, jobsData.data.meta.totalPage) }, (_, i) => {
+                            const pageNum = i + 1;
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`px-3 py-1.5 text-sm rounded ${
+                                        currentPage === pageNum
+                                            ? 'bg-gray-900 text-white'
+                                            : 'text-gray-600 hover:bg-gray-100'
+                                    }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        })}
+                        {jobsData.data.meta.totalPage > 5 && (
+                            <>
+                                <span className="px-2 text-sm text-gray-600">...</span>
+                                <button
+                                    onClick={() => setCurrentPage(jobsData.data.meta.totalPage)}
+                                    className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                                >
+                                    {jobsData.data.meta.totalPage}
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(jobsData.data.meta.totalPage, prev + 1))}
+                            disabled={currentPage >= jobsData.data.meta.totalPage}
+                            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            Next ›
+                        </button>
+                    </div>
+                )}
 
                 {/* Modals */}
                 <ActionModal

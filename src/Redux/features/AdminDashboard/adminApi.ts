@@ -60,11 +60,22 @@ const userJobApi = baseApi.injectEndpoints({
             }
           },
       }),
-      getAllJobByAdmin: builder.query({
-        query: () => ({
-          url: "/job/get-all-job-by-admin", 
-          method: "GET",
-        }), 
+      getAllJobByAdmin: builder.query<any, { page?: number; limit?: number } | void>({
+        query: (args) => {
+          const params: Record<string, string | number> = {
+            page: 1,
+            limit: 10
+          };
+          
+          if (args?.page) params.page = args.page;
+          if (args?.limit) params.limit = args.limit;
+          
+          return {
+            url: "/job/get-all-job-by-admin", 
+            method: "GET",
+            params,
+          };
+        }, 
       }),
 
       getConstructorApprovalShortList: builder.query({

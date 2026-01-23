@@ -102,6 +102,7 @@ export default function ContractorApproval() {
         return <div className="text-yellow-500 font-medium">Invalid contractor data format</div>
     }
 
+    console.log(approvalList.data)
     return (
         <>
             <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">

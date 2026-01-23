@@ -1,5 +1,4 @@
-import { ArrowUpRight } from "lucide-react";
-import pepol from "@/assets/people.png";
+ import pepol from "@/assets/people.png";
 import dollerBag from "@/assets/money-bag-02.png";
 import bits from "@/assets/bits.png";
 import profit from "@/assets/profit.png";
@@ -25,30 +24,30 @@ export default function Analytics() {
         {
             title: "Total Users",
             value: analytics.data.dashboard.totalUser,
-            subtitle: "892 Requesters, 355 Contractors",
+            // subtitle: "892 Requesters, 355 Contractors",
             icon: pepol,
-            persent: "+12.5%",
+            // persent: "+12.5%",
         },
         {
             title: "Active Jobs",
             value: analytics.data.dashboard.totalActiveJobs,
-            subtitle: `${analytics.data.jobsManagements.totalOpenJob} Open, 67 In Progress`,
+            // subtitle: `${analytics.data.jobsManagements.totalOpenJob} Open, 67 In Progress`,
             icon: dollerBag,
-            persent: "+12.5%",
+            // persent: "+12.5%",
         },
         {
             title: "Total Bids",
             value: analytics.data.dashboard.totalBid,
-            subtitle: "Avg. 15 bids per job",
+            // subtitle: "Avg. 15 bids per job",
             icon: bits,
-            persent: "+12.5%",
+            // persent: "+12.5%",
         },
         {
             title: "Platform Revenue",
             value: analytics.data.dashboard.totalPlatformRevenue,
-            subtitle: "From 10% commission",
+            // subtitle: "From 10% commission",
             icon: profit,
-            persent: "+12.5%",
+            // persent: "+12.5%",
         },
     ]
 
@@ -74,13 +73,13 @@ export default function Analytics() {
                 </div>
 
                 {/* Subtitle + Percent */}
-                <div className="text-xs sm:text-sm text-gray-500 leading-tight mt-2">
+                {/* <div className="text-xs sm:text-sm text-gray-500 leading-tight mt-2">
                 <span className="inline-flex items-center gap-1 text-green-500">
                     <ArrowUpRight className="w-3 h-3 shrink-0" />
                     <span>{stat.persent}</span>
                 </span>{" "}
                 {stat.subtitle}
-                </div>
+                </div> */}
             </div>
             ))}
         </div>
