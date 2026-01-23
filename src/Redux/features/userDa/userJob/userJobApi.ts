@@ -2,52 +2,87 @@ import { baseApi } from "@/Redux/api/baseApi";
 
 const userJobApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // Create new job
     createNewJob: builder.mutation({
       query: (formData) => ({
-        url: "/job/createJob", // endpoint from your swagger
+        url: "/job/createJob",
         method: "POST",
         body: formData,
       }),
     }),
-    // get all job data data
 
+    // Get all jobs
     getAllJobs: builder.query({
       query: ({ page = 1, limit = 10, search, jobType }) => ({
         url: "/job/get-all-job",
         method: "GET",
-        params: {
-          page,
-          limit,
-          search, // optional
-          jobType, // optional
-        },
+        params: { page, limit, search, jobType },
       }),
     }),
-    // get all my job data
+
+    // Get all my jobs
     getAllMyJobs: builder.query({
       query: ({ page = 1, limit = 10, search, jobType }) => ({
         url: "/job/get-myJob",
         method: "GET",
-        params: {
-          page,
-          limit,
-          search, // optional
-          jobType, // optional
-        },
+        params: { page, limit, search, jobType },
       }),
     }),
-    // get single job by id
+
+    // Get single job by id
     getSingleJobById: builder.query({
-      query: (jobId) => ({
+      query: (jobId: string) => ({
         url: `/job/get-single-job/${jobId}`,
         method: "GET",
       }),
     }),
-    // /user/get-my-all-active-jobs  >> for user dashboard active jobs
+
+    // Get all active jobs for user dashboard
     getAllActiveJobsUserDashboard: builder.query({
       query: () => ({
-        url: `/user/get-my-all-active-jobs`,
+        url: "/user/get-my-all-active-jobs",
         method: "GET",
+      }),
+    }),
+
+    // Close job
+    closeJob: builder.mutation<any, string>({
+      query: (jobId) => ({
+        url: `/job/close-Job?jobId=${jobId}`,
+        method: "POST",
+      }),
+    }),
+
+    // Complete job
+    completeJob: builder.mutation({
+      query: (jobId: string) => ({
+        url: `/job/jobs/${jobId}/complete`,
+        method: "PATCH",
+      }),
+    }),
+
+    // Reject job
+    reject: builder.mutation({
+      query: (jobId: string) => ({
+        url: `/job/jobs/${jobId}/cancel-ready-for-review`, // fixed typo: cancle → cancel
+        method: "PATCH",
+      }),
+    }),
+
+    // Delete job
+    deleteJob: builder.mutation({
+      query: (jobId: string) => ({
+        url: `/job/job/delete/${jobId}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Update job
+    updateJob: builder.mutation({
+      query: ({ jobId, formData }: { jobId: string; formData: any }) => ({
+        url: `/job/update/${jobId}`,
+        method: "PATCH",
+        body: formData,
       }),
     }),
   }),
@@ -59,4 +94,9 @@ export const {
   useGetAllMyJobsQuery,
   useGetSingleJobByIdQuery,
   useGetAllActiveJobsUserDashboardQuery,
+  useCloseJobMutation,
+  useCompleteJobMutation,
+  useRejectMutation,
+  useDeleteJobMutation,
+  useUpdateJobMutation,
 } = userJobApi;

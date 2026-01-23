@@ -6,18 +6,36 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
+  TriangleAlert,
+  X,
 } from "lucide-react";
-import { useGetAllMyJobsQuery } from "@/Redux/features/userDa/userJob/userJobApi";
+import {
+  useCloseJobMutation,
+  useCompleteJobMutation,
+  useGetAllMyJobsQuery,
+  useRejectMutation,
+} from "@/Redux/features/userDa/userJob/userJobApi";
 import BeatLoader from "react-spinners/BeatLoader";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import pepole from "@/assets/image/people.png";
+import ReviewModal from "@/components/userDashboardComponent/reviewModal/ReviewModal";
 
 const MyJobs = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [jobType, setJobType] = useState("all");
+  const [closeJob, { isLoading: closeLoading }] = useCloseJobMutation();
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [completeJob, { isLoading: completeLoading }] =
+    useCompleteJobMutation();
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [selectedReviewJob, setSelectedReviewJob] = useState<any | null>(null);
+  const [reject, { isLoading: rejectLoading }] = useRejectMutation();
 
-  const { data, isLoading } = useGetAllMyJobsQuery({
+  const { data, isLoading, refetch } = useGetAllMyJobsQuery({
     page: currentPage,
     limit: 10,
     search: searchQuery || undefined,
@@ -65,6 +83,71 @@ const MyJobs = () => {
 
     return `${Math.floor(diff / 86400)} days ago`;
   }
+
+  // deleted handler
+  const handleConfirm = async () => {
+    if (!selectedJobId) return; // safety check
+
+    try {
+      const res = await closeJob(selectedJobId).unwrap(); // call API
+
+      // Show toast based on backend response
+      if (res.success) {
+        refetch(); // refresh data
+        toast.success(res.message); // ✅ backend message
+      } else {
+        toast.error(res.message || "Failed to close job");
+      }
+
+      setIsOpen(false); // close modal
+      setSelectedJobId(null); // reset selected job
+    } catch (err: any) {
+      console.error(err);
+      // if backend returns a message in error response
+      toast.error(err?.data?.message || "Failed to close job");
+    }
+  };
+  // handel compleated job
+  const handleApproveComplete = async (job: any) => {
+    try {
+      const res = await completeJob(job.jobId).unwrap();
+
+      if (res.success) {
+        toast.success(res.message || "Job marked as completed");
+        refetch();
+
+        // ✅ OPEN REVIEW MODAL WITH FULL JOB
+        setSelectedReviewJob(job);
+        setIsReviewOpen(true);
+      } else {
+        toast.error(res.message || "Failed to complete job");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.data?.message || "Something went wrong");
+    }
+  };
+
+  // handel reject job
+  const handleReject = async (job: any) => {
+    try {
+      const res = await reject(job.jobId).unwrap();
+
+      if (res.success) {
+        toast.success(res.message || "Job marked as rejected");
+        refetch?.(); // refresh the job list
+
+        // ✅ Optional: open review modal with full job
+        setSelectedReviewJob(job);
+        setIsReviewOpen(true);
+      } else {
+        toast.error(res.message || "Failed to reject job");
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.data?.message || "Something went wrong");
+    }
+  };
 
   return (
     <div>
@@ -201,6 +284,33 @@ const MyJobs = () => {
                   >
                     {job?.jobStatus}
                   </span>
+                  {/* show button base on status */}
+                  <div className="ml-4 flex gap-2">
+                    {/* Reject button only for PENDING_REVIEW */}
+                    {job?.jobStatus === "PENDING_REVIEW" && (
+                      <button
+                        onClick={() => handleReject(job)}
+                        disabled={rejectLoading}
+                        className="border-2 cursor-pointer border-gray-900 px-4 py-1 hover:bg-gray-900 hover:text-white rounded-lg disabled:opacity-50"
+                      >
+                        {rejectLoading ? "Processing..." : "Reject"}
+                      </button>
+                    )}
+
+                    {/* Approve Complete button for INPROGRESS or PENDING_REVIEW */}
+                    {(job?.jobStatus === "INPROGRESS" ||
+                      job?.jobStatus === "PENDING_REVIEW") && (
+                      <button
+                        onClick={() => handleApproveComplete(job)}
+                        disabled={completeLoading}
+                        className="bg-gray-900 text-white px-4 py-1.5 rounded-lg hover:bg-gray-700 cursor-pointer disabled:opacity-50"
+                      >
+                        {completeLoading
+                          ? "Processing..."
+                          : "Approve Complete Project"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -214,56 +324,7 @@ const MyJobs = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2 mt-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    d="M15 5.96602C14.95 5.95769 14.8917 5.95769 14.8417 5.96602C13.6917 5.92435 12.775 4.98268 12.775 3.81602C12.775 2.62435 13.7333 1.66602 14.925 1.66602C16.1167 1.66602 17.075 2.63268 17.075 3.81602C17.0667 4.98268 16.15 5.92435 15 5.96602Z"
-                    stroke="#292D32"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M14.1417 12.0328C15.2833 12.2245 16.5417 12.0245 17.425 11.4328C18.6 10.6495 18.6 9.36615 17.425 8.58282C16.5333 7.99115 15.2583 7.79115 14.1167 7.99115"
-                    stroke="#292D32"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M4.97503 5.96602C5.02503 5.95769 5.08336 5.95769 5.13336 5.96602C6.28336 5.92435 7.20002 4.98268 7.20002 3.81602C7.20002 2.62435 6.24169 1.66602 5.05003 1.66602C3.85836 1.66602 2.90002 2.63268 2.90002 3.81602C2.90836 4.98268 3.82503 5.92435 4.97503 5.96602Z"
-                    stroke="#292D32"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M5.83334 12.0328C4.69168 12.2245 3.43335 12.0245 2.55001 11.4328C1.37501 10.6495 1.37501 9.36615 2.55001 8.58282C3.44168 7.99115 4.71668 7.79115 5.85834 7.99115"
-                    stroke="#292D32"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M9.99999 12.1926C9.94999 12.1842 9.89166 12.1842 9.84166 12.1926C8.69166 12.1509 7.77499 11.2092 7.77499 10.0426C7.77499 8.85091 8.73333 7.89258 9.92499 7.89258C11.1167 7.89258 12.075 8.85925 12.075 10.0426C12.0667 11.2092 11.15 12.1592 9.99999 12.1926Z"
-                    stroke="#292D32"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M7.57501 14.8168C6.40001 15.6001 6.40001 16.8835 7.57501 17.6668C8.90834 18.5585 11.0917 18.5585 12.425 17.6668C13.6 16.8835 13.6 15.6001 12.425 14.8168C11.1 13.9335 8.90834 13.9335 7.57501 14.8168Z"
-                    stroke="#292D32"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <img src={pepole} alt="" />
                 <h1 className="text-sm font-medium">{job?.bids.length}</h1>
               </div>
             </div>
@@ -287,7 +348,13 @@ const MyJobs = () => {
                 Manage
               </button>
 
-              <button className="w-full lg:w-auto p-2 hover:bg-gray-100 rounded-lg flex justify-center">
+              <button
+                onClick={() => {
+                  setSelectedJobId(job.jobId); // save which job we are acting on
+                  setIsOpen(true); // open modal
+                }}
+                className="w-full lg:w-auto p-2 hover:bg-gray-100 rounded-lg flex justify-center"
+              >
                 <MoreVertical size={20} className="text-gray-600" />
               </button>
             </div>
@@ -331,6 +398,63 @@ const MyJobs = () => {
           <ChevronRight size={16} />
         </button>
       </div>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-8">
+            <div className="border-b border-gray-300 mb-4 flex justify-between items-center ">
+              <h2 className="text-lg font-semibold mb-4">
+                {" "}
+                <TriangleAlert className="inline-block mr-2 text-red-600" />
+                Close Job
+              </h2>
+              <X
+                className=" cursor-pointer text-gray-500 hover:text-gray-800"
+                size={20}
+                onClick={() => setIsOpen(false)}
+              />
+            </div>
+            <p className="text-gray-700 mb-2 text-lg font-medium text-center py-4">
+              Are you sure you want to close this Job?
+            </p>
+            <p className="text-gray-500 text-sm mb-6 text-center pb-4">
+              Closing this job will permanently stop all bidding and archive the
+              job along with its related data.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100 cursor-pointer"
+                disabled={closeLoading} // disable cancel while loading
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={closeLoading} // disable confirm while loading
+                className="px-4 py-2 bg-[#D70004] cursor-pointer text-white rounded-lg hover:bg-red-800 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {closeLoading ? (
+                  <BeatLoader size={8} color="#fff" />
+                ) : (
+                  "Confirm"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* review modal  */}
+      {isReviewOpen && selectedReviewJob && (
+        <ReviewModal
+          job={selectedReviewJob}
+          onClose={() => {
+            setIsReviewOpen(false);
+            setSelectedReviewJob(null);
+          }}
+        />
+      )}
     </div>
   );
 };

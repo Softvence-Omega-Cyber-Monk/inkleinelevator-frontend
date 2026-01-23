@@ -1,20 +1,20 @@
-import {
-  CheckCircle,
-
-  Eye,
-  MessageCircleMore,
-} from "lucide-react";
+import { CheckCircle, Eye, MessageCircleMore, Star } from "lucide-react";
 import { useState } from "react";
 import PaymentModal from "./Modal/PaymentModal";
+
+import TmessageModal from "@/components/userDashboardComponent/tmassageModal/TmessageModal";
+import ViewDetailsModal from "@/components/userDashboardComponent/tmassageModal/ViewDetailsModal";
 
 interface DetailesBidsTabProps {
   singleJobData?: any;
   isLoading?: boolean;
+  refetch?: () => void;
 }
 
 export default function DetailesBidsTab({
   singleJobData,
   isLoading = false,
+  refetch,
 }: DetailesBidsTabProps) {
   const bidData = singleJobData?.bids || [];
   console.log("iam ", bidData);
@@ -23,13 +23,38 @@ export default function DetailesBidsTab({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBid, setSelectedBid] = useState<any>(null);
 
+  // for Message Modal
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [selectedBidForMessage, setSelectedBidForMessage] = useState<any>(null);
+  // details modal
+  const [veiwedetailesModalOpen, setVeiwedetailesModalOpen] = useState(false);
+  const [selectedViewedetailes, setselectedViewedetailes] = useState<any>(null);
+
   if (isLoading) {
     return <div>Loading bids...</div>;
   }
 
+  const RatingStars = ({ rating = 0 }: { rating: number }) => {
+    return (
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={14}
+            className={
+              rating >= star
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+            }
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div>
-      DetailesBidsTab ({bidData.length})
+      {/* DetailesBidsTab ({bidData.length}) */}
       {bidData.map((bid: any, index: number) => (
         <div
           key={bid.bidId || index}
@@ -40,26 +65,40 @@ export default function DetailesBidsTab({
             {/* Company Name & Verified Badge */}
             <div className="flex items-center gap-3">
               <h3 className="text-lg font-semibold text-card-foreground">
-                Elite Elevator Solutions
+                {bid?.user?.companyName}
               </h3>
 
-              <span className="inline-flex items-center bg-green-500 text-white gap-1 text-xs font-medium px-2.5 py-1 rounded-md">
+              <span
+                className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-md ${
+                  bid?.status === "ACCEPTED"
+                    ? "bg-green-500 text-white"
+                    : bid?.status === "DECLINED"
+                      ? "bg-red-500 text-white"
+                      : bid?.status === "PENDING_REVIEW"
+                        ? "bg-yellow-400 text-white"
+                        : "bg-gray-300 text-gray-800"
+                }`}
+              >
                 <CheckCircle size={12} />
-                Verified
+                {bid?.status}
               </span>
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-2">
-              <span className="text-star font-semibold text-sm">4</span>
-              <div className="flex items-center gap-0.5">star</div>
+            <div className="flex items-center gap-2 mt-2 mb-2">
+              <span className="font-semibold text-sm">
+                {bid?.user?.avgRating?.toFixed(1) || "0.0"}
+              </span>
+
+              <RatingStars rating={bid?.user?.avgRating || 0} />
+
               <span className="text-muted-foreground text-sm">
-                project count
+                ({bid?.user?._count?.reviewsReceived || 0} reviews)
               </span>
             </div>
 
             {/* Description */}
-            <p className="text-muted-foreground text-sm mt-0.5">
+            <p className="text-muted-foreground text-sm mt-0.5 w-[70%]">
               {bid.brefProposal}
             </p>
           </div>
@@ -77,11 +116,23 @@ export default function DetailesBidsTab({
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 mt-4">
-                <button className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors">
+                <button
+                  onClick={() => {
+                    setselectedViewedetailes(bid);
+                    setVeiwedetailesModalOpen(true);
+                  }}
+                  className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors"
+                >
                   <Eye size={20} className="text-muted-foreground" />
                 </button>
 
-                <button className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors">
+                <button
+                  onClick={() => {
+                    setSelectedBidForMessage(bid); // set the clicked bid info
+                    setIsMessageModalOpen(true); // open the modal
+                  }}
+                  className="p-2.5 cursor-pointer rounded-lg border border-card-border bg-card hover:bg-muted transition-colors"
+                >
                   <MessageCircleMore
                     size={20}
                     className="text-muted-foreground"
@@ -93,7 +144,14 @@ export default function DetailesBidsTab({
                     setSelectedBid(bid);
                     setIsModalOpen(true);
                   }}
-                  className="bg-[#0A1A3A] text-white px-5 py-2.5 rounded-lg font-semibold cursor-pointer text-sm hover:opacity-90 transition-opacity"
+                  disabled={
+                    bid?.status === "ACCEPTED" || bid?.status === "DECLINED"
+                  }
+                  className={`px-5 py-2.5 rounded-lg font-semibold text-sm transition-opacity ${
+                    bid?.status === "ACCEPTED" || bid?.status === "DECLINED"
+                      ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                      : "bg-[#0A1A3A] text-white hover:opacity-90 cursor-pointer"
+                  }`}
                 >
                   Award Contact
                 </button>
@@ -110,6 +168,27 @@ export default function DetailesBidsTab({
           onClose={() => {
             setIsModalOpen(false);
             setSelectedBid(null);
+          }}
+          refetch={refetch}
+        />
+      )}
+      {/* Message Modal */}
+      {isMessageModalOpen && selectedBidForMessage && (
+        <TmessageModal
+          bidMessage={selectedBidForMessage}
+          onClose={() => {
+            setIsMessageModalOpen(false);
+            setSelectedBidForMessage(null);
+          }}
+        />
+      )}
+      {/* View Details Modal */}
+      {veiwedetailesModalOpen && selectedViewedetailes && (
+        <ViewDetailsModal
+          bid={selectedViewedetailes}
+          onClose={() => {
+            setVeiwedetailesModalOpen(false);
+            setselectedViewedetailes(null);
           }}
         />
       )}

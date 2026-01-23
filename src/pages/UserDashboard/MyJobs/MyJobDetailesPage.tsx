@@ -1,26 +1,64 @@
 import DetailesBidsTab from "@/components/MyJobDetailesComponent/MyJobDetailesTab/DetailesBidsTab";
 import DetailsFileTab from "@/components/MyJobDetailesComponent/MyJobDetailesTab/DetailsFileTab";
 import DetailsOverviewTab from "@/components/MyJobDetailesComponent/MyJobDetailesTab/DetailsOverviewTab";
-import { useGetSingleJobByIdQuery } from "@/Redux/features/userDa/userJob/userJobApi";
+import {
+  useCloseJobMutation,
+  useDeleteJobMutation,
+  useGetSingleJobByIdQuery,
+} from "@/Redux/features/userDa/userJob/userJobApi";
+// import { useGetSingleJobByIdQuery, useDeleteJobMutation } from "@/Redux/features/userDa/userJob/userJobApi";
 import {
   CalendarDays,
   CircleDollarSign,
   DollarSign,
   MapPin,
+  TriangleAlert,
+  X,
 } from "lucide-react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import BeatLoader from "react-spinners/BeatLoader";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function MyJobDetailesPage() {
   const { id } = useParams();
-
+  const [closeJob, { isLoading: closeLoading }] = useCloseJobMutation();
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const [deleteJob,] = useDeleteJobMutation();
+console.log("deleteJob", deleteJob);
   console.log("i am the dynamic id ", id);
-  const { data, isLoading } = useGetSingleJobByIdQuery(id);
+  const { data, isLoading, refetch } = useGetSingleJobByIdQuery(id as any);
 
   console.log("i am the single the data for job", data);
   const singleJobData = data?.data;
   console.log("h ehe ", singleJobData);
   const [activeTab, setActiveTab] = useState("Overview");
+
+  const handleEditJob = () => {
+    if (id) {
+      navigate(`/user/createdPostElevatorJob?jobId=${id}`);
+    }
+  };
+
+  // const handleCloseJob = async () => {
+  //   if (!id) return;
+
+  //   const confirmed = window.confirm(
+  //     "Are you sure you want to close/delete this job? This action cannot be undone.",
+  //   );
+
+  //   if (!confirmed) return;
+
+  //   try {
+  //     await deleteJob(id).unwrap();
+  //     toast.success("Job deleted successfully");
+  //     navigate("/user/dashboard");
+  //   } catch (err: any) {
+  //     console.error("Delete job failed", err);
+  //     toast.error(err?.data?.message || "Failed to delete job");
+  //   }
+  // };
 
   const tabs = [
     { id: "Overview", label: "Overview" },
@@ -44,6 +82,29 @@ export default function MyJobDetailesPage() {
 
     return `${Math.floor(diff / 86400)} days ago`;
   }
+
+  // deleted handler
+  const handleConfirm = async () => {
+    if (!singleJobData?.jobId) return; // safety check
+
+    try {
+      const res = await closeJob(singleJobData.jobId).unwrap();
+      console.log("cancel res ", res);
+
+      // Show toast based on backend response
+      if (res.success) {
+        toast.success(res.message); // ✅ use backend message
+      } else {
+        toast.error(res.message || "Failed to close job");
+      }
+
+      refetch(); // refresh data
+      setIsOpen(false); // close modal
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.data?.message || "Failed to close job"); // ✅ error toast
+    }
+  };
 
   return (
     <div className="min-h-screen ">
@@ -106,11 +167,17 @@ export default function MyJobDetailesPage() {
               </div>
             </div>
             <div className="flex  gap-4">
-              <button className="px-4 py-2 border  rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer">
-                Edit Job
-              </button>
-              <button className="px-4 py-2 bg-[#D70004] text-white rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer">
+              <button
+                onClick={() => setIsOpen(true)}
+                className="px-4 py-2 bg-[#D70004] text-white rounded-lg hover:bg-gray-900 cursor-pointer"
+              >
                 Close Job
+              </button>
+              <button
+                onClick={handleEditJob}
+                className="px-4 py-2 border  rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer"
+              >
+                Edit Job
               </button>
             </div>
           </div>
@@ -153,9 +220,57 @@ export default function MyJobDetailesPage() {
           <DetailesBidsTab
             singleJobData={singleJobData}
             isLoading={isLoading}
+            refetch={refetch}
           />
         )}
       </div>
+      {/* Confirmation Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-8">
+            <div className="border-b border-gray-300 mb-4 flex justify-between items-center ">
+              <h2 className="text-lg font-semibold mb-4">
+                {" "}
+                <TriangleAlert className="inline-block mr-2 text-red-600" />
+                Close Job
+              </h2>
+              <X
+                className=" cursor-pointer text-gray-500 hover:text-gray-800"
+                size={20}
+                onClick={() => setIsOpen(false)}
+              />
+            </div>
+            <p className="text-gray-700 mb-2 text-lg font-medium text-center py-4">
+              Are you sure you want to close this Job?
+            </p>
+            <p className="text-gray-500 text-sm mb-6 text-center pb-4">
+              Closing this job will permanently stop all bidding and archive the
+              job along with its related data.
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 border rounded-lg hover:bg-gray-100 cursor-pointer"
+                disabled={closeLoading} // disable cancel while loading
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirm}
+                disabled={closeLoading} // disable confirm while loading
+                className="px-4 py-2 bg-[#D70004] cursor-pointer text-white rounded-lg hover:bg-red-800 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {closeLoading ? (
+                  <BeatLoader size={8} color="#fff" />
+                ) : (
+                  "Confirm"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

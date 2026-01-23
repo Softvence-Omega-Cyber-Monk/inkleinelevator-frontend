@@ -1,8 +1,9 @@
 import ActivitySkeleton from "@/common/Skeleton/ActivitySkeleton";
-import { useGetUserDashboardAnalyticsQuery } from "@/Redux/features/userDa/userDashboardAnalytics/userDashboardAnalyticsApi";
+import UserDashboardAnalytics from "@/components/userDashboardComponent/UserDashboardAnalytics";
+
 import { useGetAllActiveJobsUserDashboardQuery } from "@/Redux/features/userDa/userJob/userJobApi";
 import { useGetUserAllRecentActivityQuery } from "@/Redux/features/userDa/userRecentActivity/userRecentActivityApi";
-import { Briefcase, DollarSign, FileText, Building2 } from "lucide-react";
+
 import { useNavigate } from "react-router-dom";
 
 const UserDashboardOverview = () => {
@@ -10,45 +11,11 @@ const UserDashboardOverview = () => {
   const { data: activity, isLoading: activityLoading } =
     useGetUserAllRecentActivityQuery({});
   const recentActivity = activity?.data;
-  // console.log("iam  activity", recentActivity);
+  console.log("iam  activity", recentActivity);
   const { data: activeJobsData, isLoading: activeJobsLoading } =
     useGetAllActiveJobsUserDashboardQuery({});
   const activeJobs = activeJobsData?.data;
-  // console.log("i amt activ job", activeJobs);
-  const { data: dashboardAnalyticsData, isLoading: dashboardAnalyticsLoading } =
-    useGetUserDashboardAnalyticsQuery({});
-  console.log("i am dashboard analytics data", dashboardAnalyticsData);
-
-  if (dashboardAnalyticsLoading) {
-    return <div>Loading dashboard analytics...</div>;
-  }
-
-  const stats = [
-    {
-      title: "Active Jobs",
-      value: "5",
-      subtitle: "3 modernization, 2 maintenance",
-      icon: Briefcase,
-    },
-    {
-      title: "Total Invested",
-      value: "$427,500",
-      subtitle: "Across 5 projects",
-      icon: DollarSign,
-    },
-    {
-      title: "New Bids",
-      value: "18",
-      subtitle: "Awaiting review",
-      icon: FileText,
-    },
-    {
-      title: "Completed Projects",
-      value: "5",
-      subtitle: "All time",
-      icon: Building2,
-    },
-  ];
+  console.log("i amt activ job", activeJobs);
 
   function timeAgo(date: string | Date): string {
     const past = new Date(date).getTime();
@@ -73,7 +40,7 @@ const UserDashboardOverview = () => {
   }
   return (
     <div>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between  pt-8 mb-10">
         {/* LEFT */}
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
@@ -100,33 +67,9 @@ const UserDashboardOverview = () => {
         </button>
       </div>
 
-      <div
-        className="
-          grid
-          grid-cols-1
-          sm:grid-cols-2
-          lg:grid-cols-4
-          gap-4 sm:gap-6
-          mb-8
-        "
-      >
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200"
-          >
-            <div className="flex items-start justify-between mb-3 sm:mb-4">
-              <div className="text-gray-600 text-sm">{stat.title}</div>
-              <stat.icon size={18} className="text-gray-400" />
-            </div>
-
-            <div className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1">
-              {stat.value}
-            </div>
-
-            <div className="text-xs text-gray-500">{stat.subtitle}</div>
-          </div>
-        ))}
+      {/* dashboard analitics cards */}
+      <div>
+        <UserDashboardAnalytics />
       </div>
 
       <div
@@ -151,7 +94,7 @@ const UserDashboardOverview = () => {
                 ))
               : activeJobs?.map((job: any) => (
                   <div
-                    key={job.id}
+                    key={job?.jobId}
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 py-3 border-b border-gray-100 last:border-0"
                   >
                     <div className="flex-1">
@@ -159,13 +102,13 @@ const UserDashboardOverview = () => {
                         {job.jobTitle}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {job.bids?.length || 0} bids
+                        {job.bids?.length || 0} Bids Received
                       </div>
                     </div>
 
                     <button
                       onClick={() =>
-                        navigate(`/user/my-jobs-details/${job.id}`)
+                        navigate(`/user/my-jobs-details/${job.jobId}`)
                       }
                       className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800 transition mr-4"
                     >
