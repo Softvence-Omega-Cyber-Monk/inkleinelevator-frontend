@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import UserSettingProfileTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingProfileTab";
 import UserSettingSecurityTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingSecurityTab";
-import UserSettingGeneralTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingGeneralTab";
+import UserSettingGeneralTab from "@/components/userDashboardComponent/userSettingTabComponent/UserStripeTab";
 
 type TabType = "profile" | "security" | "stripe";
 
