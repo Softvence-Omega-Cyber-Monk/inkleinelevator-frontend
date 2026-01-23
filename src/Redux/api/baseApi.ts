@@ -16,7 +16,7 @@ export const baseApi = createApi({
     },
   }),
   endpoints: () => ({}),
-  tagTypes: ["User", "MessageChatList", "MessageHistory"],
+  tagTypes: ["User", "MessageChatList", "MessageHistory","ConstructorApproval","RequesterApproval"],
 });
 
 // with refresh token support

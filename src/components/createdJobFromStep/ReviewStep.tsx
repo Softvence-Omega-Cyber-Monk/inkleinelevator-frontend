@@ -8,6 +8,7 @@ interface ReviewStepProps {
   onBack: () => void;
   onSubmit: () => void;
   loading?: boolean;
+  isEditMode?: boolean;
 }
 
 export default function ReviewStep({
@@ -15,6 +16,7 @@ export default function ReviewStep({
   onBack,
   onSubmit,
   loading = false,
+  isEditMode = false,
 }: ReviewStepProps) {
   return (
     <div>
@@ -193,25 +195,31 @@ export default function ReviewStep({
             Uploaded Photos
           </h4>
           <div className="flex gap-2 flex-wrap">
-            {formData.photos.map((photo: File | string, i: number) => (
-              <div key={i} className="relative">
-                <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
-                  {typeof photo === "string" ? (
-                    <img
-                      src={photo}
-                      alt={`Photo ${i + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <img
-                      src={URL.createObjectURL(photo)}
-                      alt={`Photo ${i + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
+            {formData.photos.map((photo: any, i: number) => {
+              // Handle different photo formats: File, string URL, or object with url property
+              let photoUrl = "";
+              if (typeof photo === "string") {
+                photoUrl = photo;
+              } else if (photo instanceof File) {
+                photoUrl = URL.createObjectURL(photo);
+              } else if (photo?.url) {
+                photoUrl = photo.url;
+              }
+              
+              return (
+                <div key={photo?.id || i} className="relative">
+                  <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center overflow-hidden">
+                    {photoUrl && (
+                      <img
+                        src={photoUrl}
+                        alt={`Photo ${i + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
@@ -223,15 +231,19 @@ export default function ReviewStep({
             Uploaded Documents
           </h4>
           <div className="flex flex-wrap gap-2">
-            {formData.documents.map((doc: any, i: number) => (
-              <div
-                key={i}
-                className="bg-white border border-gray-300 px-3 py-2 rounded-lg flex items-center gap-2"
-              >
-                <FileIcon size={16} className="text-gray-600" />
-                <span className="text-sm text-gray-700">{doc.name || doc}</span>
-              </div>
-            ))}
+            {formData.documents.map((doc: any, i: number) => {
+              // Handle different document formats: File, string, or object with name/url
+              const docName = doc?.name || (typeof doc === "string" ? doc : "Document");
+              return (
+                <div
+                  key={doc?.id || i}
+                  className="bg-white border border-gray-300 px-3 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <FileIcon size={16} className="text-gray-600" />
+                  <span className="text-sm text-gray-700">{docName}</span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -249,7 +261,13 @@ export default function ReviewStep({
           disabled={loading}
           className="px-6 py-2 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
         >
-          {loading ? <BeatLoader size={8} color="#fff" /> : "Publish Job"}
+          {loading ? (
+            <BeatLoader size={8} color="#fff" />
+          ) : isEditMode ? (
+            "Update Job"
+          ) : (
+            "Publish Job"
+          )}
         </button>
       </div>
     </div>
