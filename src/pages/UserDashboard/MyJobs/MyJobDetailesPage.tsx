@@ -25,8 +25,8 @@ export default function MyJobDetailesPage() {
   const [closeJob, { isLoading: closeLoading }] = useCloseJobMutation();
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const [deleteJob, { isLoading: isDeleting }] = useDeleteJobMutation();
-
+  const [deleteJob,] = useDeleteJobMutation();
+console.log("deleteJob", deleteJob);
   console.log("i am the dynamic id ", id);
   const { data, isLoading, refetch } = useGetSingleJobByIdQuery(id as any);
 
@@ -41,24 +41,24 @@ export default function MyJobDetailesPage() {
     }
   };
 
-  const handleCloseJob = async () => {
-    if (!id) return;
+  // const handleCloseJob = async () => {
+  //   if (!id) return;
 
-    const confirmed = window.confirm(
-      "Are you sure you want to close/delete this job? This action cannot be undone.",
-    );
+  //   const confirmed = window.confirm(
+  //     "Are you sure you want to close/delete this job? This action cannot be undone.",
+  //   );
 
-    if (!confirmed) return;
+  //   if (!confirmed) return;
 
-    try {
-      await deleteJob(id).unwrap();
-      toast.success("Job deleted successfully");
-      navigate("/user/dashboard");
-    } catch (err: any) {
-      console.error("Delete job failed", err);
-      toast.error(err?.data?.message || "Failed to delete job");
-    }
-  };
+  //   try {
+  //     await deleteJob(id).unwrap();
+  //     toast.success("Job deleted successfully");
+  //     navigate("/user/dashboard");
+  //   } catch (err: any) {
+  //     console.error("Delete job failed", err);
+  //     toast.error(err?.data?.message || "Failed to delete job");
+  //   }
+  // };
 
   const tabs = [
     { id: "Overview", label: "Overview" },
