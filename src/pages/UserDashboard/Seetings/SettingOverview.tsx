@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import UserSettingProfileTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingProfileTab";
 import UserSettingSecurityTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingSecurityTab";
+import UserSettingGeneralTab from "@/components/userDashboardComponent/userSettingTabComponent/UserSettingGeneralTab";
 
 type TabType = "profile" | "security" | "stripe";
 
@@ -26,6 +27,7 @@ export default function SettingOverview({ isLoading = false }) {
   const tabs: { id: TabType; label: string }[] = [
     { id: "profile", label: "Profile Settings" },
     { id: "security", label: "Security Settings" },
+    { id: "stripe", label: "Stripe Settings" },
   ];
 
   return (
@@ -69,6 +71,7 @@ export default function SettingOverview({ isLoading = false }) {
         {activeTab === "security" && <UserSettingSecurityTab />}
 
         {/* General Settings Tab Content */}
+        {activeTab === "stripe" && <UserSettingGeneralTab />}
       </div>
     </div>
   );
