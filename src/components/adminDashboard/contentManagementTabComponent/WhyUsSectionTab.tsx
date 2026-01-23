@@ -16,6 +16,7 @@ import Color from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Placeholder from "@tiptap/extension-placeholder";
 import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
 
 // Audience Card Component with Rich Text Editor
 interface AudienceCardProps {
@@ -27,9 +28,12 @@ interface AudienceCardProps {
     bulletText: string;
   };
   title: string;
+  index?: number;
   onCardTitleChange: (value: string) => void;
   onCardSubtitleChange: (value: string) => void;
   onBulletTextChange: (value: string) => void;
+  onTypeChange?: (value: string) => void;
+  onDelete?: () => void;
 }
 
 function AudienceCard({
@@ -38,6 +42,8 @@ function AudienceCard({
   onCardTitleChange,
   onCardSubtitleChange,
   onBulletTextChange,
+  onTypeChange,
+  onDelete,
 }: AudienceCardProps) {
   const editor = useEditor({
     extensions: [
@@ -66,8 +72,37 @@ function AudienceCard({
 
   return (
     <div className="border border-gray-200 rounded-lg p-4">
-      <h3 className="font-medium text-gray-700 mb-4">{title}</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-medium text-gray-700">{title}</h3>
+        {onDelete && (
+          <button
+            onClick={onDelete}
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            title="Delete Card"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+      </div>
       <div className="space-y-3">
+        {onTypeChange && (
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">Card Type</label>
+            <select
+              value={audience.type}
+              onChange={(e) => {
+                const newType = e.target.value;
+                if (newType === "JOB_REQUESTER" || newType === "CONTRACTOR") {
+                  onTypeChange(newType);
+                }
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-blue-50 text-sm"
+            >
+              <option value="JOB_REQUESTER">Job Requisitions</option>
+              <option value="CONTRACTOR">Contractors</option>
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-xs text-gray-600 mb-1">Card Title</label>
           <input
@@ -185,21 +220,16 @@ export default function WhyUsSectionTab() {
     subtitle: "",
   });
 
-  const [jobRequesterCard, setJobRequesterCard] = useState({
-    audienceId: undefined as string | undefined,
-    type: "JOB_REQUESTER",
-    cardTitle: "",
-    cardSubtitle: "",
-    bulletText: "",
-  });
-
-  const [contractorCard, setContractorCard] = useState({
-    audienceId: undefined as string | undefined,
-    type: "CONTRACTOR",
-    cardTitle: "",
-    cardSubtitle: "",
-    bulletText: "",
-  });
+  const [audienceCards, setAudienceCards] = useState<
+    Array<{
+      audienceId?: string;
+      type: string;
+      cardTitle: string;
+      cardSubtitle: string;
+      bulletText: string;
+      title: string;
+    }>
+  >([]);
 
   // Set default values when data is fetched
   useEffect(() => {
@@ -210,34 +240,55 @@ export default function WhyUsSectionTab() {
         subtitle: sectionData.subtitle || "",
       });
 
-      // Set audience cards
-      if (sectionData.audiences && sectionData.audiences.length > 0) {
-        const jobRequester = sectionData.audiences.find(
-          (a) => a.type === "JOB_REQUESTER"
-        );
-        const contractor = sectionData.audiences.find(
-          (a) => a.type === "CONTRACTOR"
-        );
-
-        if (jobRequester) {
-          setJobRequesterCard({
-            audienceId: jobRequester.audienceId,
+      // Set audience cards from API
+      if (sectionData.audiences && Array.isArray(sectionData.audiences) && sectionData.audiences.length > 0) {
+        // Count cards by type to create unique titles
+        const typeCounts: { [key: string]: number } = {};
+        
+        const cards = sectionData.audiences.map((audience) => {
+          const type = audience.type || "";
+          const baseTitle = type === "JOB_REQUESTER" 
+            ? "Job Requisitions" 
+            : type === "CONTRACTOR"
+            ? "Contractors"
+            : `Card ${type}`;
+          
+          // Count how many of this type we've seen
+          typeCounts[type] = (typeCounts[type] || 0) + 1;
+          const count = typeCounts[type];
+          
+          // Add number suffix if there are multiple of the same type
+          const title = count > 1 ? `${baseTitle} ${count}` : baseTitle;
+          
+          return {
+            audienceId: audience.audienceId || "",
+            type: type,
+            cardTitle: audience.cardTitle || "",
+            cardSubtitle: audience.cardSubtitle || "",
+            bulletText: audience.bulletText || "",
+            title: title,
+          };
+        });
+        
+        setAudienceCards(cards);
+      } else {
+        // Initialize with default cards if no audiences exist
+        setAudienceCards([
+          {
             type: "JOB_REQUESTER",
-            cardTitle: jobRequester.cardTitle || "",
-            cardSubtitle: jobRequester.cardSubtitle || "",
-            bulletText: jobRequester.bulletText || "",
-          });
-        }
-
-        if (contractor) {
-          setContractorCard({
-            audienceId: contractor.audienceId,
+            cardTitle: "",
+            cardSubtitle: "",
+            bulletText: "",
+            title: "Job Requisitions",
+          },
+          {
             type: "CONTRACTOR",
-            cardTitle: contractor.cardTitle || "",
-            cardSubtitle: contractor.cardSubtitle || "",
-            bulletText: contractor.bulletText || "",
-          });
-        }
+            cardTitle: "",
+            cardSubtitle: "",
+            bulletText: "",
+            title: "Contractors",
+          },
+        ]);
       }
     }
   }, [sectionData]);
@@ -272,47 +323,33 @@ export default function WhyUsSectionTab() {
         }).unwrap();
       }
 
-      // Save or update Job Requester card
-      if (jobRequesterCard.cardTitle.trim() || jobRequesterCard.cardSubtitle.trim() || jobRequesterCard.bulletText.trim()) {
-        if (jobRequesterCard.audienceId) {
-          await updateCard({
-            id: jobRequesterCard.audienceId,
-            data: {
-              type: jobRequesterCard.type,
-              cardTitle: jobRequesterCard.cardTitle,
-              cardSubtitle: jobRequesterCard.cardSubtitle,
-              bulletText: jobRequesterCard.bulletText,
-            },
-          }).unwrap();
-        } else {
-          await createCard({
-            type: jobRequesterCard.type,
-            cardTitle: jobRequesterCard.cardTitle,
-            cardSubtitle: jobRequesterCard.cardSubtitle,
-            bulletText: jobRequesterCard.bulletText,
-          }).unwrap();
+      // Save or update all audience cards
+      for (const card of audienceCards) {
+        // Validate type before saving
+        if (card.type !== "JOB_REQUESTER" && card.type !== "CONTRACTOR") {
+          toast.error(`Invalid card type: ${card.type}. Must be JOB_REQUESTER or CONTRACTOR.`);
+          continue;
         }
-      }
-
-      // Save or update Contractor card
-      if (contractorCard.cardTitle.trim() || contractorCard.cardSubtitle.trim() || contractorCard.bulletText.trim()) {
-        if (contractorCard.audienceId) {
-          await updateCard({
-            id: contractorCard.audienceId,
-            data: {
-              type: contractorCard.type,
-              cardTitle: contractorCard.cardTitle,
-              cardSubtitle: contractorCard.cardSubtitle,
-              bulletText: contractorCard.bulletText,
-            },
-          }).unwrap();
-        } else {
-          await createCard({
-            type: contractorCard.type,
-            cardTitle: contractorCard.cardTitle,
-            cardSubtitle: contractorCard.cardSubtitle,
-            bulletText: contractorCard.bulletText,
-          }).unwrap();
+        
+        if (card.cardTitle.trim() || card.cardSubtitle.trim() || card.bulletText.trim()) {
+          if (card.audienceId) {
+            await updateCard({
+              id: card.audienceId,
+              data: {
+                type: card.type,
+                cardTitle: card.cardTitle,
+                cardSubtitle: card.cardSubtitle,
+                bulletText: card.bulletText,
+              },
+            }).unwrap();
+          } else {
+            await createCard({
+              type: card.type,
+              cardTitle: card.cardTitle,
+              cardSubtitle: card.cardSubtitle,
+              bulletText: card.bulletText,
+            }).unwrap();
+          }
         }
       }
 
@@ -334,48 +371,36 @@ export default function WhyUsSectionTab() {
       });
 
       if (sectionData.audiences && sectionData.audiences.length > 0) {
-        const jobRequester = sectionData.audiences.find(
-          (a) => a.type === "JOB_REQUESTER"
-        );
-        const contractor = sectionData.audiences.find(
-          (a) => a.type === "CONTRACTOR"
-        );
-
-        if (jobRequester) {
-          setJobRequesterCard({
-            audienceId: jobRequester.audienceId,
-            type: "JOB_REQUESTER",
-            cardTitle: jobRequester.cardTitle || "",
-            cardSubtitle: jobRequester.cardSubtitle || "",
-            bulletText: jobRequester.bulletText || "",
-          });
-        } else {
-          setJobRequesterCard({
-            audienceId: undefined,
+        const cards = sectionData.audiences.map((audience) => ({
+          audienceId: audience.audienceId,
+          type: audience.type,
+          cardTitle: audience.cardTitle || "",
+          cardSubtitle: audience.cardSubtitle || "",
+          bulletText: audience.bulletText || "",
+          title: audience.type === "JOB_REQUESTER" 
+            ? "Job Requisitions" 
+            : audience.type === "CONTRACTOR"
+            ? "Contractors"
+            : `Card ${audience.type}`,
+        }));
+        setAudienceCards(cards);
+      } else {
+        setAudienceCards([
+          {
             type: "JOB_REQUESTER",
             cardTitle: "",
             cardSubtitle: "",
             bulletText: "",
-          });
-        }
-
-        if (contractor) {
-          setContractorCard({
-            audienceId: contractor.audienceId,
-            type: "CONTRACTOR",
-            cardTitle: contractor.cardTitle || "",
-            cardSubtitle: contractor.cardSubtitle || "",
-            bulletText: contractor.bulletText || "",
-          });
-        } else {
-          setContractorCard({
-            audienceId: undefined,
+            title: "Job Requisitions",
+          },
+          {
             type: "CONTRACTOR",
             cardTitle: "",
             cardSubtitle: "",
             bulletText: "",
-          });
-        }
+            title: "Contractors",
+          },
+        ]);
       }
     } else {
       setFormData({
@@ -383,20 +408,22 @@ export default function WhyUsSectionTab() {
         title: "",
         subtitle: "",
       });
-      setJobRequesterCard({
-        audienceId: undefined,
-        type: "JOB_REQUESTER",
-        cardTitle: "",
-        cardSubtitle: "",
-        bulletText: "",
-      });
-      setContractorCard({
-        audienceId: undefined,
-        type: "CONTRACTOR",
-        cardTitle: "",
-        cardSubtitle: "",
-        bulletText: "",
-      });
+      setAudienceCards([
+        {
+          type: "JOB_REQUESTER",
+          cardTitle: "",
+          cardSubtitle: "",
+          bulletText: "",
+          title: "Job Requisitions",
+        },
+        {
+          type: "CONTRACTOR",
+          cardTitle: "",
+          cardSubtitle: "",
+          bulletText: "",
+          title: "Contractors",
+        },
+      ]);
     }
   };
 
@@ -461,38 +488,95 @@ export default function WhyUsSectionTab() {
         </div>
       </div>
 
-      {/* Job Requisitions */}
-      <div className="mb-4">
-        <AudienceCard
-          audience={jobRequesterCard}
-          title="Job Requisitions"
-          onCardTitleChange={(value) =>
-            setJobRequesterCard({ ...jobRequesterCard, cardTitle: value })
-          }
-          onCardSubtitleChange={(value) =>
-            setJobRequesterCard({ ...jobRequesterCard, cardSubtitle: value })
-          }
-          onBulletTextChange={(value) =>
-            setJobRequesterCard({ ...jobRequesterCard, bulletText: value })
-          }
-        />
+      {/* Audience Cards */}
+      <div className="space-y-4 mb-4">
+        {audienceCards.length === 0 && !isLoading && (
+          <div className="text-center py-4 text-gray-500 text-sm">
+            No audience cards found. Click "Add New Card" to create one.
+          </div>
+        )}
+        {audienceCards.map((card, index) => (
+          <AudienceCard
+            key={card.audienceId || `card-${index}`}
+            audience={card}
+            title={card.title || `Card ${index + 1}`}
+            index={index}
+            onCardTitleChange={(value) => {
+              const newCards = [...audienceCards];
+              newCards[index].cardTitle = value;
+              setAudienceCards(newCards);
+            }}
+            onCardSubtitleChange={(value) => {
+              const newCards = [...audienceCards];
+              newCards[index].cardSubtitle = value;
+              setAudienceCards(newCards);
+            }}
+            onBulletTextChange={(value) => {
+              const newCards = [...audienceCards];
+              newCards[index].bulletText = value;
+              setAudienceCards(newCards);
+            }}
+            onTypeChange={(value) => {
+              const newCards = [...audienceCards];
+              newCards[index].type = value;
+              newCards[index].title = value === "JOB_REQUESTER" ? "Job Requisitions" : "Contractors";
+              setAudienceCards(newCards);
+            }}
+            onDelete={
+              audienceCards.length > 1
+                ? () => {
+                    const newCards = audienceCards.filter((_, i) => i !== index);
+                    setAudienceCards(newCards);
+                  }
+                : undefined
+            }
+          />
+        ))}
       </div>
 
-      {/* Contractors */}
-      <div className="mb-4">
-        <AudienceCard
-          audience={contractorCard}
-          title="Contractors"
-          onCardTitleChange={(value) =>
-            setContractorCard({ ...contractorCard, cardTitle: value })
-          }
-          onCardSubtitleChange={(value) =>
-            setContractorCard({ ...contractorCard, cardSubtitle: value })
-          }
-          onBulletTextChange={(value) =>
-            setContractorCard({ ...contractorCard, bulletText: value })
-          }
-        />
+      {/* Add New Card Button */}
+      <div className="mb-6">
+        <button
+          onClick={() => {
+            // Determine the type for the new card
+            // Always use a valid type: JOB_REQUESTER or CONTRACTOR
+            const hasJobRequester = audienceCards.some(card => card.type === "JOB_REQUESTER");
+            const hasContractor = audienceCards.some(card => card.type === "CONTRACTOR");
+            
+            // Default to CONTRACTOR, but prefer JOB_REQUESTER if it doesn't exist
+            let newType: "JOB_REQUESTER" | "CONTRACTOR" = "CONTRACTOR";
+            if (!hasJobRequester) {
+              newType = "JOB_REQUESTER";
+            } else if (!hasContractor) {
+              newType = "CONTRACTOR";
+            } else {
+              // Both types exist, default to CONTRACTOR
+              newType = "CONTRACTOR";
+            }
+            
+            // Ensure type is always valid
+            if (newType !== "JOB_REQUESTER" && newType !== "CONTRACTOR") {
+              newType = "CONTRACTOR";
+            }
+            
+            const newTitle = newType === "JOB_REQUESTER" ? "Job Requisitions" : "Contractors";
+            
+            setAudienceCards([
+              ...audienceCards,
+              {
+                type: newType,
+                cardTitle: "",
+                cardSubtitle: "",
+                bulletText: "",
+                title: newTitle,
+              },
+            ]);
+          }}
+          className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors text-sm flex items-center gap-2"
+        >
+          <Plus size={16} />
+          Add New Card
+        </button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3 mt-6">
