@@ -1,7 +1,7 @@
 import DetailesBidsTab from "@/components/MyJobDetailesComponent/MyJobDetailesTab/DetailesBidsTab";
 import DetailsFileTab from "@/components/MyJobDetailesComponent/MyJobDetailesTab/DetailsFileTab";
 import DetailsOverviewTab from "@/components/MyJobDetailesComponent/MyJobDetailesTab/DetailsOverviewTab";
-import { useGetSingleJobByIdQuery } from "@/Redux/features/userDa/userJob/userJobApi";
+import { useGetSingleJobByIdQuery, useDeleteJobMutation } from "@/Redux/features/userDa/userJob/userJobApi";
 import {
   CalendarDays,
   CircleDollarSign,
@@ -9,10 +9,13 @@ import {
   MapPin,
 } from "lucide-react";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function MyJobDetailesPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const [deleteJob, { isLoading: isDeleting }] = useDeleteJobMutation();
 
   console.log("i am the dynamic id ", id);
   const { data, isLoading, refetch } = useGetSingleJobByIdQuery(id);
@@ -21,6 +24,31 @@ export default function MyJobDetailesPage() {
   const singleJobData = data?.data;
   console.log("h ehe ", singleJobData);
   const [activeTab, setActiveTab] = useState("Overview");
+
+  const handleEditJob = () => {
+    if (id) {
+      navigate(`/user/createdPostElevatorJob?jobId=${id}`);
+    }
+  };
+
+  const handleCloseJob = async () => {
+    if (!id) return;
+    
+    const confirmed = window.confirm(
+      "Are you sure you want to close/delete this job? This action cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await deleteJob(id).unwrap();
+      toast.success("Job deleted successfully");
+      navigate("/user/dashboard");
+    } catch (err: any) {
+      console.error("Delete job failed", err);
+      toast.error(err?.data?.message || "Failed to delete job");
+    }
+  };
 
   const tabs = [
     { id: "Overview", label: "Overview" },
@@ -106,11 +134,18 @@ export default function MyJobDetailesPage() {
               </div>
             </div>
             <div className="flex  gap-4">
-              <button className="px-4 py-2 border  rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer">
+              <button 
+                onClick={handleEditJob}
+                className="px-4 py-2 border  rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer"
+              >
                 Edit Job
               </button>
-              <button className="px-4 py-2 bg-[#D70004] text-white rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer">
-                Close Job
+              <button 
+                onClick={handleCloseJob}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-[#D70004] text-white rounded-lg hover:bg-gray-900  hover:text-white cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "Deleting..." : "Close Job"}
               </button>
             </div>
           </div>

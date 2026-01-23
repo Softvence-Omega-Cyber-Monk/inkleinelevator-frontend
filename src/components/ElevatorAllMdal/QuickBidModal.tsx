@@ -120,13 +120,13 @@ const QuickBidModal = ({
                   value: /^\d+(\.\d{1,2})?$/,
                   message: "Please enter a valid amount",
                 },
-                validate: (value) => {
-                  const numValue = parseFloat(value);
-                  if (numValue < budgetMin || numValue > budgetMax) {
-                    return `Bid must be between ${formatBudget(budgetMin, budgetMax)}`;
-                  }
-                  return true;
-                },
+                // validate: (value) => {
+                //   const numValue = parseFloat(value);
+                //   if (numValue < budgetMin || numValue > budgetMax) {
+                //     return `Bid must be between ${formatBudget(budgetMin, budgetMax)}`;
+                //   }
+                //   return true;
+                // },
               })}
             />
             {errors.bidAmount && (

@@ -50,6 +50,21 @@ const userJobApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    // delete job by id
+    deleteJob: builder.mutation({
+      query: (jobId) => ({
+        url: `/job/job/delete/${jobId}`,
+        method: "DELETE",
+      }),
+    }),
+    // update job by id
+    updateJob: builder.mutation({
+      query: ({ jobId, formData }) => ({
+        url: `/job/update/${jobId}`,
+        method: "PATCH",
+        body: formData,
+      }),
+    }),
   }),
 });
 
@@ -59,4 +74,6 @@ export const {
   useGetAllMyJobsQuery,
   useGetSingleJobByIdQuery,
   useGetAllActiveJobsUserDashboardQuery,
+  useDeleteJobMutation,
+  useUpdateJobMutation,
 } = userJobApi;
