@@ -1,4 +1,4 @@
-import { CheckCircle, Eye, MessageCircleMore } from "lucide-react";
+import { CheckCircle, Eye, MessageCircleMore, Star } from "lucide-react";
 import { useState } from "react";
 import PaymentModal from "./Modal/PaymentModal";
 
@@ -34,9 +34,27 @@ export default function DetailesBidsTab({
     return <div>Loading bids...</div>;
   }
 
+  const RatingStars = ({ rating = 0 }: { rating: number }) => {
+    return (
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            size={14}
+            className={
+              rating >= star
+                ? "fill-yellow-400 text-yellow-400"
+                : "text-gray-300"
+            }
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <div>
-      DetailesBidsTab ({bidData.length})
+      {/* DetailesBidsTab ({bidData.length}) */}
       {bidData.map((bid: any, index: number) => (
         <div
           key={bid.bidId || index}
@@ -47,7 +65,7 @@ export default function DetailesBidsTab({
             {/* Company Name & Verified Badge */}
             <div className="flex items-center gap-3">
               <h3 className="text-lg font-semibold text-card-foreground">
-                {singleJobData?.jobTitle}
+                {bid?.user?.companyName}
               </h3>
 
               <span
@@ -67,11 +85,15 @@ export default function DetailesBidsTab({
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-2">
-              <span className="text-star font-semibold text-sm">4</span>
-              <div className="flex items-center gap-0.5">star</div>
+            <div className="flex items-center gap-2 mt-2 mb-2">
+              <span className="font-semibold text-sm">
+                {bid?.user?.avgRating?.toFixed(1) || "0.0"}
+              </span>
+
+              <RatingStars rating={bid?.user?.avgRating || 0} />
+
               <span className="text-muted-foreground text-sm">
-                project count
+                ({bid?.user?._count?.reviewsReceived || 0} reviews)
               </span>
             </div>
 
