@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, Package, Clock, DollarSign, Percent, MoreHorizontal, X, Star, Eye, Users } from 'lucide-react';
+import { useGetAllBidByAdminQuery } from '@/Redux/features/AdminDashboard/adminApi';
 
 // Types
 interface Bid {
@@ -271,94 +272,119 @@ const BidsManagement: React.FC = () => {
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isAllBiddersModalOpen, setIsAllBiddersModalOpen] = useState(false);
   const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const bids: Bid[] = [
-    {
-      id: 1,
-      contractor: 'Elite Elevator Solutions',
-      contractorEmail: 'contact@eliteelevators.com',
-      job: 'Elevator Modernization - 8 Units',
-      jobDetails: 'Manhattan Tower LLC',
-      requester: 'Manhattan Tower LLC',
-      bidAmount: '$195,000',
-      platformFee: '$19,500',
-      timeline: '16 weeks',
-      status: 'pending',
-      rating: 5,
-      experience: 'Est. 30-40 days completion experience'
-    },
-    {
-      id: 2,
-      contractor: 'Elite Elevator Solutions',
-      contractorEmail: 'contact@eliteelevators.com',
-      job: 'Elevator Modernization - 8 Units',
-      jobDetails: 'Manhattan 2024-01-15',
-      requester: 'Manhattan Tower LLC',
-      bidAmount: '$195,000',
-      platformFee: '$19,500',
-      timeline: '16 weeks',
-      status: 'completed',
-      rating: 5
-    },
-    ...Array(5).fill(null).map((_, i) => ({
-      id: i + 3,
-      contractor: 'Elite Elevator Solutions',
-      contractorEmail: 'contact@eliteelevators.com',
-      job: 'Elevator Modernization - 8 Units',
-      jobDetails: 'Manhattan 2024-01-15',
-      requester: 'Manhattan Tower LLC',
-      bidAmount: '$195,000',
-      platformFee: '$19,500',
-      timeline: '16 weeks',
-      status: 'completed' as const,
-      rating: 5
-    }))
-  ];
+  // Fetch bids from API
+  const { data: bidsData, isLoading, isError } = useGetAllBidByAdminQuery({
+    page: currentPage,
+    limit: itemsPerPage,
+    searchTerm: searchTerm || undefined,
+  });
 
-  const allBidders: Bid[] = [
-    {
-      id: 1,
-      contractor: 'Elite Elevator Solutions',
-      contractorEmail: '',
-      job: '',
-      jobDetails: '',
-      requester: '',
-      bidAmount: '$195,000',
-      platformFee: '',
-      timeline: '16 weeks',
-      status: 'pending',
-      rating: 5,
-      experience: 'Est. 30-40 days completion experience'
-    },
-    {
-      id: 2,
-      contractor: 'Elite Elevator Solutions',
-      contractorEmail: '',
-      job: '',
-      jobDetails: '',
-      requester: '',
-      bidAmount: '$195,000',
-      platformFee: '',
-      timeline: '16 weeks',
-      status: 'pending',
-      rating: 5,
-      experience: 'Est. 30-40 days completion experience'
-    },
-    {
-      id: 3,
-      contractor: 'Elite Elevator Solutions',
-      contractorEmail: '',
-      job: '',
-      jobDetails: '',
-      requester: '',
-      bidAmount: '$195,000',
-      platformFee: '',
-      timeline: '16 weeks',
-      status: 'pending',
-      rating: 5,
-      experience: 'Est. 30-40 days completion experience'
-    }
-  ];
+  // Transform API response to match Bid interface
+  const bids: Bid[] = useMemo(() => {
+    const bidsArray = bidsData?.data?.data || [];
+
+    if (!bidsArray || bidsArray.length === 0) return [];
+
+    return bidsArray.map((bid: any, index: number) => {
+      // Format bid amount
+      const formatAmount = (amount?: number | string) => {
+        if (!amount && amount !== 0) return '$0';
+        const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+        if (isNaN(numAmount)) return '$0';
+        return `$${numAmount.toLocaleString()}`;
+      };
+
+      // Calculate platform fee (10%)
+      const calculatePlatformFee = (amount?: number | string) => {
+        if (!amount && amount !== 0) return '$0';
+        const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+        if (isNaN(numAmount)) return '$0';
+        const fee = numAmount * 0.1;
+        return `$${fee.toLocaleString()}`;
+      };
+
+      // Format timeline
+      const formatTimeline = (timeline?: number | string) => {
+        if (!timeline && timeline !== 0) return 'N/A';
+        if (typeof timeline === 'number') {
+          return `${timeline} ${timeline === 1 ? 'day' : 'days'}`;
+        }
+        return timeline;
+      };
+
+      // Map status
+      const mapStatus = (status?: string): 'pending' | 'completed' => {
+        if (!status) return 'pending';
+        const upperStatus = status.toUpperCase();
+        if (upperStatus === 'ACCEPTED' || upperStatus === 'COMPLETED') return 'completed';
+        return 'pending';
+      };
+
+      // Get contractor info
+      const contractorName = bid.user?.companyName || bid.user?.name || 'Unknown Contractor';
+      const contractorEmail = bid.user?.email || 'No email';
+
+      // Get job info
+      const jobTitle = bid.job?.jobTitle || bid.jobTitle || 'Untitled Job';
+      const jobDetails = bid.job?.user?.name || bid.requesterName || 'Unknown Requester';
+      const requesterName = bid.job?.user?.name || bid.requesterName || 'Unknown';
+
+      // Generate ID
+      const generateId = () => {
+        if (bid.bidId) {
+          const hexStr = bid.bidId.replace(/-/g, '').substring(0, 8);
+          const num = parseInt(hexStr, 16);
+          if (!isNaN(num)) return num;
+        }
+        return index + 1;
+      };
+
+      return {
+        id: generateId(),
+        contractor: contractorName,
+        contractorEmail: contractorEmail,
+        job: jobTitle,
+        jobDetails: jobDetails,
+        requester: requesterName,
+        bidAmount: formatAmount(bid.bidAmount),
+        platformFee: calculatePlatformFee(bid.bidAmount),
+        timeline: formatTimeline(bid.timeline || bid.completionTimeline),
+        status: mapStatus(bid.status),
+        rating: bid.user?.rating || 5,
+        experience: bid.brefProposal || 'No experience details',
+      };
+    });
+  }, [bidsData]);
+
+  // Calculate stats from bids data
+  const stats = useMemo(() => {
+    const totalBids = bidsData?.data?.meta?.total || 0;
+    const pendingBids = bids.filter(b => b.status === 'pending').length;
+    const avgBidAmount = bids.length > 0
+      ? bids.reduce((sum, bid) => {
+          const amount = parseFloat(bid.bidAmount.replace(/[^0-9.]/g, ''));
+          return sum + (isNaN(amount) ? 0 : amount);
+        }, 0) / bids.length
+      : 0;
+    const totalPlatformFees = bids.reduce((sum, bid) => {
+      const fee = parseFloat(bid.platformFee.replace(/[^0-9.]/g, ''));
+      return sum + (isNaN(fee) ? 0 : fee);
+    }, 0);
+
+    return {
+      totalBids,
+      pendingBids,
+      avgBidAmount: `$${Math.round(avgBidAmount / 1000)}K`,
+      totalPlatformFees: `$${Math.round(totalPlatformFees / 1000)}K`,
+    };
+  }, [bidsData, bids]);
+
+  // Use same bids data for all bidders modal
+  const allBidders: Bid[] = bids;
 
   const handleActionClick = (bid: Bid) => {
     setSelectedBid(bid);
@@ -388,25 +414,25 @@ const BidsManagement: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatsCard
             title="Total Bids"
-            value="2,341"
+            value={stats.totalBids.toLocaleString()}
             subtitle="All bids submitted"
             icon={<Package className="w-5 h-5" />}
           />
           <StatsCard
             title="Pending Bids"
-            value="87"
+            value={stats.pendingBids}
             subtitle="Awaiting review"
             icon={<Clock className="w-5 h-5" />}
           />
           <StatsCard
             title="Avg Bid Amount"
-            value="$112K"
+            value={stats.avgBidAmount}
             subtitle="Per job"
             icon={<DollarSign className="w-5 h-5" />}
           />
           <StatsCard
             title="Platform Fees"
-            value="$428K"
+            value={stats.totalPlatformFees}
             subtitle="Total fees earned"
             icon={<Percent className="w-5 h-5" />}
           />
@@ -419,6 +445,11 @@ const BidsManagement: React.FC = () => {
             <input
               type="text"
               placeholder="Search by contractor, job, or requester..."
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1); // Reset to first page on search
+              }}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -431,17 +462,68 @@ const BidsManagement: React.FC = () => {
         </div>
 
         {/* Bids Table */}
-        <BidsTable bids={bids} onActionClick={handleActionClick} />
+        {isLoading ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <p className="text-gray-500">Loading bids...</p>
+          </div>
+        ) : isError ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <p className="text-red-500">Error loading bids. Please try again.</p>
+          </div>
+        ) : bids.length === 0 ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <p className="text-gray-500">No bids found.</p>
+          </div>
+        ) : (
+          <BidsTable bids={bids} onActionClick={handleActionClick} />
+        )}
 
         {/* Pagination */}
-        <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
-          <button className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900">‹ Previous</button>
-          <button className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-gray-900 text-white rounded">1</button>
-          <button className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:bg-gray-100 rounded">2</button>
-          <button className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:bg-gray-100 rounded">3</button>
-          <span className="px-1 sm:px-2 text-xs sm:text-sm text-gray-600">...</span>
-          <button className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900">Next ›</button>
-        </div>
+        {bidsData?.data?.meta && (
+          <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              ‹ Previous
+            </button>
+            {Array.from({ length: Math.min(5, bidsData.data.meta.totalPage) }, (_, i) => {
+              const pageNum = i + 1;
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded ${
+                    currentPage === pageNum
+                      ? 'bg-gray-900 text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            {bidsData.data.meta.totalPage > 5 && (
+              <>
+                <span className="px-1 sm:px-2 text-xs sm:text-sm text-gray-600">...</span>
+                <button
+                  onClick={() => setCurrentPage(bidsData.data.meta.totalPage)}
+                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:bg-gray-100 rounded"
+                >
+                  {bidsData.data.meta.totalPage}
+                </button>
+              </>
+            )}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(bidsData.data.meta.totalPage, prev + 1))}
+              disabled={currentPage >= bidsData.data.meta.totalPage}
+              className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next ›
+            </button>
+          </div>
+        )}
 
         {/* Modals */}
         <ActionModal

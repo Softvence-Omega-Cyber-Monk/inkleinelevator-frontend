@@ -78,6 +78,25 @@ const userJobApi = baseApi.injectEndpoints({
         }, 
       }),
 
+      getAllBidByAdmin: builder.query<any, { page?: number; limit?: number; searchTerm?: string } | void>({
+        query: (args) => {
+          const params: Record<string, string | number> = {
+            page: 1,
+            limit: 10
+          };
+          
+          if (args?.page) params.page = args.page;
+          if (args?.limit) params.limit = args.limit;
+          if (args?.searchTerm) params.searchTerm = args.searchTerm;
+          
+          return {
+            url: "/bid/get-all-bid-by-admin",
+            method: "GET",
+            params,
+          };
+        },
+      }),
+
       getConstructorApprovalShortList: builder.query({
         query: () => ({
           url: "/user/constructor-approval-short-list", 
@@ -103,5 +122,6 @@ export const {
     useGetAdminsRecentActivityQuery,
     useGetAllUserByAdminQuery,
     useGetAllJobByAdminQuery,
+    useGetAllBidByAdminQuery,
     useVerifyUserStatusMutation
 } = userJobApi;
