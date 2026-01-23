@@ -93,7 +93,7 @@ const ElevatorDashboard = () => {
             <Flag size={20} />
             {sidebarOpen && <span>My Bids</span>}
           </button>
-          <button
+          {/* <button
             onClick={() => navigate("/elevator/billing")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${
               isActive("/elevator/billing")
@@ -103,7 +103,7 @@ const ElevatorDashboard = () => {
           >
             <Fuel size={20} />
             {sidebarOpen && <span>Billing</span>}
-          </button>
+          </button> */}
           <button
             onClick={() => navigate("/elevator/company-profile")}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl mb-1 transition-colors ${
