@@ -1,4 +1,4 @@
- 
+
 import { useState, useEffect, useMemo } from "react";
 import { Search, ArrowLeft } from "lucide-react";
 import ConversationList from "./ConversationList";
@@ -172,7 +172,7 @@ export default function MessagesPage() {
 
   // Local messages state for real-time updates
   const [realTimeMessages, setRealTimeMessages] = useState<Array<{
-    id: number;
+    id: number | string;
     sender: "user" | "other";
     senderName: string;
     text: string;
@@ -263,8 +263,9 @@ export default function MessagesPage() {
         (messageSenderId === receiverId.toLowerCase() && messageReceiverId === currentUserIdStr.toLowerCase())
       ) {
         const isCurrentUser = messageSenderId === currentUserIdStr.toLowerCase();
+        const messageId = message.messageId || message.id || Date.now();
         const newMessage = {
-          id: message.id || Date.now(),
+          id: messageId,
           sender: (isCurrentUser ? "user" : "other") as "user" | "other",
           senderName: isCurrentUser ? "You" : selectedConversation?.name || "User",
           text: message.text || "",
@@ -273,12 +274,56 @@ export default function MessagesPage() {
 
         console.log('Adding message to real-time list:', newMessage);
         setRealTimeMessages((prev) => {
-          // Check if message already exists to avoid duplicates
-          const exists = prev.some((m) => m.id === newMessage.id);
+          // If this is a message from current user, check if there's an optimistic message to replace
+          if (isCurrentUser) {
+            // Find and remove optimistic message with same text (within 30 seconds)
+            const optimisticIndex = prev.findIndex((m) => {
+              const isOptimistic = typeof m.id === 'string' && m.id.startsWith('temp-');
+              const sameText = m.text.trim() === newMessage.text.trim();
+              const sameSender = m.sender === "user";
+              const timeDiff = Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 30000; // Within 30 seconds
+              return isOptimistic && sameText && sameSender && timeDiff;
+            });
+            
+            if (optimisticIndex !== -1) {
+              console.log('Replacing optimistic message with real message from socket');
+              const updated = [...prev];
+              updated[optimisticIndex] = newMessage;
+              return updated;
+            }
+          }
+          
+          // Check if message already exists (by ID or by content)
+          const exists = prev.some((m) => {
+            // Check by exact ID match
+            if (String(m.id) === String(newMessage.id)) return true;
+            
+            // For user messages, check if it's the same message by text, sender, and timestamp (within 10 seconds)
+            if (isCurrentUser && m.sender === "user") {
+              if (
+                m.text.trim() === newMessage.text.trim() && 
+                Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 10000
+              ) {
+                return true;
+              }
+            }
+            
+            // For other messages, check by text, sender, and timestamp (within 5 seconds)
+            if (
+              m.text.trim() === newMessage.text.trim() && 
+              m.sender === newMessage.sender &&
+              Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 5000
+            ) {
+              return true;
+            }
+            return false;
+          });
+          
           if (exists) {
-            console.log('Message already exists, skipping');
+            console.log('Message already exists in realTimeMessages, skipping');
             return prev;
           }
+          
           console.log('Adding new message, previous count:', prev.length);
           return [...prev, newMessage];
         });
@@ -288,9 +333,13 @@ export default function MessagesPage() {
     };
 
     socket.on('receive-message', handleReceiveMessage);
+    socket.on('message', handleReceiveMessage);
+    socket.on('new-message', handleReceiveMessage);
 
     return () => {
       socket.off('receive-message', handleReceiveMessage);
+      socket.off('message', handleReceiveMessage);
+      socket.off('new-message', handleReceiveMessage);
     };
   }, [socket, currentUserId, selectedConversation]);
 
@@ -304,36 +353,108 @@ export default function MessagesPage() {
     return (text: string, _receiverId: string) => {
       if (!currentUserId || !selectedConversation) return;
       
+      // Use a temp- prefix as a marker for optimistic messages
+      // This makes them easy to identify and replace
+      const optimisticId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const optimisticMessage = {
-        id: Date.now(), // Temporary ID
+        id: optimisticId,
         sender: "user" as const,
         senderName: "You",
-        text: text,
+        text: text.trim(),
         timestamp: new Date(),
       };
 
       console.log('Adding optimistic message:', optimisticMessage);
-      setRealTimeMessages((prev) => [...prev, optimisticMessage]);
+      setRealTimeMessages((prev) => {
+        // Check if we already have an optimistic message with the same text (prevent double-add)
+        const hasDuplicate = prev.some((m) => {
+          const isOptimistic = typeof m.id === 'string' && m.id.startsWith('temp-');
+          return isOptimistic && m.text.trim() === text.trim() && m.sender === "user";
+        });
+        
+        if (hasDuplicate) {
+          console.log('Optimistic message already exists, skipping');
+          return prev;
+        }
+        
+        return [...prev, optimisticMessage];
+      });
     };
   }, [currentUserId, selectedConversation]);
 
   // Combine API messages with real-time messages
   const allMessages = useMemo(() => {
+    // Start with API messages (these are the source of truth)
     const apiMessages = messages;
-    const combined = [...apiMessages, ...realTimeMessages];
+    
+    // Filter out optimistic messages from realTimeMessages that match API messages
+    const filteredRealTime = realTimeMessages.filter((rtMsg) => {
+      // If it's an optimistic message, check if it exists in API messages
+      if (typeof rtMsg.id === 'string' && rtMsg.id.startsWith('temp-')) {
+        const existsInApi = apiMessages.some((apiMsg) => {
+          return (
+            apiMsg.sender === "user" &&
+            apiMsg.text.trim() === rtMsg.text.trim() &&
+            Math.abs(apiMsg.timestamp.getTime() - rtMsg.timestamp.getTime()) < 10000
+          );
+        });
+        if (existsInApi) {
+          console.log('Removing optimistic message - already in API messages');
+          return false; // Remove optimistic message if it's in API
+        }
+      }
+      return true; // Keep all other real-time messages
+    });
+    
+    const combined = [...apiMessages, ...filteredRealTime];
     
     // Remove duplicates and sort by timestamp
     const uniqueMessages = combined.reduce((acc, msg) => {
-      // For optimistic messages (temporary IDs), check by text and timestamp instead
-      const exists = acc.find((m) => {
-        if (m.id === msg.id) return true;
-        // Also check if it's the same message by text and timestamp (within 5 seconds)
-        if (m.text === msg.text && Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 5000) {
+      // Check if message already exists
+      const existingIndex = acc.findIndex((m) => {
+        // Exact ID match
+        if (String(m.id) === String(msg.id)) return true;
+        
+        // For user messages, check by text and timestamp (more lenient for duplicates)
+        if (msg.sender === "user" && m.sender === "user") {
+          if (
+            m.text.trim() === msg.text.trim() && 
+            Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 15000 // Within 15 seconds
+          ) {
+            return true;
+          }
+        }
+        
+        // For other messages, check by text, sender, and timestamp
+        if (
+          m.text.trim() === msg.text.trim() && 
+          m.sender === msg.sender &&
+          Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 5000
+        ) {
           return true;
         }
+        
         return false;
       });
-      if (!exists) acc.push(msg);
+      
+      if (existingIndex === -1) {
+        // No duplicate found, add the message
+        acc.push(msg);
+      } else {
+        // Duplicate found - replace if the new one is better (has real ID, not optimistic)
+        const existing = acc[existingIndex];
+        const isExistingOptimistic = typeof existing.id === 'string' && existing.id.startsWith('temp-');
+        const isNewOptimistic = typeof msg.id === 'string' && msg.id.startsWith('temp-');
+        
+        // Replace optimistic with real message (prefer API/socket message over optimistic)
+        if (isExistingOptimistic && !isNewOptimistic) {
+          console.log('Replacing optimistic message with real message in allMessages');
+          acc[existingIndex] = msg;
+        }
+        // If both are real messages (not optimistic), keep the first one (from API)
+        // This prevents socket duplicates from overwriting API messages
+      }
+      
       return acc;
     }, [] as typeof combined);
 

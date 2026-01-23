@@ -57,8 +57,9 @@ const messageApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: (_result, _error, { receiverId }) => [
-        { type: "MessageHistory", id: receiverId },
+      // Don't invalidate immediately - let socket handle real-time updates
+      // Only invalidate chat list to update last message
+      invalidatesTags: (_result, _error) => [
         "MessageChatList",
       ],
     }),

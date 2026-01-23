@@ -4,11 +4,23 @@ import LocationStep from "@/components/createdJobFromStep/LocationStep";
 import ReviewStep from "@/components/createdJobFromStep/ReviewStep";
 import StepperHeader from "@/components/createdJobFromStep/StepperHeader";
 import UploadDocumentsStep from "@/components/createdJobFromStep/UploadDocumentsStep";
-import { useCreateNewJobMutation } from "@/Redux/features/userDa/userJob/userJobApi";
-import { useState } from "react";
+import { useCreateNewJobMutation, useGetSingleJobByIdQuery, useUpdateJobMutation } from "@/Redux/features/userDa/userJob/userJobApi";
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function CreatedPostElevatorJob() {
-  const [createNewJob, { isLoading }] = useCreateNewJobMutation();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const jobId = searchParams.get("jobId");
+  const isEditMode = !!jobId;
+
+  const [createNewJob, { isLoading: isCreating }] = useCreateNewJobMutation();
+  const [updateJob, { isLoading: isUpdating }] = useUpdateJobMutation();
+  const { data: jobData, isLoading: isLoadingJob } = useGetSingleJobByIdQuery(jobId || "", {
+    skip: !jobId,
+  });
+
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     jobTitle: "",
@@ -27,6 +39,41 @@ export default function CreatedPostElevatorJob() {
     documents: [],
     estimatedBudget: "",
   });
+
+  // Load job data when in edit mode
+  useEffect(() => {
+    if (isEditMode && jobData?.data) {
+      const job = jobData.data;
+      setFormData({
+        jobTitle: job.jobTitle || "",
+        serviceType: job.jobType || "",
+        description: job.projectDescription || "",
+        technicalRequirements: job.technicalRequermentAndCertification || [],
+        elevatorType: job.elevatorType || "",
+        numberOfElevators: String(job.numberOfElevator || ""),
+        capacity: job.capasity || "",
+        speed: job.speed || "",
+        address: job.address || "",
+        streetAddress: job.streetAddress || "",
+        city: job.city || "",
+        zipCode: job.zipCode || "",
+        photos: job.photo?.map((url: string, index: number) => ({
+          id: `photo-${index}`,
+          url: url,
+          isExisting: true,
+        })) || [],
+        documents: job.documents?.map((url: string, index: number) => ({
+          id: `doc-${index}`,
+          url: url,
+          name: url.split("/").pop() || `document-${index}`,
+          isExisting: true,
+        })) || [],
+        estimatedBudget: job.estimitedBudget || "",
+      });
+    }
+  }, [isEditMode, jobData]);
+
+  const isLoading = isCreating || isUpdating;
 
   const steps = ["Basics", "Details", "Location", "Upload Documents", "Review"];
 
@@ -71,22 +118,28 @@ export default function CreatedPostElevatorJob() {
       }
     });
 
-    // formData.documents?.forEach((file: any) => {
-    //   if (file instanceof File) {
-    //     form.append("documents", file, file.name);
-    //   }
-    // });
     formData.documents?.forEach((doc: any) => {
       if (doc.file instanceof File) {
         form.append("documents", doc.file, doc.name);
       }
     });
+    
     // ===== SUBMIT FORM =====
     try {
-      const res = await createNewJob(form).unwrap();
-      console.log("Job created successfully", res);
-    } catch (err) {
-      console.error("Create job failed", err);
+      if (isEditMode && jobId) {
+        const res = await updateJob({ jobId, formData: form }).unwrap();
+        console.log("Job updated successfully", res);
+        toast.success("Job updated successfully");
+        navigate(`/user/my-jobs-details/${jobId}`);
+      } else {
+        const res = await createNewJob(form).unwrap();
+        console.log("Job created successfully", res);
+        toast.success("Job created successfully");
+        navigate("/user");
+      }
+    } catch (err: any) {
+      console.error(isEditMode ? "Update job failed" : "Create job failed", err);
+      toast.error(err?.data?.message || (isEditMode ? "Failed to update job" : "Failed to create job"));
     }
   };
 
@@ -135,6 +188,7 @@ export default function CreatedPostElevatorJob() {
             onBack={handleBack}
             onSubmit={handleSubmit}
             loading={isLoading}
+            isEditMode={isEditMode}
           />
         );
       default:
@@ -149,10 +203,12 @@ export default function CreatedPostElevatorJob() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-medium text-gray-900">
-              Post a New Job
+              {isEditMode ? "Edit Job" : "Post a New Job"}
             </h1>
             <p className="text-[#717182] mt-2 text-base">
-              Describe your project to find the perfect professional.
+              {isEditMode 
+                ? "Update your job details below." 
+                : "Describe your project to find the perfect professional."}
             </p>
           </div>
         </div>
@@ -160,10 +216,17 @@ export default function CreatedPostElevatorJob() {
 
       {/* Stepper */}
       <div className="p-6">
-        <StepperHeader currentStep={currentStep} steps={steps} />
-
-        {/* Content */}
-        <div className="mt-8">{renderStep()}</div>
+        {isLoadingJob ? (
+          <div className="text-center py-8">
+            <p className="text-gray-600">Loading job data...</p>
+          </div>
+        ) : (
+          <>
+            <StepperHeader currentStep={currentStep} steps={steps} />
+            {/* Content */}
+            <div className="mt-8">{renderStep()}</div>
+          </>
+        )}
       </div>
     </div>
   );
