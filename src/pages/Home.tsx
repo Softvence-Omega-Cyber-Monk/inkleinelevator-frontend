@@ -6,10 +6,7 @@ import ElevatorLandingPage from "./LandingPage/LandingAbout";
 import PricingSection from "./LandingPage/PricingSection";
 import WhoItsFor from "./LandingPage/WhoItsFor";
 
-
 const Home = () => {
-
-
   return (
     <div className="">
       <Banner />
@@ -20,7 +17,6 @@ const Home = () => {
       <ContactSection />
       <FAQSection />
     </div>
-
   );
 };
 
