@@ -20,8 +20,7 @@ import ElevatorDashboard from "@/pages/ElevatorDashboard/ElevatorDashboard";
 import ElevatorDashboardOverview from "@/pages/ElevatorDashboard/ElevatorDashboardOverview";
 import AdminRouter from "./AdminRouter";
 import AdminDashboard from "@/pages/AdminDashboard/AdminDashboard";
-import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOverview";
-import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOverview";
+ import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOverview";
 import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
 // import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
 import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
@@ -36,6 +35,7 @@ import SystemSettings from "@/pages/AdminDashboard/SystemSetting/SystemSettingOv
 import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
 import MyJobDetailesPage from "@/pages/UserDashboard/MyJobs/MyJobDetailesPage";
 import ElevatorMyJobDetails from "@/pages/ElevatorDashboard/BrowseJobs/ElevatorMyJobDetails";
+import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOverview";
 
 const routes = createBrowserRouter([
   {
@@ -132,7 +132,7 @@ const routes = createBrowserRouter([
         path: "",
         element: <AdminDashboard />,
         children: [
-          { path: "", element: <AdminDashboardOverview /> },
+          { path: "", element: <AdminDashboardOverview/> },
           { path: "userManagement", element: <UserManagement /> },
           { path: "JobsManagement", element: <JobsManagement /> },
           { path: "bidsmanagement", element: <BidsManagement /> },
