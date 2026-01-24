@@ -48,7 +48,7 @@ export default function CreatedPostElevatorJob() {
         jobTitle: job.jobTitle || "",
         serviceType: job.jobType || "",
         description: job.projectDescription || "",
-        technicalRequirements: job.technicalRequermentAndCertification || [],
+        technicalRequirements: (job.technicalRequermentAndCertification || []).map((req: any) => String(req || "").trim()).filter((req: string) => req),
         elevatorType: job.elevatorType || "",
         numberOfElevators: String(job.numberOfElevator || ""),
         capacity: job.capasity || "",
@@ -90,56 +90,180 @@ export default function CreatedPostElevatorJob() {
   };
 
   const handleSubmit = async () => {
+    // Validate required fields
+    if (!formData.jobTitle?.trim()) {
+      toast.error("Job title is required");
+      return;
+    }
+    if (!formData.serviceType) {
+      toast.error("Service type is required");
+      return;
+    }
+    if (!formData.description?.trim()) {
+      toast.error("Project description is required");
+      return;
+    }
+
+    // Ensure technicalRequirements is an array of strings
+    const technicalRequirements = Array.isArray(formData.technicalRequirements)
+      ? formData.technicalRequirements.map((item: any) => String(item || "").trim()).filter((item: string) => item)
+      : [];
+
     const form = new FormData();
 
     // ===== TEXT & NUMBER FIELDS =====
     form.append("jobTitle", formData.jobTitle.trim());
     form.append("jobType", formData.serviceType);
-    form.append("projectDescription", formData.description);
-    form.append("elevatorType", formData.elevatorType);
-    form.append("numberOfElevator", String(formData.numberOfElevators)); // number → string
-    form.append("capacity", String(formData.capacity)); // if numeric
-    form.append("speed", String(formData.speed)); // if numeric
-    form.append("address", formData.address);
-    form.append("streetAddress", formData.streetAddress);
-    form.append("city", formData.city);
-    form.append("zipCode", formData.zipCode);
-    form.append("estimatedBudget", formData.estimatedBudget);
+    form.append("projectDescription", formData.description.trim());
+    
+    // Only append fields that have values (avoid empty strings)
+    if (formData.elevatorType) {
+      form.append("elevatorType", formData.elevatorType);
+    }
+    if (formData.numberOfElevators) {
+      form.append("numberOfElevator", String(formData.numberOfElevators));
+    }
+    if (formData.capacity) {
+      form.append("capacity", String(formData.capacity));
+    }
+    if (formData.speed) {
+      form.append("speed", String(formData.speed));
+    }
+    if (formData.address) {
+      form.append("address", formData.address);
+    }
+    if (formData.streetAddress) {
+      form.append("streetAddress", formData.streetAddress);
+    }
+    if (formData.city) {
+      form.append("city", formData.city);
+    }
+    if (formData.zipCode) {
+      form.append("zipCode", formData.zipCode);
+    }
+    if (formData.estimatedBudget) {
+      form.append("estimatedBudget", formData.estimatedBudget);
+    }
 
-    // ===== ARRAY OF STRINGS =====
-    formData.technicalRequirements?.forEach((item) => {
-      form.append("technicalRequirementsAndCertifications", item);
-    });
+    if (isEditMode && jobId) {
+      // ===== UPDATE MODE: Handle existing and new files separately =====
+      
+      // Separate existing photos from new photos
+      const existingPhotos: string[] = [];
+      const newPhotos: File[] = [];
+      
+      formData.photos?.forEach((file: any) => {
+        if (file.isExisting && file.url) {
+          existingPhotos.push(file.url);
+        } else if (file instanceof File) {
+          newPhotos.push(file);
+        }
+      });
 
-    // ===== FILES =====
-    formData.photos?.forEach((file: any) => {
-      if (file instanceof File) {
+      // Append existing photos URLs
+      existingPhotos.forEach((url) => {
+        form.append("existingPhotos", url);
+      });
+
+      // Append new photo files
+      newPhotos.forEach((file) => {
         form.append("photos", file, file.name);
-      }
-    });
+      });
 
-    formData.documents?.forEach((doc: any) => {
-      if (doc.file instanceof File) {
-        form.append("documents", doc.file, doc.name);
-      }
-    });
+      // Separate existing documents from new documents
+      const existingDocuments: string[] = [];
+      const newDocuments: File[] = [];
+      
+      formData.documents?.forEach((doc: any) => {
+        if (doc.isExisting && doc.url) {
+          existingDocuments.push(doc.url);
+        } else if (doc.file instanceof File) {
+          newDocuments.push(doc.file);
+        }
+      });
+
+      // Append existing documents URLs
+      existingDocuments.forEach((url) => {
+        form.append("existingDocuments", url);
+      });
+
+      // Append new document files
+      newDocuments.forEach((file) => {
+        form.append("documents", file, file.name);
+      });
+
+      // Handle technical requirements - separate existing from new
+      const existingTechReqs: string[] = [];
+      const newTechReqs: string[] = [];
+      
+      // Use the validated technicalRequirements array
+      technicalRequirements.forEach((stringValue: string) => {
+        // Check if it's an existing requirement (from API) or new
+        // For now, treat all as new since we don't have a way to distinguish
+        newTechReqs.push(stringValue);
+      });
+
+      // Append existing technical requirements
+      existingTechReqs.forEach((req) => {
+        const stringValue = String(req || "").trim();
+        if (stringValue) {
+          form.append("existingTechnicalRequirementsAndCertifications", stringValue);
+        }
+      });
+
+      // Append new technical requirements
+      newTechReqs.forEach((req) => {
+        const stringValue = String(req || "").trim();
+        if (stringValue) {
+          form.append("technicalRequirementsAndCertifications", stringValue);
+        }
+      });
+    } else {
+      // ===== CREATE MODE: Only new files =====
+      
+      // Technical requirements - use the validated array
+      technicalRequirements.forEach((stringValue: string) => {
+        form.append("technicalRequirementsAndCertifications", stringValue);
+      });
+
+      // New photos
+      formData.photos?.forEach((file: any) => {
+        if (file instanceof File) {
+          form.append("photos", file, file.name);
+        }
+      });
+
+      // New documents
+      formData.documents?.forEach((doc: any) => {
+        if (doc.file instanceof File) {
+          form.append("documents", doc.file, doc.name);
+        }
+      });
+    }
     
     // ===== SUBMIT FORM =====
     try {
       if (isEditMode && jobId) {
-        const res = await updateJob({ jobId, formData: form }).unwrap();
-        console.log("Job updated successfully", res);
+        await updateJob({ jobId, formData: form }).unwrap();
         toast.success("Job updated successfully");
         navigate(`/user/my-jobs-details/${jobId}`);
       } else {
-        const res = await createNewJob(form).unwrap();
-        console.log("Job created successfully", res);
+        await createNewJob(form).unwrap();
         toast.success("Job created successfully");
         navigate("/user");
       }
     } catch (err: any) {
       console.error(isEditMode ? "Update job failed" : "Create job failed", err);
-      toast.error(err?.data?.message || (isEditMode ? "Failed to update job" : "Failed to create job"));
+      const errorMessage = err?.data?.message || err?.data?.error || err?.message || (isEditMode ? "Failed to update job" : "Failed to create job");
+      toast.error(errorMessage);
+      
+      // Log full error details for debugging
+      if (err?.data) {
+        console.error("Error details:", err.data);
+      }
+      if (err?.status) {
+        console.error("Error status:", err.status);
+      }
     }
   };
 

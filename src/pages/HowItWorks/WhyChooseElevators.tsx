@@ -7,32 +7,17 @@ const WhyChooseElevators: React.FC = () => {
   const sectionData = data?.data;
   const audiences = sectionData?.audiences || [];
   
-  // Get JOB_REQUESTER and CONTRACTOR audiences
-  const jobRequester = audiences.find((a) => a.type === 'JOB_REQUESTER');
-  const contractor = audiences.find((a) => a.type === 'CONTRACTOR');
-  
-  // Create features array from API data
-  const features = [];
-  
-  if (jobRequester) {
-    if (jobRequester.cardTitle || jobRequester.cardSubtitle || jobRequester.bulletText) {
-      features.push({
-        title: jobRequester.cardTitle || '',
-        subtitle: jobRequester.cardSubtitle || '',
-        bulletText: jobRequester.bulletText || '',
-      });
-    }
-  }
-  
-  if (contractor) {
-    if (contractor.cardTitle || contractor.cardSubtitle || contractor.bulletText) {
-      features.push({
-        title: contractor.cardTitle || '',
-        subtitle: contractor.cardSubtitle || '',
-        bulletText: contractor.bulletText || '',
-      });
-    }
-  }
+  // Create features array from ALL audiences (not just one of each type)
+  const features = audiences
+    .filter((audience) => {
+      // Only include cards that have at least one field filled
+      return audience.cardTitle || audience.cardSubtitle || audience.bulletText;
+    })
+    .map((audience) => ({
+      title: audience.cardTitle || '',
+      subtitle: audience.cardSubtitle || '',
+      bulletText: audience.bulletText || '',
+    }));
 
   if (isLoading) {
     return (
