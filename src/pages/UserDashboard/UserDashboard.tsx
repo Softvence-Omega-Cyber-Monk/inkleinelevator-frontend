@@ -5,12 +5,11 @@ import {
   LogOut,
   MessageSquare,
   Settings,
-  User,
   Search,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
-import { useAppDispatch } from "@/Redux/hooks";
-import { logout } from "@/Redux/features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
+import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 const UserDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -26,13 +25,13 @@ const UserDashboard = () => {
   // const user = useAppSelector(selectCurrentUser);
 
   const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
 
   const handleLogout = () => {
-    // Clear auth state
-    dispatch(logout());
-
-    // Optionally redirect to login page
-    navigate("/login");
+    dispatch(logout()); // Clear user and token from Redux
+    localStorage.removeItem("accessToken"); // optional if you store token locally
+    navigate("/login"); // redirect to login page
   };
 
   return (
@@ -46,16 +45,17 @@ const UserDashboard = () => {
           <div className="bg-[#0f1729] rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <User size={20} className="text-gray-600" />
+                {/* <User size={20} className="text-gray-600" /> */}
+                <img src={(user as any)?.profile} alt="" />
               </div>
               {sidebarOpen && (
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-gray-400 mb-1">Company</div>
+                  {/* <div className="text-xs text-gray-400 mb-1">Company</div> */}
                   <div className="font-semibold text-sm text-white">
-                    Jane Contractor
+                    {user?.name}
                   </div>
                   <div className="text-xs text-gray-400 truncate">
-                    tim.jennings@example.comm
+                    {user?.email}
                   </div>
                 </div>
               )}

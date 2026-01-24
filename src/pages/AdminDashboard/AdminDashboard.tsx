@@ -14,6 +14,8 @@ import {
   Download,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
+import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
+import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -26,12 +28,15 @@ const AdminDashboard = () => {
     return false;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    navigate("/login");
-  };
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
 
+  const handleLogout = () => {
+    dispatch(logout()); // Clear user and token from Redux
+    localStorage.removeItem("accessToken"); // optional if you store token locally
+    navigate("/login"); // redirect to login page
+  };
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}

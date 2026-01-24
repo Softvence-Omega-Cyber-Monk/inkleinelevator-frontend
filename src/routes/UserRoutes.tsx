@@ -1,20 +1,21 @@
-// import { Navigate, Outlet } from "react-router-dom";
-
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useAppSelector } from "@/Redux/hooks";
 
 const UserRoutes = () => {
-  // Replace this with your actual auth check logic
-  // const isAdmin = localStorage.getItem('userRole') === 'admin';
-  // const isAuthenticated = localStorage.getItem('token');
+  const user = useAppSelector(selectCurrentUser);
 
-  // if (!isAuthenticated) {
-  //   return <Navigate to="/login" replace />;
-  // }
+  // ❌ Not logged in
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-  // if (!isAdmin) {
-  //   return <Navigate to="/" replace />;
-  // }
+  // ❌ Logged in but NOT USER role
+  if (user.role !== "USER") {
+    return <Navigate to="/" replace />;
+  }
 
+  // ✅ Logged in + USER role
   return <Outlet />;
 };
 

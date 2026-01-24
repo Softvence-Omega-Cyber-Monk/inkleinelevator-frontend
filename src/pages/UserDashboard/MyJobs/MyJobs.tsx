@@ -3,8 +3,6 @@ import {
   Search,
   Calendar,
   MoreVertical,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   TriangleAlert,
   X,
@@ -44,31 +42,10 @@ const MyJobs = () => {
 
   const myJobData = data?.data;
   console.log("amar job", myJobData);
-  const totalPages = data ? Math.ceil(data.total / data.limit) : 1;
 
   useEffect(() => {
     setCurrentPage(1); // reset page to 1
   }, [searchQuery, jobType]);
-
-  const handlePageChange = (page: any) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    let start = Math.max(currentPage - 2, 1);
-    let end = Math.min(start + 4, totalPages);
-
-    if (end - start < 4) {
-      start = Math.max(end - 4, 1);
-    }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-    return pages;
-  };
 
   // time calculated  functione
   function timeAgo(date: string | Date): string {
@@ -342,7 +319,7 @@ const MyJobs = () => {
             w-full lg:w-auto
             px-5 py-2
             bg-slate-900 text-white text-sm font-medium
-            rounded-lg hover:bg-slate-800 transition
+            rounded-lg hover:bg-slate-800 transition cursor-pointer
           "
               >
                 Manage
@@ -353,7 +330,7 @@ const MyJobs = () => {
                   setSelectedJobId(job.jobId); // save which job we are acting on
                   setIsOpen(true); // open modal
                 }}
-                className="w-full lg:w-auto p-2 hover:bg-gray-100 rounded-lg flex justify-center"
+                className="w-full lg:w-auto p-2 hover:bg-gray-100 rounded-lg flex justify-center cursor-pointer"
               >
                 <MoreVertical size={20} className="text-gray-600" />
               </button>
@@ -363,41 +340,63 @@ const MyJobs = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-center gap-2">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          className="flex items-center gap-1 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 rounded-lg"
-        >
-          <ChevronLeft size={16} />
-          Previous
-        </button>
-
-        {getPageNumbers().map((page) => (
+      {/* Pagination */}
+      {myJobData && myJobData.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          {/* Previous */}
           <button
-            key={page}
-            onClick={() => handlePageChange(page)}
-            className={`px-3 py-2 text-sm rounded-lg ${
-              page === currentPage
-                ? "bg-slate-900 text-white"
-                : "text-gray-600 hover:bg-gray-100"
-            }`}
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+            disabled={currentPage === 1}
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {page}
+            ‹ Previous
           </button>
-        ))}
 
-        {totalPages > 5 && currentPage < totalPages - 2 && (
-          <span className="px-3 py-2 text-sm text-gray-900">...</span>
-        )}
+          {/* Page Numbers */}
+          {Array.from({ length: Math.min(5, myJobData.totalPages) }, (_, i) => {
+            const pageNum = i + 1;
+            return (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`px-3 py-1.5 text-sm rounded ${
+                  currentPage === pageNum
+                    ? "bg-gray-900 text-white"
+                    : "text-gray-600 hover:bg-gray-100"
+                }`}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
 
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          className="flex items-center gap-1 px-3 py-2 text-sm text-gray-900 hover:bg-gray-100 rounded-lg"
-        >
-          Next
-          <ChevronRight size={16} />
-        </button>
-      </div>
+          {/* Ellipsis + Last Page */}
+          {myJobData.totalPages > 5 && (
+            <>
+              <span className="px-2 text-sm text-gray-600">...</span>
+              <button
+                onClick={() => setCurrentPage(myJobData.totalPages)}
+                className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded"
+              >
+                {myJobData.totalPages}
+              </button>
+            </>
+          )}
+
+          {/* Next */}
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(myJobData.totalPages, prev + 1))
+            }
+            disabled={currentPage >= myJobData.totalPages}
+            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next ›
+          </button>
+        </div>
+      )}
+
+      {/* pagination end  */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-8">

@@ -27,6 +27,13 @@ const contentManagementApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    uploadHeroContentImage: builder.mutation({
+      query: (formData) => ({
+        url: "/content-management/upload-media",
+        method: "POST",
+        body: formData, // FormData (image upload)
+      }),
+    }),
   }),
 });
 
@@ -34,7 +41,5 @@ export const {
   useCreateHeroContentMutation,
   useGetHeroContentQuery,
   useUpdateHeroContentMutation,
+  useUploadHeroContentImageMutation,
 } = contentManagementApi;
-
-
-

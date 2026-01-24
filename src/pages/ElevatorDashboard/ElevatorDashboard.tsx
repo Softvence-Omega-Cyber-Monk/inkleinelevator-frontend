@@ -12,6 +12,8 @@ import {
   User,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
+import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
+import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 const ElevatorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -24,10 +26,14 @@ const ElevatorDashboard = () => {
     return false;
   };
 
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    navigate("/login");
+    dispatch(logout()); // Clear user and token from Redux
+    localStorage.removeItem("accessToken"); // optional if you store token locally
+    navigate("/login"); // redirect to login page
   };
 
   return (

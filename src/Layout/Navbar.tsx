@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
+import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 // Menu items array
 const menuItems = [
@@ -18,6 +20,41 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
+  // logout handler
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
+
+  const handleLogout = () => {
+    dispatch(logout()); // Clear user and token from Redux
+    localStorage.removeItem("accessToken"); // optional if you store token locally
+    navigate("/login"); // redirect to login page
+  };
+
+  const handleButtonClick = () => {
+    if (!user) {
+      // User not logged in → go to login page
+      navigate("/login");
+      return;
+    }
+
+    // Navigate based on role
+    switch (user.role) {
+      case "USER":
+        navigate("/user/my-jobs");
+        break;
+      case "ELEVATOR":
+        navigate("/elevator/browse-jobs");
+        break;
+      case "ADMIN":
+      case "SUPER_ADMIN":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/login"); // fallback
+    }
+  };
+
   return (
     <nav className="bg-[#0a1f44] sticky top-0 z-50">
       {/* Top Banner */}
@@ -30,7 +67,7 @@ const Navbar = () => {
             </div>
             <div className="hidden sm:flex items-center text-white text-sm">
               <Mail className="w-4 h-4 mr-2" />
-              <span>info@example.com</span>
+              <span>{user?.email}</span>
             </div>
           </div>
         </div>
@@ -73,20 +110,29 @@ const Navbar = () => {
 
           {/* Right Side Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="text-white hover:text-teal-400 p-2 transition-colors">
+            {/* <button className="text-white hover:text-teal-400 p-2 transition-colors">
               <Search className="w-5 h-5" />
-            </button>
+            </button> */}
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
+              >
+                Logout
+              </button>
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
+              >
+                Login
+              </button>
+            )}
             <button
-              onClick={() => navigate("/login")}
-              className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
-            >
-              Login
-            </button>
-            <button
-              onClick={() => navigate("/admin")}
+              onClick={handleButtonClick}
               className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
             >
-              Get Started
+              {user ? "Dashboard" : "Get Started"}
             </button>
           </div>
 
@@ -145,15 +191,36 @@ const Navbar = () => {
               </NavLink>
             ))}
             <div className="flex flex-col space-y-2 mt-4">
-              <button
-                onClick={() => {
-                  navigate("/login");
-                  setIsOpen(false);
-                }}
-                className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
-              >
-                Login
-              </button>
+              <div className="flex flex-col space-y-2 mt-4">
+                {user ? (
+                  <button
+                    onClick={handleLogout}
+                    className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      navigate("/login");
+                      setIsOpen(false);
+                    }}
+                    className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                  >
+                    Login
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    handleButtonClick;
+                    setIsOpen(false);
+                  }}
+                  className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                >
+                  Get Started
+                </button>
+              </div>
+
               <button
                 onClick={() => {
                   navigate("/get-started");
