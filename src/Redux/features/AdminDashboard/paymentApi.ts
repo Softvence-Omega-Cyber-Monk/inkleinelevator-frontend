@@ -36,7 +36,10 @@ interface ReleasePaymentResponse {
 const paymentApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Get all review payments (pending)
-    getAllReviewPayment: builder.query<GetAllPaymentsResponse, { page?: number; limit?: number } | void>({
+    getAllReviewPayment: builder.query<
+      GetAllPaymentsResponse,
+      { page?: number; limit?: number } | void
+    >({
       query: (args) => {
         const params: Record<string, string | number> = {
           page: 1,
@@ -55,7 +58,10 @@ const paymentApi = baseApi.injectEndpoints({
     }),
 
     // Get all released payments
-    getAllReleasedPayment: builder.query<GetAllPaymentsResponse, { page?: number; limit?: number } | void>({
+    getAllReleasedPayment: builder.query<
+      GetAllPaymentsResponse,
+      { page?: number; limit?: number } | void
+    >({
       query: (args) => {
         const params: Record<string, string | number> = {
           page: 1,
@@ -80,6 +86,12 @@ const paymentApi = baseApi.injectEndpoints({
         method: "POST",
       }),
     }),
+    getAllAdminPaymentAnalytics: builder.query({
+      query: () => ({
+        url: "/user/get-all-admin-analytics",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -87,4 +99,5 @@ export const {
   useGetAllReviewPaymentQuery,
   useGetAllReleasedPaymentQuery,
   useReleasePaymentMutation,
+  useGetAllAdminPaymentAnalyticsQuery,
 } = paymentApi;
