@@ -11,6 +11,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { useAppSelector } from "@/Redux/hooks";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 interface DashboardNavbarProps {
   sidebarOpen: boolean;
@@ -22,6 +25,8 @@ const DashboardNavbar: FC<DashboardNavbarProps> = ({
   setSidebarOpen,
 }) => {
   const [open, setOpen] = useState(false);
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
 
   const { data: notificationsData, isLoading } =
     useGetAllOwnNotificationQuery();
@@ -64,13 +69,15 @@ const DashboardNavbar: FC<DashboardNavbarProps> = ({
           </button>
 
           <div className="ml-4">
-            <img src={logo} alt="logo" />
+            <Link to="/">
+              <img src={logo} alt="logo" />
+            </Link>
           </div>
         </div>
 
         {/* RIGHT */}
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <input
+          {/* <input
             type="text"
             placeholder="Search..."
             className="
@@ -79,7 +86,7 @@ const DashboardNavbar: FC<DashboardNavbarProps> = ({
               border border-gray-300 rounded-lg
               focus:outline-none focus:ring-2 focus:ring-blue-500
             "
-          />
+          /> */}
 
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
@@ -125,10 +132,12 @@ const DashboardNavbar: FC<DashboardNavbarProps> = ({
                         <li key={n.notificationId}>
                           <button
                             type="button"
-                            onClick={() => handleNotificationClick(n.notificationId)}
+                            onClick={() =>
+                              handleNotificationClick(n.notificationId)
+                            }
                             className={cn(
                               "w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors block",
-                              !isSeen && "bg-blue-50/50"
+                              !isSeen && "bg-blue-50/50",
                             )}
                           >
                             <span
@@ -136,16 +145,18 @@ const DashboardNavbar: FC<DashboardNavbarProps> = ({
                                 "text-sm block",
                                 !isSeen
                                   ? "font-medium text-gray-900"
-                                  : "text-gray-700"
+                                  : "text-gray-700",
                               )}
                             >
                               {n.title ?? n.description ?? "Notification"}
                             </span>
-                            {n.description && n.title && n.title !== n.description && (
-                              <span className="text-xs text-gray-500 mt-0.5 line-clamp-2 block">
-                                {n.description}
-                              </span>
-                            )}
+                            {n.description &&
+                              n.title &&
+                              n.title !== n.description && (
+                                <span className="text-xs text-gray-500 mt-0.5 line-clamp-2 block">
+                                  {n.description}
+                                </span>
+                              )}
                             {n.createdAt && (
                               <span className="text-xs text-gray-400 mt-1 block">
                                 {formatDate(n.createdAt)}

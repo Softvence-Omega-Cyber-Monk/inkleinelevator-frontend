@@ -88,9 +88,11 @@ const Login: React.FC = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute top-8 left-8">
-          <div className="bg-white px-4 py-2 rounded">
-            <span className="text-gray-900 font-bold text-lg">IN-KLEIN</span>
-          </div>
+          <Link to="/">
+            <div className="bg-white px-4 py-2 rounded">
+              <span className="text-gray-900 font-bold text-lg">IN-KLEIN</span>
+            </div>
+          </Link>
         </div>
       </div>
 

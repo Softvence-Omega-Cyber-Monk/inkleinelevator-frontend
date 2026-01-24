@@ -138,16 +138,68 @@ import { useGetHeroContentQuery } from "@/Redux/features/AdminDashboard/contentM
 import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
 import { useAppSelector } from "@/Redux/hooks";
 import { Linkedin, Facebook, Youtube, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 
 const Banner = () => {
   const user = useAppSelector(selectCurrentUser);
   console.log("iam the user from redux", user);
-
+  const navigate = useNavigate();
   const { data, isLoading } = useGetHeroContentQuery({});
   const heroContent = data?.data;
 
+  console.log(heroContent);
+
   const Loader = () => <ClipLoader size={18} color="#5CE1E6" />;
+
+  // first btn
+  const handleButtonClick = () => {
+    if (!user) {
+      // User not logged in → go to login page
+      navigate("/login");
+      return;
+    }
+
+    // Navigate based on role
+    switch (user.role) {
+      case "USER":
+        navigate("/user/my-jobs");
+        break;
+      case "ELEVATOR":
+        navigate("/elevator/browse-jobs");
+        break;
+      case "ADMIN":
+      case "SUPER_ADMIN":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/login"); // fallback
+    }
+  };
+  // second btn
+  const handleButtonClick2 = () => {
+    if (!user) {
+      // User not logged in → go to login page
+      navigate("/login");
+      return;
+    }
+
+    // Navigate based on role
+    switch (user.role) {
+      case "USER":
+        navigate("/user/my-jobs");
+        break;
+      case "ELEVATOR":
+        navigate("/elevator/browse-jobs");
+        break;
+      case "ADMIN":
+      case "SUPER_ADMIN":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/login"); // fallback
+    }
+  };
 
   return (
     <div className="bg-[#0A1A3A] min-h-screen">
@@ -242,7 +294,10 @@ const Banner = () => {
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="group bg-white cursor-pointer text-[#0a1f44] px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2">
+                <button
+                  onClick={handleButtonClick}
+                  className="group bg-white cursor-pointer text-[#0a1f44] px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2"
+                >
                   {isLoading ? (
                     <Loader />
                   ) : (
@@ -250,7 +305,10 @@ const Banner = () => {
                   )}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button className="group border-2 cursor-pointer border-teal-400 text-teal-400 px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2">
+                <button
+                  onClick={handleButtonClick2}
+                  className="group border-2 cursor-pointer border-teal-400 text-teal-400 px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2"
+                >
                   {isLoading ? (
                     <Loader />
                   ) : (
@@ -262,13 +320,16 @@ const Banner = () => {
             </div>
 
             {/* Image Section */}
-            <div className="relative h-64 sm:h-96 top-16 lg:h-full hidden lg:block">
-              <div className="relative w-full h-full overflow-hidden rounded-lg lg:rounded-none">
-                <img
-                  src="/banner.png"
-                  alt="Elevator Technician at Work"
-                  className="w-full h-full object-cover transform"
-                />
+            <div className="relative h-64 sm:h-[900px] top-16 lg:h-full hidden lg:block ">
+              <div className="relative w-full h-full rounded-lg lg:rounded-none">
+                <div className="p-4 h-64 sm:h-[790px]">
+                  <img
+                    src={heroContent?.image || "/banner.png"}
+                    // src="/banner.png"
+                    alt="Elevator Technician at Work"
+                    className="w-full h-full object-cover transform"
+                  />
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0a1f44] via-transparent to-transparent lg:hidden"></div>
               </div>
             </div>

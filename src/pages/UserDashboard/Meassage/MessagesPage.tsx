@@ -1,11 +1,14 @@
-
 import { useState, useEffect, useMemo } from "react";
 import { Search, ArrowLeft } from "lucide-react";
 import ConversationList from "./ConversationList";
 import ChatWindow from "./ChatWindow";
-import { useGetChatListUserQuery, useGetMessageHistoryQuery } from "@/Redux/features/userDa/message/messageApi";
+import {
+  useGetChatListUserQuery,
+  useGetMessageHistoryQuery,
+} from "@/Redux/features/userDa/message/messageApi";
 import { useGetMeMutation } from "@/Redux/features/auth/authApi";
 import { useSocket } from "@/hooks/useSocket";
+import { BeatLoader } from "react-spinners";
 
 interface Conversation {
   id: number | string;
@@ -19,13 +22,16 @@ interface Conversation {
 export default function MessagesPage() {
   const [getMe] = useGetMeMutation();
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string |number | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | number | null>(
+    null,
+  );
   // Socket.IO connection
   const { socket, isConnected } = useSocket(currentUserId);
-  
+
   // Fetch chat list users
-  const { data: chatListData, isLoading: isLoadingChatList } = useGetChatListUserQuery();
-  
+  const { data: chatListData, isLoading: isLoadingChatList } =
+    useGetChatListUserQuery();
+
   // Get current user ID
   useEffect(() => {
     const fetchUser = async () => {
@@ -44,35 +50,40 @@ export default function MessagesPage() {
   // Transform chat list data to conversations
   const conversations = useMemo(() => {
     if (!chatListData?.data) return [];
-    
+
     // Handle both array and object responses
-    const chatUsers = Array.isArray(chatListData.data) 
-      ? chatListData.data 
+    const chatUsers = Array.isArray(chatListData.data)
+      ? chatListData.data
       : Object.values(chatListData.data);
-    
+
     // Filter out current user if it appears in the list, and map to conversations
     return chatUsers
       .filter((user: any) => {
         // Exclude current user from the chat list
-        const userId = String(user.id || user.userId || '');
-        const currentUserIdStr = currentUserId ? String(currentUserId) : '';
+        const userId = String(user.id || user.userId || "");
+        const currentUserIdStr = currentUserId ? String(currentUserId) : "";
         return userId !== currentUserIdStr;
       })
       .map((user: any, index: number) => {
         // Extract the other user's ID - this is the ID we'll use for the API
         const otherUserId = user.id || user.userId;
         const userIdString = otherUserId ? String(otherUserId) : null;
-        
-        console.log('📋 Creating conversation:', {
+
+        console.log("📋 Creating conversation:", {
           otherUserId: userIdString,
           currentUserId: currentUserId ? String(currentUserId) : null,
           userName: user.name || user.companyName || user.email,
         });
-        
+
         return {
           id: otherUserId || index + 1,
-          name: user.name || user.companyName || user.email || `User ${index + 1}`,
-          avatar: user.avatar || user.profile || user.businessLogo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || index}`,
+          name:
+            user.name || user.companyName || user.email || `User ${index + 1}`,
+          avatar:
+            user.avatar ||
+            user.profile ||
+            user.businessLogo ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || index}`,
           lastMessage: user.lastMessage || "No messages yet",
           unread: user.unread || false,
           userId: userIdString || undefined, // Store the OTHER user's ID - this will be used in the API
@@ -80,9 +91,10 @@ export default function MessagesPage() {
       }) as Conversation[];
   }, [chatListData, currentUserId]);
 
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(
-    conversations.length > 0 ? conversations[0] : null
-  );
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(
+      conversations.length > 0 ? conversations[0] : null,
+    );
   const [searchQuery, setSearchQuery] = useState("");
 
   // Update selectedUserId when conversation is selected
@@ -90,7 +102,7 @@ export default function MessagesPage() {
     if (selectedConversation) {
       const userId = selectedConversation.userId || selectedConversation.id;
       setSelectedUserId(userId);
-      console.log('✅ Selected user ID updated:', userId);
+      console.log("✅ Selected user ID updated:", userId);
     }
   }, [selectedConversation]);
 
@@ -99,7 +111,7 @@ export default function MessagesPage() {
     if (!searchQuery.trim()) return conversations;
     const query = searchQuery.toLowerCase();
     return conversations.filter((conv) =>
-      conv.name.toLowerCase().includes(query)
+      conv.name.toLowerCase().includes(query),
     );
   }, [conversations, searchQuery]);
 
@@ -115,7 +127,12 @@ export default function MessagesPage() {
     if (selectedConversation) {
       const userId = selectedConversation.userId || selectedConversation.id;
       setSelectedUserId(userId);
-      console.log('✅ Selected user ID updated:', userId, 'from conversation:', selectedConversation.name);
+      console.log(
+        "✅ Selected user ID updated:",
+        userId,
+        "from conversation:",
+        selectedConversation.name,
+      );
     } else {
       setSelectedUserId(null);
     }
@@ -125,65 +142,85 @@ export default function MessagesPage() {
   // This is the ID of the user selected from the conversation list
   const withUserId = useMemo(() => {
     if (!selectedConversation || !currentUserId) {
-      console.log('Cannot get withUserId - selectedConversation:', selectedConversation, 'currentUserId:', currentUserId);
+      console.log(
+        "Cannot get withUserId - selectedConversation:",
+        selectedConversation,
+        "currentUserId:",
+        currentUserId,
+      );
       return "";
     }
-    
+
     // Get the other user's ID from the selected conversation
     // Priority: userId (explicit) > id (fallback)
-    const otherUserId = selectedConversation.userId 
-      ? String(selectedConversation.userId) 
+    const otherUserId = selectedConversation.userId
+      ? String(selectedConversation.userId)
       : String(selectedConversation.id || "");
-    
+
     const currentUserIdStr = String(currentUserId);
-    
+
     // Ensure we're not accidentally using the current user's ID
     if (otherUserId === currentUserIdStr) {
-      console.warn('Warning: withUserId matches currentUserId, this should not happen');
-      console.warn('Selected conversation:', selectedConversation);
+      console.warn(
+        "Warning: withUserId matches currentUserId, this should not happen",
+      );
+      console.warn("Selected conversation:", selectedConversation);
       return "";
     }
-    
-    console.log('✅ Message history query - Selected user ID (withUserId):', otherUserId);
-    console.log('   Current user ID:', currentUserIdStr);
-    console.log('   Selected conversation:', selectedConversation);
+
+    console.log(
+      "✅ Message history query - Selected user ID (withUserId):",
+      otherUserId,
+    );
+    console.log("   Current user ID:", currentUserIdStr);
+    console.log("   Selected conversation:", selectedConversation);
     return otherUserId;
   }, [selectedConversation, currentUserId]);
 
   // Fetch message history when conversation is selected
   // This API will fetch messages between current user and the selected user
   // Use selectedUserId (set when conversation is selected) as withUserId parameter
-  const { data: messageHistoryData, isLoading: isLoadingMessages } = useGetMessageHistoryQuery(
-    { withUserId: selectedUserId || withUserId },
-    { 
-      skip: !selectedConversation || !currentUserId || !selectedUserId || String(selectedUserId) === String(currentUserId),
-    }
-  );
-  
-  console.log('messageHistoryData:', messageHistoryData);
-  console.log('API called with selectedUserId:', selectedUserId);
+  const { data: messageHistoryData, isLoading: isLoadingMessages } =
+    useGetMessageHistoryQuery(
+      { withUserId: selectedUserId || withUserId },
+      {
+        skip:
+          !selectedConversation ||
+          !currentUserId ||
+          !selectedUserId ||
+          String(selectedUserId) === String(currentUserId),
+      },
+    );
+
+  console.log("messageHistoryData:", messageHistoryData);
+  console.log("API called with selectedUserId:", selectedUserId);
   // Log when API is called
   useEffect(() => {
     if (withUserId && selectedConversation) {
-      console.log('🔄 Fetching message history with selected user ID:', withUserId);
-      console.log('   Selected conversation name:', selectedConversation.name);
+      console.log(
+        "🔄 Fetching message history with selected user ID:",
+        withUserId,
+      );
+      console.log("   Selected conversation name:", selectedConversation.name);
     }
   }, [withUserId, selectedConversation]);
 
   // Local messages state for real-time updates
-  const [realTimeMessages, setRealTimeMessages] = useState<Array<{
-    id: number | string;
-    sender: "user" | "other";
-    senderName: string;
-    text: string;
-    timestamp: Date;
-  }>>([]);
+  const [realTimeMessages, setRealTimeMessages] = useState<
+    Array<{
+      id: number | string;
+      sender: "user" | "other";
+      senderName: string;
+      text: string;
+      timestamp: Date;
+    }>
+  >([]);
 
   // Transform message history to component format
   const messages = useMemo(() => {
     // Handle direct array response (API returns array directly, not wrapped in data)
     let messagesArray: any[] = [];
-    
+
     if (Array.isArray(messageHistoryData)) {
       // Direct array response
       messagesArray = messageHistoryData;
@@ -191,40 +228,58 @@ export default function MessagesPage() {
       // Wrapped in data property
       messagesArray = messageHistoryData.data;
     } else {
-      console.log('No message history data or not an array:', messageHistoryData);
+      console.log(
+        "No message history data or not an array:",
+        messageHistoryData,
+      );
       return [];
     }
 
     if (!currentUserId) {
-      console.log('No currentUserId available');
+      console.log("No currentUserId available");
       return [];
     }
 
     if (messagesArray.length === 0) {
-      console.log('Message history array is empty');
+      console.log("Message history array is empty");
       return [];
     }
 
     const currentUserIdStr = String(currentUserId).trim().toLowerCase();
-    console.log('✅ Transforming messages, currentUserId:', currentUserIdStr, 'total messages:', messagesArray.length);
+    console.log(
+      "✅ Transforming messages, currentUserId:",
+      currentUserIdStr,
+      "total messages:",
+      messagesArray.length,
+    );
 
     const transformed = messagesArray.map((msg: any) => {
       // Convert to string for reliable comparison - use senderId directly from API
-      const msgSenderId = String(msg.senderId || '').trim().toLowerCase();
+      const msgSenderId = String(msg.senderId || "")
+        .trim()
+        .toLowerCase();
       const isCurrentUser = msgSenderId === currentUserIdStr;
-      
+
       return {
         id: msg.messageId || msg.id || Date.now(), // Use messageId from API
         sender: (isCurrentUser ? "user" : "other") as "user" | "other",
-        senderName: isCurrentUser ? "You" : selectedConversation?.name || "User",
+        senderName: isCurrentUser
+          ? "You"
+          : selectedConversation?.name || "User",
         text: msg.text || "",
         timestamp: msg.createdAt ? new Date(msg.createdAt) : new Date(),
       };
     });
 
-    console.log('✅ Transformed messages:', transformed.length);
-    console.log('   User messages count:', transformed.filter(m => m.sender === "user").length);
-    console.log('   Other messages count:', transformed.filter(m => m.sender === "other").length);
+    console.log("✅ Transformed messages:", transformed.length);
+    console.log(
+      "   User messages count:",
+      transformed.filter((m) => m.sender === "user").length,
+    );
+    console.log(
+      "   Other messages count:",
+      transformed.filter((m) => m.sender === "other").length,
+    );
 
     return transformed;
   }, [messageHistoryData, currentUserId, selectedConversation]);
@@ -233,113 +288,149 @@ export default function MessagesPage() {
   useEffect(() => {
     if (!socket || !currentUserId || !selectedConversation) return;
 
-    const receiverId = String(selectedConversation.userId || selectedConversation.id);
+    const receiverId = String(
+      selectedConversation.userId || selectedConversation.id,
+    );
     const currentUserIdStr = String(currentUserId);
 
     const handleReceiveMessage = (message: any) => {
-      console.log('New message received via socket:', message);
-      
+      console.log("New message received via socket:", message);
+
       // Convert IDs to strings for comparison - handle multiple possible field names
-      const messageSenderId = String(message.senderId || message.sender?.userId || message.sender?.id || message.userId || '').trim().toLowerCase();
-      const messageReceiverId = String(message.receiverId || message.receiver?.userId || message.receiver?.id || '').trim().toLowerCase();
-      
+      const messageSenderId = String(
+        message.senderId ||
+          message.sender?.userId ||
+          message.sender?.id ||
+          message.userId ||
+          "",
+      )
+        .trim()
+        .toLowerCase();
+      const messageReceiverId = String(
+        message.receiverId ||
+          message.receiver?.userId ||
+          message.receiver?.id ||
+          "",
+      )
+        .trim()
+        .toLowerCase();
+
       // Debug log
-      console.log('Socket message check:', {
+      console.log("Socket message check:", {
         messageSenderId,
         messageReceiverId,
         currentUserIdStr: currentUserIdStr.toLowerCase(),
         receiverId: receiverId.toLowerCase(),
         fullMessage: message,
-        matches: (messageSenderId === currentUserIdStr.toLowerCase() && messageReceiverId === receiverId.toLowerCase()) ||
-                 (messageSenderId === receiverId.toLowerCase() && messageReceiverId === currentUserIdStr.toLowerCase()),
+        matches:
+          (messageSenderId === currentUserIdStr.toLowerCase() &&
+            messageReceiverId === receiverId.toLowerCase()) ||
+          (messageSenderId === receiverId.toLowerCase() &&
+            messageReceiverId === currentUserIdStr.toLowerCase()),
       });
-      
+
       // Check if message is for current conversation
       // Include messages where:
       // 1. User sent to receiver (senderId === currentUserId, receiverId === receiverId)
       // 2. Receiver sent to user (senderId === receiverId, receiverId === currentUserId)
       if (
-        (messageSenderId === currentUserIdStr.toLowerCase() && messageReceiverId === receiverId.toLowerCase()) ||
-        (messageSenderId === receiverId.toLowerCase() && messageReceiverId === currentUserIdStr.toLowerCase())
+        (messageSenderId === currentUserIdStr.toLowerCase() &&
+          messageReceiverId === receiverId.toLowerCase()) ||
+        (messageSenderId === receiverId.toLowerCase() &&
+          messageReceiverId === currentUserIdStr.toLowerCase())
       ) {
-        const isCurrentUser = messageSenderId === currentUserIdStr.toLowerCase();
+        const isCurrentUser =
+          messageSenderId === currentUserIdStr.toLowerCase();
         const messageId = message.messageId || message.id || Date.now();
         const newMessage = {
           id: messageId,
           sender: (isCurrentUser ? "user" : "other") as "user" | "other",
-          senderName: isCurrentUser ? "You" : selectedConversation?.name || "User",
+          senderName: isCurrentUser
+            ? "You"
+            : selectedConversation?.name || "User",
           text: message.text || "",
-          timestamp: message.createdAt ? new Date(message.createdAt) : new Date(),
+          timestamp: message.createdAt
+            ? new Date(message.createdAt)
+            : new Date(),
         };
 
-        console.log('Adding message to real-time list:', newMessage);
+        console.log("Adding message to real-time list:", newMessage);
         setRealTimeMessages((prev) => {
           // If this is a message from current user, check if there's an optimistic message to replace
           if (isCurrentUser) {
             // Find and remove optimistic message with same text (within 30 seconds)
             const optimisticIndex = prev.findIndex((m) => {
-              const isOptimistic = typeof m.id === 'string' && m.id.startsWith('temp-');
+              const isOptimistic =
+                typeof m.id === "string" && m.id.startsWith("temp-");
               const sameText = m.text.trim() === newMessage.text.trim();
               const sameSender = m.sender === "user";
-              const timeDiff = Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 30000; // Within 30 seconds
+              const timeDiff =
+                Math.abs(
+                  m.timestamp.getTime() - newMessage.timestamp.getTime(),
+                ) < 30000; // Within 30 seconds
               return isOptimistic && sameText && sameSender && timeDiff;
             });
-            
+
             if (optimisticIndex !== -1) {
-              console.log('Replacing optimistic message with real message from socket');
+              console.log(
+                "Replacing optimistic message with real message from socket",
+              );
               const updated = [...prev];
               updated[optimisticIndex] = newMessage;
               return updated;
             }
           }
-          
+
           // Check if message already exists (by ID or by content)
           const exists = prev.some((m) => {
             // Check by exact ID match
             if (String(m.id) === String(newMessage.id)) return true;
-            
+
             // For user messages, check if it's the same message by text, sender, and timestamp (within 10 seconds)
             if (isCurrentUser && m.sender === "user") {
               if (
-                m.text.trim() === newMessage.text.trim() && 
-                Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 10000
+                m.text.trim() === newMessage.text.trim() &&
+                Math.abs(
+                  m.timestamp.getTime() - newMessage.timestamp.getTime(),
+                ) < 10000
               ) {
                 return true;
               }
             }
-            
+
             // For other messages, check by text, sender, and timestamp (within 5 seconds)
             if (
-              m.text.trim() === newMessage.text.trim() && 
+              m.text.trim() === newMessage.text.trim() &&
               m.sender === newMessage.sender &&
-              Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) < 5000
+              Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) <
+                5000
             ) {
               return true;
             }
             return false;
           });
-          
+
           if (exists) {
-            console.log('Message already exists in realTimeMessages, skipping');
+            console.log("Message already exists in realTimeMessages, skipping");
             return prev;
           }
-          
-          console.log('Adding new message, previous count:', prev.length);
+
+          console.log("Adding new message, previous count:", prev.length);
           return [...prev, newMessage];
         });
       } else {
-        console.log('Message does not match current conversation, ignoring');
+        console.log("Message does not match current conversation, ignoring");
       }
     };
 
-    socket.on('receive-message', handleReceiveMessage);
-    socket.on('message', handleReceiveMessage);
-    socket.on('new-message', handleReceiveMessage);
+    socket.on("receive-message", handleReceiveMessage);
+    socket.on("message", handleReceiveMessage);
+    socket.on("new-message", handleReceiveMessage);
 
     return () => {
-      socket.off('receive-message', handleReceiveMessage);
-      socket.off('message', handleReceiveMessage);
-      socket.off('new-message', handleReceiveMessage);
+      socket.off("receive-message", handleReceiveMessage);
+      socket.off("message", handleReceiveMessage);
+      socket.off("new-message", handleReceiveMessage);
     };
   }, [socket, currentUserId, selectedConversation]);
 
@@ -352,7 +443,7 @@ export default function MessagesPage() {
   const addOptimisticMessage = useMemo(() => {
     return (text: string, _receiverId: string) => {
       if (!currentUserId || !selectedConversation) return;
-      
+
       // Use a temp- prefix as a marker for optimistic messages
       // This makes them easy to identify and replace
       const optimisticId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -364,19 +455,22 @@ export default function MessagesPage() {
         timestamp: new Date(),
       };
 
-      console.log('Adding optimistic message:', optimisticMessage);
+      console.log("Adding optimistic message:", optimisticMessage);
       setRealTimeMessages((prev) => {
         // Check if we already have an optimistic message with the same text (prevent double-add)
         const hasDuplicate = prev.some((m) => {
-          const isOptimistic = typeof m.id === 'string' && m.id.startsWith('temp-');
-          return isOptimistic && m.text.trim() === text.trim() && m.sender === "user";
+          const isOptimistic =
+            typeof m.id === "string" && m.id.startsWith("temp-");
+          return (
+            isOptimistic && m.text.trim() === text.trim() && m.sender === "user"
+          );
         });
-        
+
         if (hasDuplicate) {
-          console.log('Optimistic message already exists, skipping');
+          console.log("Optimistic message already exists, skipping");
           return prev;
         }
-        
+
         return [...prev, optimisticMessage];
       });
     };
@@ -386,79 +480,89 @@ export default function MessagesPage() {
   const allMessages = useMemo(() => {
     // Start with API messages (these are the source of truth)
     const apiMessages = messages;
-    
+
     // Filter out optimistic messages from realTimeMessages that match API messages
     const filteredRealTime = realTimeMessages.filter((rtMsg) => {
       // If it's an optimistic message, check if it exists in API messages
-      if (typeof rtMsg.id === 'string' && rtMsg.id.startsWith('temp-')) {
+      if (typeof rtMsg.id === "string" && rtMsg.id.startsWith("temp-")) {
         const existsInApi = apiMessages.some((apiMsg) => {
           return (
             apiMsg.sender === "user" &&
             apiMsg.text.trim() === rtMsg.text.trim() &&
-            Math.abs(apiMsg.timestamp.getTime() - rtMsg.timestamp.getTime()) < 10000
+            Math.abs(apiMsg.timestamp.getTime() - rtMsg.timestamp.getTime()) <
+              10000
           );
         });
         if (existsInApi) {
-          console.log('Removing optimistic message - already in API messages');
+          console.log("Removing optimistic message - already in API messages");
           return false; // Remove optimistic message if it's in API
         }
       }
       return true; // Keep all other real-time messages
     });
-    
+
     const combined = [...apiMessages, ...filteredRealTime];
-    
+
     // Remove duplicates and sort by timestamp
-    const uniqueMessages = combined.reduce((acc, msg) => {
-      // Check if message already exists
-      const existingIndex = acc.findIndex((m) => {
-        // Exact ID match
-        if (String(m.id) === String(msg.id)) return true;
-        
-        // For user messages, check by text and timestamp (more lenient for duplicates)
-        if (msg.sender === "user" && m.sender === "user") {
+    const uniqueMessages = combined.reduce(
+      (acc, msg) => {
+        // Check if message already exists
+        const existingIndex = acc.findIndex((m) => {
+          // Exact ID match
+          if (String(m.id) === String(msg.id)) return true;
+
+          // For user messages, check by text and timestamp (more lenient for duplicates)
+          if (msg.sender === "user" && m.sender === "user") {
+            if (
+              m.text.trim() === msg.text.trim() &&
+              Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 15000 // Within 15 seconds
+            ) {
+              return true;
+            }
+          }
+
+          // For other messages, check by text, sender, and timestamp
           if (
-            m.text.trim() === msg.text.trim() && 
-            Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 15000 // Within 15 seconds
+            m.text.trim() === msg.text.trim() &&
+            m.sender === msg.sender &&
+            Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 5000
           ) {
             return true;
           }
-        }
-        
-        // For other messages, check by text, sender, and timestamp
-        if (
-          m.text.trim() === msg.text.trim() && 
-          m.sender === msg.sender &&
-          Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 5000
-        ) {
-          return true;
-        }
-        
-        return false;
-      });
-      
-      if (existingIndex === -1) {
-        // No duplicate found, add the message
-        acc.push(msg);
-      } else {
-        // Duplicate found - replace if the new one is better (has real ID, not optimistic)
-        const existing = acc[existingIndex];
-        const isExistingOptimistic = typeof existing.id === 'string' && existing.id.startsWith('temp-');
-        const isNewOptimistic = typeof msg.id === 'string' && msg.id.startsWith('temp-');
-        
-        // Replace optimistic with real message (prefer API/socket message over optimistic)
-        if (isExistingOptimistic && !isNewOptimistic) {
-          console.log('Replacing optimistic message with real message in allMessages');
-          acc[existingIndex] = msg;
-        }
-        // If both are real messages (not optimistic), keep the first one (from API)
-        // This prevents socket duplicates from overwriting API messages
-      }
-      
-      return acc;
-    }, [] as typeof combined);
 
-    return uniqueMessages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+          return false;
+        });
+
+        if (existingIndex === -1) {
+          // No duplicate found, add the message
+          acc.push(msg);
+        } else {
+          // Duplicate found - replace if the new one is better (has real ID, not optimistic)
+          const existing = acc[existingIndex];
+          const isExistingOptimistic =
+            typeof existing.id === "string" && existing.id.startsWith("temp-");
+          const isNewOptimistic =
+            typeof msg.id === "string" && msg.id.startsWith("temp-");
+
+          // Replace optimistic with real message (prefer API/socket message over optimistic)
+          if (isExistingOptimistic && !isNewOptimistic) {
+            console.log(
+              "Replacing optimistic message with real message in allMessages",
+            );
+            acc[existingIndex] = msg;
+          }
+          // If both are real messages (not optimistic), keep the first one (from API)
+          // This prevents socket duplicates from overwriting API messages
+        }
+
+        return acc;
+      },
+      [] as typeof combined,
+    );
+
+    return uniqueMessages.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
   }, [messages, realTimeMessages]);
 
   return (
@@ -496,7 +600,9 @@ export default function MessagesPage() {
         {/* Conversation List */}
         {isLoadingChatList ? (
           <div className="flex justify-center items-center py-8">
-            <div className="text-gray-500">Loading conversations...</div>
+            <div className="text-gray-500">
+              <BeatLoader />
+            </div>
           </div>
         ) : (
           <ConversationList
@@ -526,14 +632,18 @@ export default function MessagesPage() {
             conversation={selectedConversation}
             messages={allMessages}
             isLoadingMessages={isLoadingMessages}
-            receiverId={selectedConversation.userId || String(selectedConversation.id)}
+            receiverId={
+              selectedConversation.userId || String(selectedConversation.id)
+            }
             isConnected={isConnected}
             currentUserId={currentUserId}
             onMessageSent={addOptimisticMessage}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-gray-500">Select a conversation to start chatting</div>
+            <div className="text-gray-500">
+              Select a conversation to start chatting
+            </div>
           </div>
         )}
       </div>
