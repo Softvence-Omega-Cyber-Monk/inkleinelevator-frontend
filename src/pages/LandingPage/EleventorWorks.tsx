@@ -78,11 +78,11 @@ export default function HowItWorks() {
                     {step.number}
                   </span>
 
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">
+                  <h4 className="text-xl font-medium text-gray-900 mb-4">
                     {step.title}
                   </h4>
 
-                  <p className="text-gray-500 leading-relaxed max-w-sm">
+                  <p className="text-[#6E777D] text-sm  font-normal max-w-sm">
                     {step.description}
                   </p>
                 </div>
