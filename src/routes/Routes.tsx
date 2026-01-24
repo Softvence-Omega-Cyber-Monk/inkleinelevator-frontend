@@ -20,11 +20,11 @@ import ElevatorDashboard from "@/pages/ElevatorDashboard/ElevatorDashboard";
 import ElevatorDashboardOverview from "@/pages/ElevatorDashboard/ElevatorDashboardOverview";
 import AdminRouter from "./AdminRouter";
 import AdminDashboard from "@/pages/AdminDashboard/AdminDashboard";
- import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOverview";
+import BrowsJobsOverview from "@/pages/ElevatorDashboard/BrowseJobs/BrowsJobsOverview";
 import MyBidsPage from "@/pages/ElevatorDashboard/MyBids/MyBidsPage";
 // import BillingPage from "@/pages/ElevatorDashboard/Billing/BillingPage";
 import CompanyProfile from "@/pages/ElevatorDashboard/CompanyProfile/CompanyProfile";
- import JobDetailsWithBid from "@/pages/ElevatorDashboard/BrowseJobs/JobDetailsWithBid";
+import JobDetailsWithBid from "@/pages/ElevatorDashboard/BrowseJobs/JobDetailsWithBid";
 import UserManagement from "@/pages/AdminDashboard/UserManagement/UserManagement";
 import JobsManagement from "@/pages/AdminDashboard/JobManagement/JobManagement";
 import BidsManagement from "@/pages/AdminDashboard/BidsManagement/BibsManagement";
@@ -36,6 +36,9 @@ import DataExport from "@/pages/AdminDashboard/DataExport/DataExport";
 import MyJobDetailesPage from "@/pages/UserDashboard/MyJobs/MyJobDetailesPage";
 import ElevatorMyJobDetails from "@/pages/ElevatorDashboard/BrowseJobs/ElevatorMyJobDetails";
 import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOverview";
+import Forgotpassword from "@/pages/Forgotpassword";
+import OtpVerify from "@/pages/OtpVerify";
+import ResetPassword from "@/pages/ResetPassword";
 
 const routes = createBrowserRouter([
   {
@@ -67,6 +70,9 @@ const routes = createBrowserRouter([
         path: "/success-stories",
         element: <Success />,
       },
+      { path: "/forgot-password", element: <Forgotpassword /> },
+      { path: "/otp-verify", element: <OtpVerify /> },
+      { path: "/reset-password", element: <ResetPassword /> },
     ],
   },
   {
@@ -132,7 +138,7 @@ const routes = createBrowserRouter([
         path: "",
         element: <AdminDashboard />,
         children: [
-          { path: "", element: <AdminDashboardOverview/> },
+          { path: "", element: <AdminDashboardOverview /> },
           { path: "userManagement", element: <UserManagement /> },
           { path: "JobsManagement", element: <JobsManagement /> },
           { path: "bidsmanagement", element: <BidsManagement /> },
