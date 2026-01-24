@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { useGetAllFAQsQuery } from '@/Redux/features/AdminDashboard/contentManagement/faq/faqApi';
+import React, { useState } from "react";
+import { useGetAllFAQsQuery } from "@/Redux/features/AdminDashboard/contentManagement/faq/faqApi";
+import golmatha from "@/assets/image/golmatha.png";
 
 const FAQSection: React.FC = () => {
   const { data, isLoading } = useGetAllFAQsQuery();
@@ -30,10 +31,13 @@ const FAQSection: React.FC = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header Section */}
           <div className="text-center mb-12">
-            <p className="text-cyan-400 text-sm mb-3 flex items-center justify-center gap-2">
-              <span>←</span>
-              <span>Frequently Asked Questions</span>
-            </p>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <img src={golmatha} alt="logo" />
+              <span className="text-[#37d7d9] text-xs font-medium uppercase tracking-widest">
+                Frequently Asked Questions
+              </span>
+            </div>
+
             <h2 className="text-4xl font-bold text-gray-900 mb-3">
               Got Questions? We've Got Answers
             </h2>
@@ -71,9 +75,7 @@ const FAQSection: React.FC = () => {
           {/* Left Sidebar - Categories (kept for UI consistency, but not functional) */}
           <div className="lg:col-span-1">
             <div className="overflow-hidden">
-              <button
-                className="w-full text-left px-6 py-4 border-b border-[#DFE3E8] transition-colors bg-gray-900 text-white"
-              >
+              <button className="w-full text-left px-6 py-4 border-b border-[#DFE3E8] transition-colors bg-gray-900 text-white">
                 General Questions
               </button>
             </div>
@@ -86,7 +88,7 @@ const FAQSection: React.FC = () => {
                 <div
                   key={faq.qaCardId || index}
                   className={`border-b-[#E7E8EB] border-gray-200 last:border-b-0 ${
-                    expandedIndex === index ? 'bg-gray-50' : ''
+                    expandedIndex === index ? "bg-gray-50" : ""
                   }`}
                 >
                   <button
@@ -98,7 +100,7 @@ const FAQSection: React.FC = () => {
                     </span>
                     <svg
                       className={`w-5 h-5 text-gray-400 flex-shrink-0 transition-transform ${
-                        expandedIndex === index ? 'rotate-90' : ''
+                        expandedIndex === index ? "rotate-90" : ""
                       }`}
                       fill="none"
                       stroke="currentColor"
@@ -112,10 +114,10 @@ const FAQSection: React.FC = () => {
                       />
                     </svg>
                   </button>
-                  
+
                   {expandedIndex === index && faq.ans && (
                     <div className="px-6 pb-5">
-                      <div 
+                      <div
                         className="text-gray-600 text-sm leading-relaxed"
                         dangerouslySetInnerHTML={{ __html: faq.ans }}
                       />

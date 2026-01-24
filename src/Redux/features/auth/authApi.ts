@@ -111,7 +111,7 @@ const authApi = baseApi.injectEndpoints({
     // core auth endpoints
     forgotPassword: builder.mutation({
       query: (emailData) => ({
-        url: "/auth/request-reset-code",
+        url: "/auth/sent-otp",
         method: "POST",
         body: emailData, // { email: "user@example.com" }
       }),
