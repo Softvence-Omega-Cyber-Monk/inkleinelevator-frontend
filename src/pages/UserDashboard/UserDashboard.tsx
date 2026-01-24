@@ -124,7 +124,7 @@ const UserDashboard = () => {
         <div className="p-4 pb-6">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+            className="w-full flex items-center cursor-pointer hover:text-white hover:bg-gray-900 justify-center gap-3 px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700  transition-colors"
           >
             <LogOut size={20} />
             {sidebarOpen && (

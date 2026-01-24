@@ -6,6 +6,8 @@ import {
   ChevronDown,
   TriangleAlert,
   X,
+  ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import {
   useCloseJobMutation,
@@ -33,12 +35,18 @@ const MyJobs = () => {
   const [selectedReviewJob, setSelectedReviewJob] = useState<any | null>(null);
   const [reject, { isLoading: rejectLoading }] = useRejectMutation();
 
-  const { data, isLoading, refetch } = useGetAllMyJobsQuery({
-    page: currentPage,
-    limit: 10,
-    search: searchQuery || undefined,
-    jobType: jobType !== "all" ? jobType : undefined,
-  });
+  const { data, isLoading, refetch } = useGetAllMyJobsQuery(
+    {
+      page: currentPage,
+      limit: 10,
+      search: searchQuery || undefined,
+      jobType: jobType !== "all" ? jobType : undefined,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+    },
+  );
 
   const myJobData = data?.data;
   console.log("amar job", myJobData);
@@ -236,7 +244,7 @@ const MyJobs = () => {
             <div className="flex-1">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-900 text-ellipsis overflow-hidden">
                     {job?.jobTitle}
                   </h3>
                   <span
@@ -342,46 +350,52 @@ const MyJobs = () => {
       {/* Pagination */}
       {/* Pagination */}
       {myJobData && myJobData.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-6">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-2 mt-6">
           {/* Previous */}
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center cursor-pointer gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            ‹ Previous
+            <ChevronLeft size={16} />
+            <span>Previous</span>
           </button>
 
-          {/* Page Numbers */}
-          {Array.from({ length: Math.min(5, myJobData.totalPages) }, (_, i) => {
-            const pageNum = i + 1;
-            return (
-              <button
-                key={pageNum}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-1.5 text-sm rounded ${
-                  currentPage === pageNum
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-600 hover:bg-gray-100"
-                }`}
-              >
-                {pageNum}
-              </button>
-            );
-          })}
+          {/* Page Numbers (hide on mobile) */}
+          <div className="hidden md:flex items-center gap-2">
+            {Array.from(
+              { length: Math.min(5, myJobData.totalPages) },
+              (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1.5 text-sm rounded ${
+                      currentPage === pageNum
+                        ? "bg-gray-900 text-white"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              },
+            )}
 
-          {/* Ellipsis + Last Page */}
-          {myJobData.totalPages > 5 && (
-            <>
-              <span className="px-2 text-sm text-gray-600">...</span>
-              <button
-                onClick={() => setCurrentPage(myJobData.totalPages)}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded"
-              >
-                {myJobData.totalPages}
-              </button>
-            </>
-          )}
+            {/* Ellipsis + Last Page */}
+            {myJobData.totalPages > 5 && (
+              <>
+                <span className="px-2 text-sm text-gray-600">...</span>
+                <button
+                  onClick={() => setCurrentPage(myJobData.totalPages)}
+                  className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded"
+                >
+                  {myJobData.totalPages}
+                </button>
+              </>
+            )}
+          </div>
 
           {/* Next */}
           <button
@@ -389,9 +403,10 @@ const MyJobs = () => {
               setCurrentPage((prev) => Math.min(myJobData.totalPages, prev + 1))
             }
             disabled={currentPage >= myJobData.totalPages}
-            className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1 cursor-pointer px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
           >
-            Next ›
+            <span>Next</span>
+            <ChevronRight size={16} />
           </button>
         </div>
       )}

@@ -116,21 +116,21 @@ const Navbar = () => {
             {user ? (
               <button
                 onClick={handleLogout}
-                className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
+                className="border-2 border-white cursor-pointer text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
               >
                 Logout
               </button>
             ) : (
               <button
                 onClick={() => navigate("/login")}
-                className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
+                className="border-2 border-white cursor-pointer text-white hover:bg-white hover:text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
               >
                 Login
               </button>
             )}
             <button
               onClick={handleButtonClick}
-              className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
+              className="bg-teal-400 hover:bg-teal-500 cursor-pointer text-[#0a1f44] px-6 py-2 rounded-md font-medium transition-all"
             >
               {user ? "Dashboard" : "Get Started"}
             </button>

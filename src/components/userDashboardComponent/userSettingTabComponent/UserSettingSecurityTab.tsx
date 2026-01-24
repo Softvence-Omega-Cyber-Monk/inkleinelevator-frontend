@@ -42,7 +42,7 @@ export default function UserSettingSecurityTab() {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-8">
+    <div className="bg-white rounded-2xl border border-gray-200 p-8">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">
         Security Information
       </h2>
@@ -88,7 +88,7 @@ export default function UserSettingSecurityTab() {
           <Button
             onClick={handleChangePassword}
             disabled={isLoading}
-            className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white px-6 py-2.5 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-[#1e3a5f] hover:bg-[#2d4a6f] text-white px-6 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "Changing..." : "Change Password"}
           </Button>
