@@ -77,10 +77,10 @@ const userJobApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // Update job
+    // Update job - PATCH /job/updateJob/{jobId}
     updateJob: builder.mutation({
-      query: ({ jobId, formData }: { jobId: string; formData: any }) => ({
-        url: `/job/update/${jobId}`,
+      query: ({ jobId, formData }: { jobId: string; formData: FormData }) => ({
+        url: `/job/updateJob/${jobId}`,
         method: "PATCH",
         body: formData,
       }),
