@@ -5,7 +5,6 @@ import {
   LogOut,
   MessageSquare,
   Settings,
-  User,
   Search,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";

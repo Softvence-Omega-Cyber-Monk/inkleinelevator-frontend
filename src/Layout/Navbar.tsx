@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Search, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
 import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
 

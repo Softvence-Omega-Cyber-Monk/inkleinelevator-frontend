@@ -3,8 +3,6 @@ import {
   Search,
   Calendar,
   MoreVertical,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   TriangleAlert,
   X,
