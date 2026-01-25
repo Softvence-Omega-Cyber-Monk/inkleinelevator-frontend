@@ -42,9 +42,9 @@ const UserDashboard = () => {
       >
         {/* User Profile Card */}
         <div className="m-4 mb-6">
-          <div className="bg-[#0f1729] rounded-2xl p-4">
+          <div className="bg-[#0f1729] rounded-2xl p-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden ">
                 {/* <User size={20} className="text-gray-600" /> */}
                 <img src={(user as any)?.profile} alt="" />
               </div>
@@ -121,7 +121,7 @@ const UserDashboard = () => {
         </nav>
 
         {/* Logout */}
-        <div className="p-4 pb-6">
+        <div className="p-2 pb-6 ">
           <button
             onClick={handleLogout}
             className="w-full flex items-center cursor-pointer hover:text-white hover:bg-gray-900 justify-center gap-3 px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700  transition-colors"

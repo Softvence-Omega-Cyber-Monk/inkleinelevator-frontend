@@ -45,9 +45,9 @@ const AdminDashboard = () => {
       >
         {/* Profile Section */}
         <div className="p-4">
-          <div className="bg-[#1a2332] rounded-2xl p-4">
+          <div className="bg-[#1a2332] rounded-2xl p-2">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-gray-400 flex items-center justify-center overflow-hidden ">
                 <User size={20} className="text-white" />
               </div>
               {sidebarOpen && (
@@ -56,14 +56,14 @@ const AdminDashboard = () => {
                     Admin Panel
                   </div>
                   <div className="font-semibold text-sm text-white">
-                    In-Klein Elevators
+                    {user?.email}
                   </div>
                 </div>
               )}
             </div>
-            {sidebarOpen && (
+            {/* {sidebarOpen && (
               <div className="text-xs text-gray-400">in.klein@example.com</div>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -183,7 +183,7 @@ const AdminDashboard = () => {
         {/* Platform Status Card - Above Logout */}
         {sidebarOpen && (
           <div className="px-4 pt-4">
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            {/* <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
               <div className="text-xs font-semibold text-gray-700 mb-2">
                 Platform Status
               </div>
@@ -197,12 +197,12 @@ const AdminDashboard = () => {
                 <span className="text-xs text-gray-600">Active Jobs</span>
                 <span className="text-xs font-semibold text-gray-700">50</span>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 
         {/* Logout */}
-        <div className="p-4 pb-6">
+        <div className="p-2 pb-6">
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
