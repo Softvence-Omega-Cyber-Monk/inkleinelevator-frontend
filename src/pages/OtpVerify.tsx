@@ -1,6 +1,5 @@
 import { useVerifyOtpMutation } from "@/Redux/features/auth/authApi";
 import React, { useEffect, useState } from "react";
-
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -11,8 +10,8 @@ export default function OtpVerify() {
 
   const email = location.state?.email;
 
-  // 4-digit OTP
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  // ✅ 6-digit OTP
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -21,13 +20,14 @@ export default function OtpVerify() {
     };
   }, []);
 
-  const handleChange = (value: any, index: any) => {
+  const handleChange = (value: string, index: number) => {
     if (/^[0-9]?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
 
-      if (value && index < 3) {
+      // auto focus next input
+      if (value && index < 5) {
         document.getElementById(`otp-${index + 1}`)?.focus();
       }
     }
@@ -38,20 +38,20 @@ export default function OtpVerify() {
 
     const otpValue = otp.join("");
 
-    if (otpValue.length < 4) {
+    if (otpValue.length < 6) {
       toast.error("Please enter the OTP.");
       return;
     }
-    console.log("hey i am otp");
+
     try {
       const res = await verifyOtp({
         email,
-        code: otpValue,
+        otp: otpValue,
       }).unwrap();
 
       toast.success(res?.message || "OTP Verified!");
-
-      navigate("/reset-password", { state: { email } });
+      console.log("hhhhhhhhh", res);
+      navigate("/reset-password", { state: { email, token: res.token } });
     } catch (err: any) {
       toast.error(err?.data?.message || "Invalid OTP.");
     }
@@ -63,8 +63,9 @@ export default function OtpVerify() {
         <h1 className="text-3xl md:text-4xl font-normal text-[#151518] text-center font-[Lora] mb-2">
           Verify OTP
         </h1>
+
         <p className="text-sm text-[#3F3F46] text-center mb-6 font-[Inter]">
-          Enter the 4-digit code we sent to <strong>{email}</strong>
+          Enter the 6-digit code we sent to <strong>{email}</strong>
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
