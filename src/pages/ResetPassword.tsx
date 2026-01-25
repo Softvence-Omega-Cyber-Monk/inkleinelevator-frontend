@@ -6,8 +6,9 @@ import { toast } from "sonner";
 
 export default function ResetPassword() {
   const location = useLocation();
-  // const navigate = useNavigate();
-  const email = location.state?.email; // 👈 GET EMAIL FROM OTP PAGE
+  console.log("location.state 👉", location.state);
+  const { email, token } = location.state || {};
+  console.log("tokekk", email, token);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -30,9 +31,8 @@ export default function ResetPassword() {
 
     try {
       const result = await resetPassword({
-        email, // use passed email only
         password,
-        confirmPassword,
+        token, // ✅ REQUIRED BY SWAGGER
       }).unwrap();
 
       toast.success(result?.message || "Password reset successfully!");
@@ -67,15 +67,13 @@ export default function ResetPassword() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password"
                 required
-                className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl 
-                bg-[#F5F7FB] focus:bg-white focus:ring-1 focus:ring-[#2A779E]"
+                className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl bg-[#F5F7FB]"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-3 text-slate-400"
               >
                 {showPassword ? <Eye /> : <EyeOff />}
               </button>
@@ -92,21 +90,14 @@ export default function ResetPassword() {
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
-                onChange={(e) => {
-                  setConfirmPassword(e.target.value);
-                  if (e.target.value !== password) {
-                    setError("Passwords do not match");
-                  } else setError("");
-                }}
-                placeholder="Confirm password"
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl 
-                bg-[#F5F7FB] focus:bg-white focus:ring-1 focus:ring-[#2A779E]"
+                className="w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl bg-[#F5F7FB]"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-3 text-slate-400"
               >
                 {showConfirmPassword ? <Eye /> : <EyeOff />}
               </button>
@@ -118,8 +109,7 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-gray-900  hover:bg-gray-800
-            text-white font-semibold text-lg rounded-lg transition-all"
+            className="w-full py-3 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-lg rounded-lg"
           >
             {isLoading ? "Resetting..." : "Reset Password"}
           </button>
@@ -129,21 +119,13 @@ export default function ResetPassword() {
       {/* SUCCESS POPUP */}
       {isDialogOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-sm w-full text-center py-8 relative">
-            <button
-              onClick={() => setIsDialogOpen(false)}
-              className="absolute top-3 right-5 text-gray-500 hover:text-gray-700"
-            >
-              ×
-            </button>
+          <div className="bg-white rounded-xl p-6 max-w-sm w-full text-center py-8">
             <p className="text-sm text-gray-600">
               Password for <strong>{email}</strong> has been reset.
             </p>
-
             <Link
               to="/login"
-              className="w-full mt-6 py-2 bg-gray-900  hover:bg-gray-800 
-              text-white rounded-lg block"
+              className="w-full mt-6 py-2 bg-gray-900 text-white rounded-lg block"
             >
               Back to Login
             </Link>

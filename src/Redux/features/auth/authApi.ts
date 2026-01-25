@@ -118,10 +118,10 @@ const authApi = baseApi.injectEndpoints({
     }),
     // verify OTP endpoint
     verifyOtp: builder.mutation({
-      query: (data) => ({
-        url: "/auth/verify-reset-code",
+      query: (body) => ({
+        url: "/auth/verify-otp",
         method: "POST",
-        body: data, // { email: "...", code: "1234" }
+        body: body, // { email: "...", code: "1234" }
       }),
     }),
     // for reset
