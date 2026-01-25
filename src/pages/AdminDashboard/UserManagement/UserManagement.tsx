@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Search, Star, MoreHorizontal, X } from 'lucide-react';
-import { useGetAllUserByAdminQuery } from '@/Redux/features/AdminDashboard/adminApi';
+import React, { useState } from "react";
+import { Search, Star, MoreHorizontal, X } from "lucide-react";
+import { useGetAllUserByAdminQuery } from "@/Redux/features/AdminDashboard/adminApi";
+import { BeatLoader } from "react-spinners";
 
 // Types
 interface User {
@@ -49,7 +50,9 @@ const ActionModal: React.FC<{
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Choose Action</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            Choose Action
+          </h3>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none"
@@ -61,30 +64,34 @@ const ActionModal: React.FC<{
         <div className="p-4 sm:p-6">
           <div className="mb-4">
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Company:</p>
-            <p className="text-sm sm:text-base font-medium text-gray-900">{contractor.companyName || contractor.name}</p>
+            <p className="text-sm sm:text-base font-medium text-gray-900">
+              {contractor.companyName || contractor.name}
+            </p>
           </div>
           <div className="mb-6">
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Email:</p>
-            <p className="text-xs sm:text-sm text-gray-900">{contractor.email}</p>
+            <p className="text-xs sm:text-sm text-gray-900">
+              {contractor.email}
+            </p>
           </div>
 
           <div className="space-y-2 sm:space-y-3">
             <button
-              onClick={() => onAction('Review')}
+              onClick={() => onAction("Review")}
               className="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none flex items-center justify-center gap-2"
             >
               <span>📋</span>
               <span>Review</span>
             </button>
             <button
-              onClick={() => onAction('Approve')}
+              onClick={() => onAction("Approve")}
               className="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors focus:outline-none flex items-center justify-center gap-2"
             >
               <span>✓</span>
               <span>Approve</span>
             </button>
             <button
-              onClick={() => onAction('Reject')}
+              onClick={() => onAction("Reject")}
               className="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none flex items-center justify-center gap-2"
             >
               <span>✕</span>
@@ -110,7 +117,9 @@ const RequesterActionModal: React.FC<{
     <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <h3 className="text-base sm:text-lg font-semibold text-gray-900">Choose Action</h3>
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+            Choose Action
+          </h3>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none"
@@ -122,34 +131,40 @@ const RequesterActionModal: React.FC<{
         <div className="p-4 sm:p-6">
           <div className="mb-4">
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Name:</p>
-            <p className="text-sm sm:text-base font-medium text-gray-900">{requester.name}</p>
+            <p className="text-sm sm:text-base font-medium text-gray-900">
+              {requester.name}
+            </p>
           </div>
           <div className="mb-4">
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Email:</p>
-            <p className="text-xs sm:text-sm text-gray-900">{requester.email}</p>
+            <p className="text-xs sm:text-sm text-gray-900">
+              {requester.email}
+            </p>
           </div>
           <div className="mb-6">
             <p className="text-xs sm:text-sm text-gray-600 mb-1">Phone:</p>
-            <p className="text-xs sm:text-sm text-gray-900">{requester.phone || 'Not provided'}</p>
+            <p className="text-xs sm:text-sm text-gray-900">
+              {requester.phone || "Not provided"}
+            </p>
           </div>
 
           <div className="space-y-2 sm:space-y-3">
             <button
-              onClick={() => onAction('View Details')}
+              onClick={() => onAction("View Details")}
               className="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none flex items-center justify-center gap-2"
             >
               <span>👁</span>
               <span>View Details</span>
             </button>
             <button
-              onClick={() => onAction('Suspend')}
+              onClick={() => onAction("Suspend")}
               className="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-white bg-orange-600 rounded-lg hover:bg-orange-700 transition-colors focus:outline-none flex items-center justify-center gap-2"
             >
               <span>⏸</span>
               <span>Suspend</span>
             </button>
             <button
-              onClick={() => onAction('Delete')}
+              onClick={() => onAction("Delete")}
               className="w-full px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus:outline-none flex items-center justify-center gap-2"
             >
               <span>🗑</span>
@@ -170,20 +185,26 @@ const SearchBar: React.FC<{ activeTab: string }> = ({ activeTab }) => {
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <input
           type="text"
-          placeholder={activeTab === 'contractors' ? 'Search elevator jobs...' : 'Search requesters...'}
+          placeholder={
+            activeTab === "contractors"
+              ? "Search elevator jobs..."
+              : "Search requesters..."
+          }
           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
       </div>
       <select className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white w-full sm:w-auto sm:min-w-[140px]">
-        <option>{activeTab === 'contractors' ? 'Jobs Type' : 'Request Type'}</option>
+        <option>
+          {activeTab === "contractors" ? "Jobs Type" : "Request Type"}
+        </option>
       </select>
     </div>
   );
 };
 
 // Tabs Component
-const Tabs: React.FC<{ 
-  activeTab: string; 
+const Tabs: React.FC<{
+  activeTab: string;
   setActiveTab: (tab: string) => void;
   contractorCount?: number;
   requesterCount?: number;
@@ -191,21 +212,21 @@ const Tabs: React.FC<{
   return (
     <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto">
       <button
-        onClick={() => setActiveTab('contractors')}
+        onClick={() => setActiveTab("contractors")}
         className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-          activeTab === 'contractors'
-            ? 'bg-gray-900 text-white'
-            : 'bg-white text-gray-600 hover:bg-gray-100'
+          activeTab === "contractors"
+            ? "bg-gray-900 text-white"
+            : "bg-white text-gray-600 hover:bg-gray-100"
         }`}
       >
         Contractors ({contractorCount})
       </button>
       <button
-        onClick={() => setActiveTab('requesters')}
+        onClick={() => setActiveTab("requesters")}
         className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-colors whitespace-nowrap ${
-          activeTab === 'requesters'
-            ? 'bg-gray-900 text-white'
-            : 'bg-white text-gray-600 hover:bg-gray-100'
+          activeTab === "requesters"
+            ? "bg-gray-900 text-white"
+            : "bg-white text-gray-600 hover:bg-gray-100"
         }`}
       >
         Requesters ({requesterCount})
@@ -215,8 +236,8 @@ const Tabs: React.FC<{
 };
 
 // ContractorCard Component
-const ContractorCard: React.FC<{ 
-  contractor: User; 
+const ContractorCard: React.FC<{
+  contractor: User;
   onActionClick: (contractor: User) => void;
 }> = ({ contractor, onActionClick }) => {
   return (
@@ -227,41 +248,53 @@ const ContractorCard: React.FC<{
             <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500"></div>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900 truncate">{contractor.companyName || contractor.name}</div>
-            <div className="text-xs text-gray-500 truncate">{contractor.email}</div>
+            <div className="text-sm font-medium text-gray-900 truncate">
+              {contractor.companyName || contractor.name}
+            </div>
+            <div className="text-xs text-gray-500 truncate">
+              {contractor.email}
+            </div>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => onActionClick(contractor)}
           className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none flex-shrink-0"
         >
           <MoreHorizontal className="w-5 h-5 text-gray-600" />
         </button>
       </div>
-      
+
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">License:</span>
-          <span className="text-xs text-gray-900 font-medium">{contractor.license || 'Not provided'}</span>
+          <span className="text-xs text-gray-900 font-medium">
+            {contractor.license || "Not provided"}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Status:</span>
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-700">
-            {contractor.status || 'Active'}
+            {contractor.status || "Active"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Completed Jobs:</span>
-          <span className="text-xs text-gray-900 font-medium">{contractor.completedJobs || 0}</span>
+          <span className="text-xs text-gray-900 font-medium">
+            {contractor.completedJobs || 0}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Total Earned:</span>
-          <span className="text-xs text-gray-900 font-medium">{contractor.totalEarned || '$0'}</span>
+          <span className="text-xs text-gray-900 font-medium">
+            {contractor.totalEarned || "$0"}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Rating:</span>
           <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-900 font-medium">{contractor.avgRating || 0}</span>
+            <span className="text-xs text-gray-900 font-medium">
+              {contractor.avgRating || 0}
+            </span>
             <Star className="w-3.5 h-3.5 fill-current text-gray-900" />
           </div>
         </div>
@@ -271,8 +304,8 @@ const ContractorCard: React.FC<{
 };
 
 // RequesterCard Component
-const RequesterCard: React.FC<{ 
-  requester: User; 
+const RequesterCard: React.FC<{
+  requester: User;
   onActionClick: (requester: User) => void;
 }> = ({ requester, onActionClick }) => {
   return (
@@ -283,41 +316,53 @@ const RequesterCard: React.FC<{
             <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-500"></div>
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-gray-900 truncate">{requester.name}</div>
-            <div className="text-xs text-gray-500 truncate">{requester.email}</div>
+            <div className="text-sm font-medium text-gray-900 truncate">
+              {requester.name}
+            </div>
+            <div className="text-xs text-gray-500 truncate">
+              {requester.email}
+            </div>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => onActionClick(requester)}
           className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none flex-shrink-0"
         >
           <MoreHorizontal className="w-5 h-5 text-gray-600" />
         </button>
       </div>
-      
+
       <div className="space-y-2">
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Phone:</span>
-          <span className="text-xs text-gray-900 font-medium">{requester.phone || 'Not provided'}</span>
+          <span className="text-xs text-gray-900 font-medium">
+            {requester.phone || "Not provided"}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Status:</span>
           <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-700">
-            {requester.status || 'Active'}
+            {requester.status || "Active"}
           </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Total Requests:</span>
-          <span className="text-xs text-gray-900 font-medium">{requester.totalRequests || 0}</span>
+          <span className="text-xs text-gray-900 font-medium">
+            {requester.totalRequests || 0}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Total Spent:</span>
-          <span className="text-xs text-gray-900 font-medium">{requester.totalSpent || '$0'}</span>
+          <span className="text-xs text-gray-900 font-medium">
+            {requester.totalSpent || "$0"}
+          </span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-xs text-gray-600">Rating:</span>
           <div className="flex items-center gap-1">
-            <span className="text-xs text-gray-900 font-medium">{requester.avgRating || 0}</span>
+            <span className="text-xs text-gray-900 font-medium">
+              {requester.avgRating || 0}
+            </span>
             <Star className="w-3.5 h-3.5 fill-current text-gray-900" />
           </div>
         </div>
@@ -327,12 +372,18 @@ const RequesterCard: React.FC<{
 };
 
 // ContractorTable Component
-const ContractorTable: React.FC<{ contractors: User[] }> = ({ contractors }) => {
+const ContractorTable: React.FC<{ contractors: User[] }> = ({
+  contractors,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedContractor, setSelectedContractor] = useState<User | null>(null);
+  const [selectedContractor, setSelectedContractor] = useState<User | null>(
+    null,
+  );
 
   const handleActionClick = (action: string) => {
-    console.log(`${action} clicked for contractor ${selectedContractor?.userId}`);
+    console.log(
+      `${action} clicked for contractor ${selectedContractor?.userId}`,
+    );
     setIsModalOpen(false);
     setSelectedContractor(null);
   };
@@ -359,13 +410,13 @@ const ContractorTable: React.FC<{ contractors: User[] }> = ({ contractors }) => 
         contractor={selectedContractor}
         onAction={handleActionClick}
       />
-      
+
       {/* Mobile Card View */}
       <div className="block lg:hidden space-y-3">
         {contractors.map((contractor) => (
-          <ContractorCard 
-            key={contractor.userId} 
-            contractor={contractor} 
+          <ContractorCard
+            key={contractor.userId}
+            contractor={contractor}
             onActionClick={openModal}
           />
         ))}
@@ -377,45 +428,74 @@ const ContractorTable: React.FC<{ contractors: User[] }> = ({ contractors }) => 
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Company</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">License</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Completed Jobs</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Total Earned</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Rating</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Company
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  License
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Completed Jobs
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Total Earned
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Rating
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {contractors.map((contractor) => (
-                <tr key={contractor.userId} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={contractor.userId}
+                  className="hover:bg-gray-50 transition-colors"
+                >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
                         <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500"></div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{contractor.companyName || contractor.name}</div>
-                        <div className="text-xs text-gray-500">{contractor.email}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {contractor.companyName || contractor.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {contractor.email}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-900">{contractor.license || 'Not provided'}</td>
+                  <td className="py-4 px-4 text-sm text-gray-900">
+                    {contractor.license || "Not provided"}
+                  </td>
                   <td className="py-4 px-4">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
-                      {contractor.status || 'Active'}
+                      {contractor.status || "Active"}
                     </span>
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-900">{contractor.completedJobs || 0}</td>
-                  <td className="py-4 px-4 text-sm text-gray-900">{contractor.totalEarned || '$0'}</td>
+                  <td className="py-4 px-4 text-sm text-gray-900">
+                    {contractor.completedJobs || 0}
+                  </td>
+                  <td className="py-4 px-4 text-sm text-gray-900">
+                    {contractor.totalEarned || "$0"}
+                  </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-1">
-                      <span className="text-sm text-gray-900">{contractor.avgRating || 0}</span>
+                      <span className="text-sm text-gray-900">
+                        {contractor.avgRating || 0}
+                      </span>
                       <Star className="w-4 h-4 fill-current text-gray-900" />
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <button 
+                    <button
                       onClick={() => openModal(contractor)}
                       className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none"
                     >
@@ -465,13 +545,13 @@ const RequesterTable: React.FC<{ requesters: User[] }> = ({ requesters }) => {
         requester={selectedRequester}
         onAction={handleActionClick}
       />
-      
+
       {/* Mobile Card View */}
       <div className="block lg:hidden space-y-3">
         {requesters.map((requester) => (
-          <RequesterCard 
-            key={requester.userId} 
-            requester={requester} 
+          <RequesterCard
+            key={requester.userId}
+            requester={requester}
             onActionClick={openModal}
           />
         ))}
@@ -483,45 +563,74 @@ const RequesterTable: React.FC<{ requesters: User[] }> = ({ requesters }) => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Name</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Phone</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Status</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Total Requests</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Total Spent</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Rating</th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">Actions</th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Phone
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Total Requests
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Total Spent
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Rating
+                </th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {requesters.map((requester) => (
-                <tr key={requester.userId} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={requester.userId}
+                  className="hover:bg-gray-50 transition-colors"
+                >
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-blue-300 flex items-center justify-center overflow-hidden flex-shrink-0">
                         <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-500"></div>
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">{requester.name}</div>
-                        <div className="text-xs text-gray-500">{requester.email}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {requester.name}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {requester.email}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-900">{requester.phone || 'Not provided'}</td>
+                  <td className="py-4 px-4 text-sm text-gray-900">
+                    {requester.phone || "Not provided"}
+                  </td>
                   <td className="py-4 px-4">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
-                      {requester.status || 'Active'}
+                      {requester.status || "Active"}
                     </span>
                   </td>
-                  <td className="py-4 px-4 text-sm text-gray-900">{requester.totalRequests || 0}</td>
-                  <td className="py-4 px-4 text-sm text-gray-900">{requester.totalSpent || '$0'}</td>
+                  <td className="py-4 px-4 text-sm text-gray-900">
+                    {requester.totalRequests || 0}
+                  </td>
+                  <td className="py-4 px-4 text-sm text-gray-900">
+                    {requester.totalSpent || "$0"}
+                  </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-1">
-                      <span className="text-sm text-gray-900">{requester.avgRating || 0}</span>
+                      <span className="text-sm text-gray-900">
+                        {requester.avgRating || 0}
+                      </span>
                       <Star className="w-4 h-4 fill-current text-gray-900" />
                     </div>
                   </td>
                   <td className="py-4 px-4">
-                    <button 
+                    <button
                       onClick={() => openModal(requester)}
                       className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none"
                     >
@@ -539,7 +648,7 @@ const RequesterTable: React.FC<{ requesters: User[] }> = ({ requesters }) => {
 };
 
 // Pagination Component
-const Pagination: React.FC<{ 
+const Pagination: React.FC<{
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -553,37 +662,41 @@ const Pagination: React.FC<{
       >
         ‹ Previous
       </button>
-      
-      {Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1).map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded transition-colors ${
-            currentPage === page
-              ? 'bg-gray-900 text-white'
-              : 'text-gray-600 hover:bg-gray-100'
-          }`}
-        >
-          {page}
-        </button>
-      ))}
-      
+
+      {Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1).map(
+        (page) => (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded transition-colors ${
+              currentPage === page
+                ? "bg-gray-900 text-white"
+                : "text-gray-600 hover:bg-gray-100"
+            }`}
+          >
+            {page}
+          </button>
+        ),
+      )}
+
       {totalPages > 3 && (
         <>
-          <span className="px-1 sm:px-2 text-xs sm:text-sm text-gray-600">...</span>
+          <span className="px-1 sm:px-2 text-xs sm:text-sm text-gray-600">
+            ...
+          </span>
           <button
             onClick={() => onPageChange(totalPages)}
             className={`px-2 sm:px-3 py-1.5 text-xs sm:text-sm rounded transition-colors ${
               currentPage === totalPages
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? "bg-gray-900 text-white"
+                : "text-gray-600 hover:bg-gray-100"
             }`}
           >
             {totalPages}
           </button>
         </>
       )}
-      
+
       <button
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
@@ -597,7 +710,9 @@ const Pagination: React.FC<{
 
 // Main Component
 const UserManagement: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'contractors' | 'requesters'>('contractors');
+  const [activeTab, setActiveTab] = useState<"contractors" | "requesters">(
+    "contractors",
+  );
   const [currentPage, setCurrentPage] = useState(1);
 
   // Define API response type
@@ -615,18 +730,20 @@ const UserManagement: React.FC = () => {
   }
 
   // Fetch elevator contractors
-  const { data: elevatorData, isLoading: isLoadingElevators } = useGetAllUserByAdminQuery({ 
-    userType: "ELEVATOR",
-    page: currentPage,
-    limit: 10
-  });
+  const { data: elevatorData, isLoading: isLoadingElevators } =
+    useGetAllUserByAdminQuery({
+      userType: "ELEVATOR",
+      page: currentPage,
+      limit: 10,
+    });
 
   // Fetch requesters (you might need a different endpoint or parameter)
-  const { data: requesterData, isLoading: isLoadingRequesters } = useGetAllUserByAdminQuery({ 
-    userType: "HOMEOWNER", // Assuming this is the type for requesters
-    page: currentPage,
-    limit: 10
-  });
+  const { data: requesterData, isLoading: isLoadingRequesters } =
+    useGetAllUserByAdminQuery({
+      userType: "HOMEOWNER", // Assuming this is the type for requesters
+      page: currentPage,
+      limit: 10,
+    });
 
   // Type cast the API responses
   const elevatorResponse = elevatorData as unknown as ApiResponse;
@@ -637,25 +754,23 @@ const UserManagement: React.FC = () => {
   const requesters: User[] = requesterResponse?.data?.data || [];
 
   // Get counts from meta or data length
-  const contractorCount = elevatorResponse?.data?.meta?.total || contractors.length;
-  const requesterCount = requesterResponse?.data?.meta?.total || requesters.length;
-  const totalPages = elevatorResponse?.data?.meta?.total 
-    ? Math.ceil(elevatorResponse.data.meta.total / 10) 
+  const contractorCount =
+    elevatorResponse?.data?.meta?.total || contractors.length;
+  const requesterCount =
+    requesterResponse?.data?.meta?.total || requesters.length;
+  const totalPages = elevatorResponse?.data?.meta?.total
+    ? Math.ceil(elevatorResponse.data.meta.total / 10)
     : 1;
 
-  if (activeTab === 'contractors' && isLoadingElevators) {
+  if (activeTab === "contractors" && isLoadingElevators) {
     return (
-      <div className="bg-gray-50 p-4">
-        <div className="mx-auto">
-          <div className="text-center py-8">
-            <p className="text-gray-500">Loading contractors...</p>
-          </div>
-        </div>
+      <div className="h-screen w-full flex items-center justify-center bg-gray-50">
+        <BeatLoader color="#000000" size={15} />
       </div>
     );
   }
 
-  if (activeTab === 'requesters' && isLoadingRequesters) {
+  if (activeTab === "requesters" && isLoadingRequesters) {
     return (
       <div className="bg-gray-50 p-4">
         <div className="mx-auto">
@@ -669,7 +784,7 @@ const UserManagement: React.FC = () => {
 
   // Create a wrapper function for setActiveTab that accepts string
   const handleTabChange = (tab: string) => {
-    if (tab === 'contractors' || tab === 'requesters') {
+    if (tab === "contractors" || tab === "requesters") {
       setActiveTab(tab);
     }
   };
@@ -679,16 +794,20 @@ const UserManagement: React.FC = () => {
       <div className="mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6">
-          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">User Management</h1>
-          <p className="text-xs sm:text-sm text-gray-600">View, filter, and manage all Requesters and Contractors</p>
+          <h1 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">
+            User Management
+          </h1>
+          <p className="text-xs sm:text-sm text-gray-600">
+            View, filter, and manage all Requesters and Contractors
+          </p>
         </div>
 
         {/* Search Bar */}
         <SearchBar activeTab={activeTab} />
 
         {/* Tabs */}
-        <Tabs 
-          activeTab={activeTab} 
+        <Tabs
+          activeTab={activeTab}
           setActiveTab={handleTabChange}
           contractorCount={contractorCount}
           requesterCount={requesterCount}
@@ -697,32 +816,34 @@ const UserManagement: React.FC = () => {
         {/* Section Title */}
         <div className="mb-3 sm:mb-4">
           <h2 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">
-            {activeTab === 'contractors' ? 'Contractor Accounts' : 'Requester Accounts'}
+            {activeTab === "contractors"
+              ? "Contractor Accounts"
+              : "Requester Accounts"}
           </h2>
           <p className="text-xs sm:text-sm text-gray-600">
-            {activeTab === 'contractors' 
-              ? 'Approve, verify, and manage contractor accounts'
-              : 'View, manage, and monitor requester accounts'}
+            {activeTab === "contractors"
+              ? "Approve, verify, and manage contractor accounts"
+              : "View, manage, and monitor requester accounts"}
           </p>
         </div>
 
         {/* Conditional Table Rendering */}
-        {activeTab === 'contractors' ? (
+        {activeTab === "contractors" ? (
           <ContractorTable contractors={contractors} />
         ) : (
           <RequesterTable requesters={requesters} />
         )}
 
         {/* Pagination */}
-        {activeTab === 'contractors' && contractors.length > 0 && (
-          <Pagination 
+        {activeTab === "contractors" && contractors.length > 0 && (
+          <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
           />
         )}
-        {activeTab === 'requesters' && requesters.length > 0 && (
-          <Pagination 
+        {activeTab === "requesters" && requesters.length > 0 && (
+          <Pagination
             currentPage={currentPage}
             totalPages={Math.ceil(requesterCount / 10)}
             onPageChange={setCurrentPage}
@@ -917,8 +1038,8 @@ export default UserManagement;
 // };
 
 // // Tabs Component
-// const Tabs: React.FC<{ 
-//   activeTab: string; 
+// const Tabs: React.FC<{
+//   activeTab: string;
 //   setActiveTab: (tab: string) => void;
 //   contractorCount?: number;
 //   requesterCount?: number;
@@ -950,8 +1071,8 @@ export default UserManagement;
 // };
 
 // // ContractorCard Component
-// const ContractorCard: React.FC<{ 
-//   contractor: User; 
+// const ContractorCard: React.FC<{
+//   contractor: User;
 //   onActionClick: (contractor: User) => void;
 // }> = ({ contractor, onActionClick }) => {
 //   return (
@@ -966,14 +1087,14 @@ export default UserManagement;
 //             <div className="text-xs text-gray-500 truncate">{contractor.email}</div>
 //           </div>
 //         </div>
-//         <button 
+//         <button
 //           onClick={() => onActionClick(contractor)}
 //           className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none flex-shrink-0"
 //         >
 //           <MoreHorizontal className="w-5 h-5 text-gray-600" />
 //         </button>
 //       </div>
-      
+
 //       <div className="space-y-2">
 //         <div className="flex justify-between items-center">
 //           <span className="text-xs text-gray-600">License:</span>
@@ -1006,8 +1127,8 @@ export default UserManagement;
 // };
 
 // // RequesterCard Component
-// const RequesterCard: React.FC<{ 
-//   requester: User; 
+// const RequesterCard: React.FC<{
+//   requester: User;
 //   onActionClick: (requester: User) => void;
 // }> = ({ requester, onActionClick }) => {
 //   return (
@@ -1022,14 +1143,14 @@ export default UserManagement;
 //             <div className="text-xs text-gray-500 truncate">{requester.email}</div>
 //           </div>
 //         </div>
-//         <button 
+//         <button
 //           onClick={() => onActionClick(requester)}
 //           className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none flex-shrink-0"
 //         >
 //           <MoreHorizontal className="w-5 h-5 text-gray-600" />
 //         </button>
 //       </div>
-      
+
 //       <div className="space-y-2">
 //         <div className="flex justify-between items-center">
 //           <span className="text-xs text-gray-600">Phone:</span>
@@ -1094,13 +1215,13 @@ export default UserManagement;
 //         contractor={selectedContractor}
 //         onAction={handleActionClick}
 //       />
-      
+
 //       {/* Mobile Card View */}
 //       <div className="block lg:hidden space-y-3">
 //         {contractors.map((contractor) => (
-//           <ContractorCard 
-//             key={contractor.userId} 
-//             contractor={contractor} 
+//           <ContractorCard
+//             key={contractor.userId}
+//             contractor={contractor}
 //             onActionClick={openModal}
 //           />
 //         ))}
@@ -1150,7 +1271,7 @@ export default UserManagement;
 //                     </div>
 //                   </td>
 //                   <td className="py-4 px-4">
-//                     <button 
+//                     <button
 //                       onClick={() => openModal(contractor)}
 //                       className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none"
 //                     >
@@ -1200,13 +1321,13 @@ export default UserManagement;
 //         requester={selectedRequester}
 //         onAction={handleActionClick}
 //       />
-      
+
 //       {/* Mobile Card View */}
 //       <div className="block lg:hidden space-y-3">
 //         {requesters.map((requester) => (
-//           <RequesterCard 
-//             key={requester.userId} 
-//             requester={requester} 
+//           <RequesterCard
+//             key={requester.userId}
+//             requester={requester}
 //             onActionClick={openModal}
 //           />
 //         ))}
@@ -1256,7 +1377,7 @@ export default UserManagement;
 //                     </div>
 //                   </td>
 //                   <td className="py-4 px-4">
-//                     <button 
+//                     <button
 //                       onClick={() => openModal(requester)}
 //                       className="p-1 hover:bg-gray-100 rounded transition-colors focus:outline-none"
 //                     >
@@ -1274,7 +1395,7 @@ export default UserManagement;
 // };
 
 // // Pagination Component
-// const Pagination: React.FC<{ 
+// const Pagination: React.FC<{
 //   currentPage: number;
 //   totalPages: number;
 //   onPageChange: (page: number) => void;
@@ -1288,7 +1409,7 @@ export default UserManagement;
 //       >
 //         ‹ Previous
 //       </button>
-      
+
 //       {Array.from({ length: Math.min(3, totalPages) }, (_, i) => i + 1).map((page) => (
 //         <button
 //           key={page}
@@ -1302,7 +1423,7 @@ export default UserManagement;
 //           {page}
 //         </button>
 //       ))}
-      
+
 //       {totalPages > 3 && (
 //         <>
 //           <span className="px-1 sm:px-2 text-xs sm:text-sm text-gray-600">...</span>
@@ -1318,7 +1439,7 @@ export default UserManagement;
 //           </button>
 //         </>
 //       )}
-      
+
 //       <button
 //         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
 //         disabled={currentPage === totalPages}
@@ -1336,14 +1457,14 @@ export default UserManagement;
 //   const [currentPage, setCurrentPage] = useState(1);
 
 //   // Fetch elevator contractors
-//   const { data: elevatorData, isLoading: isLoadingElevators } = useGetAllUserByAdminQuery({ 
+//   const { data: elevatorData, isLoading: isLoadingElevators } = useGetAllUserByAdminQuery({
 //     userType: "ELEVATOR",
 //     page: currentPage,
 //     limit: 10
 //   });
 
 //   // Fetch requesters (you might need a different endpoint or parameter)
-//   const { data: requesterData, isLoading: isLoadingRequesters } = useGetAllUserByAdminQuery({ 
+//   const { data: requesterData, isLoading: isLoadingRequesters } = useGetAllUserByAdminQuery({
 //     userType: "HOMEOWNER", // Assuming this is the type for requesters
 //     page: currentPage,
 //     limit: 10
@@ -1356,8 +1477,8 @@ export default UserManagement;
 //   // Get counts from meta or data length
 //   const contractorCount = elevatorData?.data?.meta?.total || contractors.length;
 //   const requesterCount = requesterData?.data?.meta?.total || requesters.length;
-//   const totalPages = elevatorData?.data?.meta?.total 
-//     ? Math.ceil(elevatorData.data.meta.total / 10) 
+//   const totalPages = elevatorData?.data?.meta?.total
+//     ? Math.ceil(elevatorData.data.meta.total / 10)
 //     : 1;
 
 //   if (activeTab === 'contractors' && isLoadingElevators) {
@@ -1397,8 +1518,8 @@ export default UserManagement;
 //         <SearchBar activeTab={activeTab} />
 
 //         {/* Tabs */}
-//         <Tabs 
-//           activeTab={activeTab} 
+//         <Tabs
+//           activeTab={activeTab}
 //           setActiveTab={setActiveTab}
 //           contractorCount={contractorCount}
 //           requesterCount={requesterCount}
@@ -1410,7 +1531,7 @@ export default UserManagement;
 //             {activeTab === 'contractors' ? 'Contractor Accounts' : 'Requester Accounts'}
 //           </h2>
 //           <p className="text-xs sm:text-sm text-gray-600">
-//             {activeTab === 'contractors' 
+//             {activeTab === 'contractors'
 //               ? 'Approve, verify, and manage contractor accounts'
 //               : 'View, manage, and monitor requester accounts'}
 //           </p>
@@ -1425,14 +1546,14 @@ export default UserManagement;
 
 //         {/* Pagination */}
 //         {activeTab === 'contractors' && contractors.length > 0 && (
-//           <Pagination 
+//           <Pagination
 //             currentPage={currentPage}
 //             totalPages={totalPages}
 //             onPageChange={setCurrentPage}
 //           />
 //         )}
 //         {activeTab === 'requesters' && requesters.length > 0 && (
-//           <Pagination 
+//           <Pagination
 //             currentPage={currentPage}
 //             totalPages={Math.ceil(requesterCount / 10)}
 //             onPageChange={setCurrentPage}
