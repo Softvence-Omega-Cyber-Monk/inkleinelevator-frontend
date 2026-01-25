@@ -3,7 +3,7 @@ import { baseApi } from "@/Redux/api/baseApi";
 export const userProfileApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     updateUserProfile: builder.mutation({
-      query: ({ body }) => ({
+      query: (body) => ({
         // url: `/user/${userId}/update-profile`,
         url: `/user/update-profile`,
         method: "PATCH",
@@ -25,6 +25,12 @@ export const userProfileApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    getMeUserWonData: builder.query({
+      query: () => ({
+        url: "/auth/getMe",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -32,4 +38,5 @@ export const {
   useUpdateUserProfileMutation,
   useUserUploadProfileImageMutation,
   useUserChangePasswordMutation,
+  useGetMeUserWonDataQuery,
 } = userProfileApi;

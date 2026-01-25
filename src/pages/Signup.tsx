@@ -95,11 +95,13 @@
 // export default Signup;
 
 import React, { useState } from "react";
-import { User, Briefcase } from "lucide-react";
+import { User, Briefcase, ArrowLeft } from "lucide-react";
 import HireSignupForm from "@/components/SignupFormComponent/HireSignupForm";
 import WorkSignupForm from "@/components/SignupFormComponent/WorkSignupForm";
+import { useNavigate } from "react-router-dom";
 
 const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState<"hire" | "work" | null>(
     null,
   );
@@ -118,11 +120,17 @@ const Signup: React.FC = () => {
         {step === "select" && (
           <div className="max-w-lg w-full bg-white rounded-2xl shadow-lg p-10">
             {/* ================= STEP 1 ================= */}
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className=" mb-8">
+              <div
+                onClick={() => navigate("/")}
+                className=" cursor-pointer hover:bg-gray-900 hover:text-white -mt-6  w-8 h-8 rounded-full flex justify-center items-center"
+              >
+                <ArrowLeft />
+              </div>
+              <h1 className="text-3xl text-center font-bold text-gray-900 mb-2">
                 Create an account
               </h1>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 text-sm text-center">
                 Choose how you want to use the platform
               </p>
             </div>

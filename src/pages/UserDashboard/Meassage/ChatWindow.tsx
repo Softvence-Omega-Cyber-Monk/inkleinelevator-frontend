@@ -1,8 +1,8 @@
-
 import { useState, useEffect, useRef } from "react";
 import { Send, Smile, MoreVertical } from "lucide-react";
 import { useSendMessageMutation } from "@/Redux/features/userDa/message/messageApi";
 import { toast } from "sonner";
+import { BeatLoader } from "react-spinners";
 
 interface ChatWindowProps {
   conversation: {
@@ -46,7 +46,9 @@ const Avatar: React.FC<{
       .slice(0, 2);
 
   return (
-    <div className={`${sizeClasses[size]} flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-semibold text-white flex-shrink-0`}>
+    <div
+      className={`${sizeClasses[size]} flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-semibold text-white flex-shrink-0`}
+    >
       {src ? (
         <img
           src={src}
@@ -59,7 +61,9 @@ const Avatar: React.FC<{
           }}
         />
       ) : null}
-      <span style={{ display: src ? "none" : "block" }}>{getInitials(name)}</span>
+      <span style={{ display: src ? "none" : "block" }}>
+        {getInitials(name)}
+      </span>
     </div>
   );
 };
@@ -94,7 +98,11 @@ export default function ChatWindow({
 
     // Prevent duplicate sends - check multiple conditions
     if (!message.trim() || isSending || isSendingRef.current) {
-      console.log('Send blocked:', { hasMessage: !!message.trim(), isSending, isSendingRef: isSendingRef.current });
+      console.log("Send blocked:", {
+        hasMessage: !!message.trim(),
+        isSending,
+        isSendingRef: isSendingRef.current,
+      });
       return;
     }
 
@@ -161,19 +169,23 @@ export default function ChatWindow({
       </div>
 
       {/* ================= Messages ================= */}
-      <div 
-        className="flex-1 overflow-y-auto p-6 bg-gray-50" 
+      <div
+        className="flex-1 overflow-y-auto p-6 bg-gray-50"
         ref={messagesEndRef}
       >
         {isLoadingMessages ? (
           <div className="flex justify-center items-center py-8">
-            <div className="text-gray-500">Loading messages...</div>
+            <div className="text-gray-500">
+              <BeatLoader size={12} />
+            </div>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-center text-gray-500">
               <p className="mb-2 text-lg">No messages yet</p>
-              <p className="text-sm">Send a message to start the conversation</p>
+              <p className="text-sm">
+                Send a message to start the conversation
+              </p>
             </div>
           </div>
         ) : (
@@ -186,7 +198,9 @@ export default function ChatWindow({
                 {msg.sender !== "user" && (
                   <Avatar
                     name={msg.senderName}
-                    src={msg.sender === "other" ? conversation.avatar : undefined}
+                    src={
+                      msg.sender === "other" ? conversation.avatar : undefined
+                    }
                     size="sm"
                   />
                 )}
@@ -197,11 +211,15 @@ export default function ChatWindow({
                       : "rounded-bl-lg border border-gray-100 bg-white text-gray-900"
                   }`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{msg.text}</p>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {msg.text}
+                  </p>
                   <div className="mt-1 flex items-center justify-between">
                     <span
                       className={`text-xs ${
-                        msg.sender === "user" ? "text-blue-100" : "text-gray-500"
+                        msg.sender === "user"
+                          ? "text-blue-100"
+                          : "text-gray-500"
                       }`}
                     >
                       {formatTime(msg.timestamp)}
@@ -224,7 +242,7 @@ export default function ChatWindow({
       {/* ================= Input ================= */}
       <div className="border-t border-gray-100 bg-white p-6">
         <div className="flex items-center space-x-3">
-          <button 
+          <button
             className="rounded-lg p-2 transition-colors hover:bg-gray-50"
             disabled={isSending || isSendingRef.current}
           >

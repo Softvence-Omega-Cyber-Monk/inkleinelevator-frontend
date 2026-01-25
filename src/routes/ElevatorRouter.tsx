@@ -1,19 +1,22 @@
-import { Outlet } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useAppSelector } from "@/Redux/hooks";
 
 const ElevatorRouter = () => {
-    // Replace this with your actual auth check logic
-    // const isAdmin = localStorage.getItem('userRole') === 'admin';
-    // const isAuthenticated = localStorage.getItem('token');
+  const user = useAppSelector(selectCurrentUser);
 
-    // if (!isAuthenticated) {
-    //   return <Navigate to="/login" replace />;
-    // }
+  // ❌ Not logged in
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-    // if (!isAdmin) {
-    //   return <Navigate to="/" replace />;
-    // }
+  // ❌ Logged in but NOT ELEVATOR role
+  if (user.role !== "ELEVATOR") {
+    return <Navigate to="/" replace />;
+  }
 
-    return <Outlet />;
+  // ✅ Logged in + ELEVATOR role
+  return <Outlet />;
 };
 
-export default ElevatorRouter
+export default ElevatorRouter;

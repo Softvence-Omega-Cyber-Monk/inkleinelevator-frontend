@@ -10,10 +10,12 @@ import {
   FileText,
   CreditCard,
   FileCode,
-  Settings,
-  Download,
+  // Settings,
+  // Download,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
+import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
+import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -26,12 +28,15 @@ const AdminDashboard = () => {
     return false;
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userRole");
-    navigate("/login");
-  };
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
 
+  const handleLogout = () => {
+    dispatch(logout()); // Clear user and token from Redux
+    localStorage.removeItem("accessToken"); // optional if you store token locally
+    navigate("/login"); // redirect to login page
+  };
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -150,7 +155,7 @@ const AdminDashboard = () => {
             {sidebarOpen && <span className="text-sm">Content Management</span>}
           </button>
 
-          <button
+          {/* <button
             onClick={() => navigate("/admin/systemSettings")}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
               isActive("/admin/systemSettings")
@@ -172,7 +177,7 @@ const AdminDashboard = () => {
           >
             <Download size={18} />
             {sidebarOpen && <span className="text-sm">Data Export</span>}
-          </button>
+          </button> */}
         </nav>
 
         {/* Platform Status Card - Above Logout */}

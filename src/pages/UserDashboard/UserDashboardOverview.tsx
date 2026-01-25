@@ -110,7 +110,7 @@ const UserDashboardOverview = () => {
                       onClick={() =>
                         navigate(`/user/my-jobs-details/${job.jobId}`)
                       }
-                      className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800 transition mr-4"
+                      className="w-full cursor-pointer sm:w-auto px-4 py-2 bg-slate-900 text-white text-sm rounded hover:bg-slate-800 transition mr-4"
                     >
                       View
                     </button>

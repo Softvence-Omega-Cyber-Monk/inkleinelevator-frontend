@@ -108,7 +108,43 @@ const authApi = baseApi.injectEndpoints({
         body: formData,
       }),
     }),
+    // core auth endpoints
+    forgotPassword: builder.mutation({
+      query: (emailData) => ({
+        url: "/auth/sent-otp",
+        method: "POST",
+        body: emailData, // { email: "user@example.com" }
+      }),
+    }),
+    // verify OTP endpoint
+    verifyOtp: builder.mutation({
+      query: (body) => ({
+        url: "/auth/verify-otp",
+        method: "POST",
+        body: body, // { email: "...", code: "1234" }
+      }),
+    }),
+    // for reset
+    resetPassword: builder.mutation({
+      query: (resetData) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        body: resetData, // { token: "...", password: "newPassword" }
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetMeMutation, useUpdateProfileMutation, useDeleteOwnProfileMutation, useChangePasswordMutation, useUploadProfileMutation } = authApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetMeMutation,
+  useUpdateProfileMutation,
+  useDeleteOwnProfileMutation,
+  useChangePasswordMutation,
+  useUploadProfileMutation,
+  // core auth
+  useForgotPasswordMutation,
+  useVerifyOtpMutation,
+  useResetPasswordMutation,
+} = authApi;

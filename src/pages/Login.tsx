@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { useAppDispatch } from "@/Redux/hooks";
 import { setUser } from "@/Redux/features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import BeatLoader from "react-spinners/BeatLoader";
 
 const Login: React.FC = () => {
@@ -88,9 +88,11 @@ const Login: React.FC = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute top-8 left-8">
-          <div className="bg-white px-4 py-2 rounded">
-            <span className="text-gray-900 font-bold text-lg">IN-KLEIN</span>
-          </div>
+          <Link to="/">
+            <div className="bg-white px-4 py-2 rounded">
+              <span className="text-gray-900 font-bold text-lg">IN-KLEIN</span>
+            </div>
+          </Link>
         </div>
       </div>
 
@@ -188,18 +190,18 @@ const Login: React.FC = () => {
                     Remember me
                   </span>
                 </label>
-                <button
-                  type="button"
-                  className="text-sm text-red-500 hover:text-red-600 font-medium"
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-red-500 hover:text-red-600 font-medium cursor-pointer"
                 >
                   Forgot Password ?
-                </button>
+                </Link>
               </div>
 
               {/* Login Button */}
               <button
                 type="submit"
-                className="w-full bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-gray-900 cursor-pointer text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
                 disabled={isLoading} // disable button while loading
               >
                 {isLoading ? <BeatLoader size={8} color="#fff" /> : "Log In"}
@@ -208,9 +210,12 @@ const Login: React.FC = () => {
               {/* Registration Link */}
               <p className="text-center text-sm text-gray-600">
                 Don't have an account?{" "}
-                <button className="text-gray-900 font-medium hover:underline">
+                <Link
+                  to="/signup"
+                  className="text-gray-900 font-medium hover:underline"
+                >
                   Registration
-                </button>
+                </Link>
               </p>
             </form>
           </div>

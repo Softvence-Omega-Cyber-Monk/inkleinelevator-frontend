@@ -6,17 +6,26 @@ export const baseApi = createApi({
   reducerPath: "baseApi", // or just "api" if you prefer
   baseQuery: fetchBaseQuery({
     // baseUrl: "http://localhost:5000/api",
-    baseUrl: "https://inkleinelevator-server.onrender.com",
+    // baseUrl: "https://inkleinelevator-server.onrender.com",
+    baseUrl: "https://api.inkleinelevators.com",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth?.accessToken;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
+      // Don't set Content-Type for FormData - let the browser set it with boundary
+      // RTK Query will automatically handle FormData and set the correct headers
       return headers;
     },
   }),
   endpoints: () => ({}),
-  tagTypes: ["User", "MessageChatList", "MessageHistory","ConstructorApproval","RequesterApproval"],
+  tagTypes: [
+    "User",
+    "MessageChatList",
+    "MessageHistory",
+    "ConstructorApproval",
+    "RequesterApproval",
+  ],
 });
 
 // with refresh token support
