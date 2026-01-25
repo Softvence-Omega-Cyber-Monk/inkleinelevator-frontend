@@ -513,7 +513,7 @@ const JobsTable: React.FC<{
                   </td>
                   <td className="py-4 px-4">
                     <span
-                      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}
+                      className={`inline-flex items-center text-nowrap px-2.5 py-1 rounded-full text-xs font-medium ${getStatusColor(job.status)}`}
                     >
                       {job.status}
                     </span>

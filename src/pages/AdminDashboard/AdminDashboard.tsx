@@ -10,8 +10,8 @@ import {
   FileText,
   CreditCard,
   FileCode,
-  Settings,
-  Download,
+  // Settings,
+  // Download,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
 import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
@@ -155,7 +155,7 @@ const AdminDashboard = () => {
             {sidebarOpen && <span className="text-sm">Content Management</span>}
           </button>
 
-          <button
+          {/* <button
             onClick={() => navigate("/admin/systemSettings")}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
               isActive("/admin/systemSettings")
@@ -177,7 +177,7 @@ const AdminDashboard = () => {
           >
             <Download size={18} />
             {sidebarOpen && <span className="text-sm">Data Export</span>}
-          </button>
+          </button> */}
         </nav>
 
         {/* Platform Status Card - Above Logout */}
