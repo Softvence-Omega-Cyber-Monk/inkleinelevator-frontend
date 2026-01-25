@@ -77,7 +77,7 @@ const UserSettingProfileTab: React.FC<UserSettingProfileTabProps> = ({}) => {
   return (
     <>
       {/* ================= Profile Picture ================= */}
-      <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-6">
           Profile Picture
         </h2>
@@ -127,7 +127,7 @@ const UserSettingProfileTab: React.FC<UserSettingProfileTabProps> = ({}) => {
       </div>
 
       {/* ================= Profile Information ================= */}
-      <div className="bg-white rounded-lg border border-gray-200 p-8 mb-8">
+      <div className="bg-white rounded-2xl border border-gray-200 p-8 mb-8">
         <h2 className="text-lg font-semibold text-gray-900 mb-6">
           Profile Information
         </h2>

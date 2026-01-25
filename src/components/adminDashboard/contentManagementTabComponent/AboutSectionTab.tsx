@@ -100,11 +100,13 @@ import {
   useUpdateAboutContentMutation,
 } from "@/Redux/features/AdminDashboard/contentManagement/aboutsection/aboutsectionApi";
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function AboutSectionTab() {
   const { data, isLoading } = useGetAboutContentQuery({});
   const [updateAboutContent, { isLoading: isUpdating }] =
     useUpdateAboutContentMutation();
+  console.log("iam the about data", data);
 
   const aboutContent = data?.data;
 
@@ -146,14 +148,22 @@ export default function AboutSectionTab() {
   // Handle save
   const handleSave = async () => {
     try {
-      await updateAboutContent(formData).unwrap();
-      alert("Changes saved successfully!");
-    } catch (error) {
+      const result = await updateAboutContent(formData).unwrap();
+
+      // backend-based toast
+      if (result?.success) {
+        toast.success(result?.message || "Updated successfully");
+      } else {
+        toast.error(result?.message || "Something went wrong");
+      }
+    } catch (error: any) {
       console.error("Failed to save changes:", error);
-      alert("Failed to save changes. Please try again.");
+
+      toast.error(
+        error?.data?.message || "Failed to save changes. Please try again.",
+      );
     }
   };
-
   // Handle reset
   const handleReset = () => {
     if (aboutContent) {

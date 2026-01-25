@@ -37,7 +37,7 @@ const ContentManagement = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
+              className={`px-5 py-2 rounded-full cursor-pointer whitespace-nowrap text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? "bg-[#1a2332] text-white"
                   : "text-gray-700 hover:bg-gray-50"

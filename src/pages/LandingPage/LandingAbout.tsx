@@ -3,16 +3,42 @@ import React from "react";
 import { ClipLoader } from "react-spinners";
 import golmatha from "@/assets/image/golmatha.png";
 import btnIcon from "@/assets/image/uu.png";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "@/Redux/hooks";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 const ElevatorLandingPage: React.FC = () => {
   const { data, isLoading } = useGetAboutContentQuery({});
-
+  const user = useAppSelector(selectCurrentUser);
+  const navigate = useNavigate();
+  console.log("iam the about content from home", data);
   const aboutContent = data?.data;
+  console.log("iam the about content from home", aboutContent);
 
   const Loader = () => <ClipLoader size={18} color="#5CE1E6" />;
 
   const handleGetStarted = () => {
-    console.log("Get Started clicked");
+    if (!user) {
+      // User not logged in → go to login page
+      navigate("/login");
+      return;
+    }
+
+    // Navigate based on role
+    switch (user.role) {
+      case "USER":
+        navigate("/user/my-jobs");
+        break;
+      case "ELEVATOR":
+        navigate("/elevator/browse-jobs");
+        break;
+      case "ADMIN":
+      case "SUPER_ADMIN":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/login"); // fallback
+    }
   };
 
   return (
@@ -50,7 +76,7 @@ const ElevatorLandingPage: React.FC = () => {
               {isLoading ? (
                 <Loader />
               ) : (
-                aboutContent?.title || "Welcome to Elevator"
+                aboutContent?.title || "Elevating the Elevator Industry"
               )}
             </h1>
 
@@ -59,7 +85,12 @@ const ElevatorLandingPage: React.FC = () => {
               {isLoading ? (
                 <Loader />
               ) : (
-                aboutContent?.description || "Description"
+                (aboutContent?.description ??
+                `At In-Klein Elevator, our vision is to transform the way elevator companies grow their business by using the elevator industry's first bidding platform built exclusively for them. We're here to make job bidding faster, easier, and more accessible whether you're a large or a small company looking to expand and get jobs.
+
+                Our software opens the door to real-time opportunities by allowing contractors to post jobs and companies to bid within a 72-hour window, giving everyone a fair shot at winning new jobs.
+
+                We believe elevator companies deserve a smarter way to scale, and In-Klein is the tool to make that happen.`)
               )}
             </p>
 
@@ -67,13 +98,13 @@ const ElevatorLandingPage: React.FC = () => {
             <button
               onClick={handleGetStarted}
               disabled={isLoading}
-              className="inline-flex items-center justify-center gap-2 sm:gap-3 bg-[#1a2332] text-white px-4 py-3 sm:py-2 text-sm sm:text-base font-semibold hover:bg-[#2a3544] transition-all duration-500 ease-out w-full sm:w-fit shadow-sm hover:shadow-xl hover:scale-[1.02] transform disabled:opacity-70"
+              className="inline-flex items-center cursor-pointer justify-center gap-2 sm:gap-3 bg-[#1a2332] text-white px-4 py-3 sm:py-2 text-sm sm:text-base font-semibold hover:bg-[#2a3544] transition-all duration-500 ease-out w-full sm:w-fit shadow-sm hover:shadow-xl hover:scale-[1.02] transform disabled:opacity-70"
             >
               <span>
                 {isLoading ? (
                   <Loader />
                 ) : (
-                  aboutContent?.ctaButtonText || "Get Started"
+                  aboutContent?.ctaButtonText || "Get Started as a Requester"
                 )}
               </span>
               <img src={btnIcon} className="w-10 h-10 -mr-2" alt="" />
