@@ -60,10 +60,10 @@ const ElevatorDashboard = () => {
                 <div className="flex-1 min-w-0">
                   <div className="text-xs text-gray-400 mb-1">Company</div>
                   <div className="font-semibold text-sm text-white">
-                    Jane Contractor
+                    {user?.name || data?.data?.name || "John Doe"}
                   </div>
                   <div className="text-xs text-gray-400 truncate">
-                    tim.jennings@example.com
+                    {user?.email}
                   </div>
                 </div>
               )}
