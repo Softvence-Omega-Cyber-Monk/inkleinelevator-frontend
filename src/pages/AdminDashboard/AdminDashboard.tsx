@@ -16,6 +16,7 @@ import {
 import DashboardNavbar from "@/common/DashboardNavbar";
 import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
 import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useGetMeUserWonDataQuery } from "@/Redux/features/userDa/userProfileUpdated/userProfileUpdatedApi";
 
 const AdminDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -32,6 +33,8 @@ const AdminDashboard = () => {
   const user = useAppSelector(selectCurrentUser);
   console.log("iam the user from redux", user);
 
+  const { data } = useGetMeUserWonDataQuery({});
+  console.log(data);
   const handleLogout = () => {
     dispatch(logout()); // Clear user and token from Redux
     localStorage.removeItem("accessToken"); // optional if you store token locally
@@ -45,10 +48,14 @@ const AdminDashboard = () => {
       >
         {/* Profile Section */}
         <div className="p-4">
-          <div className="bg-[#1a2332] rounded-2xl p-4">
+          <div className="bg-[#1a2332] rounded-2xl p-2">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full bg-gray-400 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <User size={20} className="text-white" />
+              <div className="w-9 h-9 rounded-full bg-gray-400 flex items-center justify-center overflow-hidden ">
+                <img
+                  src={data?.data?.profile || (user as any)?.profile}
+                  alt=""
+                  className="w-9 h-9 rounded-full"
+                />
               </div>
               {sidebarOpen && (
                 <div className="flex-1 min-w-0">
@@ -56,14 +63,14 @@ const AdminDashboard = () => {
                     Admin Panel
                   </div>
                   <div className="font-semibold text-sm text-white">
-                    In-Klein Elevators
+                    {user?.email}
                   </div>
                 </div>
               )}
             </div>
-            {sidebarOpen && (
+            {/* {sidebarOpen && (
               <div className="text-xs text-gray-400">in.klein@example.com</div>
-            )}
+            )} */}
           </div>
         </div>
 
@@ -183,7 +190,7 @@ const AdminDashboard = () => {
         {/* Platform Status Card - Above Logout */}
         {sidebarOpen && (
           <div className="px-4 pt-4">
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+            {/* <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
               <div className="text-xs font-semibold text-gray-700 mb-2">
                 Platform Status
               </div>
@@ -197,12 +204,12 @@ const AdminDashboard = () => {
                 <span className="text-xs text-gray-600">Active Jobs</span>
                 <span className="text-xs font-semibold text-gray-700">50</span>
               </div>
-            </div>
+            </div> */}
           </div>
         )}
 
         {/* Logout */}
-        <div className="p-4 pb-6">
+        <div className="p-2 pb-6">
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"

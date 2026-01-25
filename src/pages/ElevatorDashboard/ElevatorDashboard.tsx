@@ -14,6 +14,7 @@ import {
 import DashboardNavbar from "@/common/DashboardNavbar";
 import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
 import { logout, selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useGetMeUserWonDataQuery } from "@/Redux/features/userDa/userProfileUpdated/userProfileUpdatedApi";
 
 const ElevatorDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -30,6 +31,8 @@ const ElevatorDashboard = () => {
   const user = useAppSelector(selectCurrentUser);
   console.log("iam the user from redux", user);
 
+  const { data } = useGetMeUserWonDataQuery({});
+  console.log(data);
   const handleLogout = () => {
     dispatch(logout()); // Clear user and token from Redux
     localStorage.removeItem("accessToken"); // optional if you store token locally
@@ -44,10 +47,14 @@ const ElevatorDashboard = () => {
       >
         {/* User Profile */}
         <div className="m-4 mb-6">
-          <div className="bg-[#0f1729] rounded-2xl p-4">
+          <div className="bg-[#0f1729] rounded-2xl p-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden flex-shrink-0">
-                <User size={20} className="text-gray-600" />
+              <div className="w-9 h-9 rounded-full bg-gray-300 flex items-center justify-center overflow-hidden ">
+                <img
+                  src={data?.data?.profile || (user as any)?.profile}
+                  alt=""
+                  className="w-9 h-9 rounded-full"
+                />
               </div>
               {sidebarOpen && (
                 <div className="flex-1 min-w-0">
@@ -146,7 +153,7 @@ const ElevatorDashboard = () => {
         </nav>
 
         {/* Logout */}
-        <div className="p-4 pb-6">
+        <div className="p-2 pb-6">
           <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center gap-3 px-6 py-3 rounded-full border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
