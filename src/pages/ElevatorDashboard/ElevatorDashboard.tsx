@@ -9,7 +9,6 @@ import {
   MessageSquare,
   Search,
   Settings,
-  User,
 } from "lucide-react";
 import DashboardNavbar from "@/common/DashboardNavbar";
 import { useAppDispatch, useAppSelector } from "@/Redux/hooks";
