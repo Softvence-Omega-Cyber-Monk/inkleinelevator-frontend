@@ -144,31 +144,26 @@ const Footer: React.FC = () => {
             {/* Navigation Links */}
             <nav className="flex flex-wrap justify-center sm:justify-start gap-6 text-sm">
               <a
-                href="#"
+                href="/"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Home
               </a>
               <a
-                href="#"
+                href="/about"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 About
               </a>
               <a
-                href="#"
+                href="/how-it-works"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 How it works
               </a>
+
               <a
-                href="#"
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                Pricing
-              </a>
-              <a
-                href="#"
+                href="/success-stories"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Success Stories

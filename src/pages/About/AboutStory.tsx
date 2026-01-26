@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const OurStory: React.FC = () => {
   return (
@@ -7,29 +7,41 @@ const OurStory: React.FC = () => {
         <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
           Our Story
         </h2>
-        
+
         <div className="space-y-6 text-gray-700 leading-relaxed">
           <p className="text-base md:text-lg">
-            In-Klein Elevators was founded in 2022 by Rachel Klein, a 15-year veteran of the elevator industry. After years of witnessing the inefficiencies, 
-            lack of transparency, and frustration on both sides of the elevator services marketplace, Rachel knew there had to be a better way.
+            In-Klein Elevator was founded in 2024 by Peyton Klein after
+            conducting in-depth research and surrounding himself with elevator
+            companies to better understand how the industry operates. Through
+            firsthand exposure and industry insight, it became clear that
+            elevator job bidding was largely handled through fragmented email
+            chains—creating delays, limited visibility, and inefficiencies for
+            both property managers and elevator companies.
           </p>
-          
+
           <p className="text-base md:text-lg">
-            Property managers struggled to find qualified contractors, often relying on word-of-mouth referrals or outdated directories. Meanwhile, licensed 
-            elevator companies found it difficult to discover new project opportunities and compete fairly for work. The industry needed a modern, 
-            transparent platform that could connect these two sides efficiently.
+            Recognizing the need for a more modern solution, Peyton developed
+            the first elevator-specific job bidding platform designed to
+            streamline and improve the entire process.
           </p>
-          
+
           <p className="text-base md:text-lg">
-            In-Klein Elevators was built from the ground up with deep industry knowledge and modern technology. We understand the unique requirements 
-            of elevator work—the critical importance of licensing and certifications, ASME A17.1 compliance, NYC DOB regulations, and the 24/7 nature of 
-            building operations.
+            In-Klein Elevator allows contractors and property managers to post
+            elevator jobs directly on the platform, where licensed elevator
+            companies can review project details, receive real-time updates, and
+            submit competitive bids instantly. Unlike traditional email-based
+            bidding, all bidding activity is centralized and transparent,
+            allowing users to see who is actively bidding and track progress
+            live.
           </p>
-          
+
           <p className="text-base md:text-lg">
-            Today, we're proud to be the leading marketplace for elevator services in the New York metropolitan area, connecting hundreds of building 
-            owners with licensed contractors for expert service from emergency repairs to multi-million dollar modernizations. Our platform has facilitated 
-            over $120 million in elevator projects, and we're just getting started.
+            Once a bid is selected, the job is awarded through the platform,
+            enabling the elevator company to move forward with execution
+            seamlessly. By replacing outdated workflows with real-time
+            visibility and structured bidding, In-Klein Elevator makes elevator
+            projects faster, smoother, and more transparent from start to
+            finish.
           </p>
         </div>
       </div>
