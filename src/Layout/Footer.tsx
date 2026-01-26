@@ -104,8 +104,10 @@ const Footer: React.FC = () => {
             {/* Say Hello */}
             <div>
               <h3 className="text-sm font-semibold mb-3">Say Hello</h3>
-              <p className="text-gray-400 text-sm mb-1">hello@design.com</p>
-              <p className="text-gray-400 text-sm">+268 368 3158</p>
+              <p className="text-gray-400 text-sm mb-1">
+                kleinelevator@gmail.com
+              </p>
+              <p className="text-gray-400 text-sm">+268 368 3168</p>
 
               {/* Social Icons */}
               <div className="flex gap-3 mt-4">
