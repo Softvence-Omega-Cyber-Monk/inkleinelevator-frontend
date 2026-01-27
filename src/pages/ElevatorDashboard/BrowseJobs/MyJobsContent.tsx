@@ -14,7 +14,7 @@ import { toast } from "sonner";
 // My Jobs Component - Uses recent bids API to get jobs
 const MyJobsContent = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 100;
+  const itemsPerPage = 5;
 
   // Fetch recent bids to get jobs
   const {
