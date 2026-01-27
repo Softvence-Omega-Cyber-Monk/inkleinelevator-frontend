@@ -17,7 +17,11 @@ const MyJobsContent = () => {
   const itemsPerPage = 100;
 
   // Fetch recent bids to get jobs
-  const { data: recentBidsData, isLoading } = useGetElevatorAllRecentBidQuery();
+  const {
+    data: recentBidsData,
+    isLoading,
+    refetch,
+  } = useGetElevatorAllRecentBidQuery();
   const [requestJobStatus] = useRequestJobStatusMutation();
   console.log(recentBidsData);
   // Transform recent bids data to jobs format
@@ -159,6 +163,7 @@ const MyJobsContent = () => {
       const res = await requestJobStatus(id).unwrap();
       console.log("Response:", res);
       toast.success("Job status updated to ready for review!");
+      refetch();
     } catch (error: any) {
       console.error("Error:", error);
       const errorMessage =
