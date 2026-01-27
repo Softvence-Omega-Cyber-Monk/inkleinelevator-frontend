@@ -1,7 +1,7 @@
 import { baseApi } from "@/Redux/api/baseApi";
 
 interface BidJobRequest {
-  jobId: string;
+  jobId: number | string;
   bidAmount: number;
   completionTimeline: string;
   timeline: number;
@@ -123,13 +123,19 @@ const elevatorbidApi = baseApi.injectEndpoints({
       }),
     }),
     // Get elevator all recent bids
-    getElevatorAllRecentBid: builder.query<GetElevatorRecentBidsResponse, void>({
-      query: () => ({
-        url: "/user/get-elevator-all-recent-bid",
-        method: "GET",
-      }),
-    }),
+    getElevatorAllRecentBid: builder.query<GetElevatorRecentBidsResponse, void>(
+      {
+        query: () => ({
+          url: "/user/get-elevator-all-recent-bid",
+          method: "GET",
+        }),
+      },
+    ),
   }),
 });
 
-export const { useBidJobMutation, useGetMyBidsQuery, useGetElevatorAllRecentBidQuery } = elevatorbidApi;
+export const {
+  useBidJobMutation,
+  useGetMyBidsQuery,
+  useGetElevatorAllRecentBidQuery,
+} = elevatorbidApi;
