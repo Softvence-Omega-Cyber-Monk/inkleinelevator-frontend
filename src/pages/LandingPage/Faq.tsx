@@ -4,6 +4,7 @@ import golmatha from "@/assets/image/golmatha.png";
 
 const FAQSection: React.FC = () => {
   const { data, isLoading } = useGetAllFAQsQuery();
+  console.log("iam the data for contavc", data);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
 
   // Filter FAQs to only show those with at least a question
