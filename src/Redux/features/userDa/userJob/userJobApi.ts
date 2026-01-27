@@ -61,9 +61,9 @@ const userJobApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // Complete job
+    // Request job
     requestJobStatus: builder.mutation({
-      query: (jobId: string) => ({
+      query: (jobId: number | string) => ({
         url: `/job/jobs/${jobId}/ready-for-review`,
         method: "PATCH",
       }),
