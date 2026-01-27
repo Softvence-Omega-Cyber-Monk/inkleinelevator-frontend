@@ -180,17 +180,32 @@ export default function MessagesPage() {
   // Fetch message history when conversation is selected
   // This API will fetch messages between current user and the selected user
   // Use selectedUserId (set when conversation is selected) as withUserId parameter
-  const { data: messageHistoryData, isLoading: isLoadingMessages } =
-    useGetMessageHistoryQuery(
-      { withUserId: selectedUserId || withUserId },
-      {
-        skip:
-          !selectedConversation ||
-          !currentUserId ||
-          !selectedUserId ||
-          String(selectedUserId) === String(currentUserId),
-      },
-    );
+  const {
+    data: messageHistoryData,
+    isLoading: isLoadingMessages,
+    refetch: refetchMessages,
+  } = useGetMessageHistoryQuery(
+    { withUserId: selectedUserId || withUserId },
+    {
+      skip:
+        !selectedConversation ||
+        !currentUserId ||
+        !selectedUserId ||
+        String(selectedUserId) === String(currentUserId),
+      pollingInterval: 3000,
+    },
+  );
+  // for test purposes
+  useEffect(() => {
+    if (!selectedConversation || !currentUserId) return;
+
+    const interval = setInterval(() => {
+      console.log("🔄 Polling for new messages...");
+      refetchMessages?.();
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [selectedConversation, currentUserId, refetchMessages]);
 
   console.log("messageHistoryData:", messageHistoryData);
   console.log("API called with selectedUserId:", selectedUserId);
@@ -285,6 +300,157 @@ export default function MessagesPage() {
   }, [messageHistoryData, currentUserId, selectedConversation]);
 
   // Listen for real-time messages via Socket.IO
+  // useEffect(() => {
+  //   if (!socket || !currentUserId || !selectedConversation) return;
+
+  //   const receiverId = String(
+  //     selectedConversation.userId || selectedConversation.id,
+  //   );
+  //   const currentUserIdStr = String(currentUserId);
+
+  //   const handleReceiveMessage = (message: any) => {
+  //     console.log("New message received via socket:", message);
+
+  //     // Convert IDs to strings for comparison - handle multiple possible field names
+  //     const messageSenderId = String(
+  //       message.senderId ||
+  //         message.sender?.userId ||
+  //         message.sender?.id ||
+  //         message.userId ||
+  //         "",
+  //     )
+  //       .trim()
+  //       .toLowerCase();
+  //     const messageReceiverId = String(
+  //       message.receiverId ||
+  //         message.receiver?.userId ||
+  //         message.receiver?.id ||
+  //         "",
+  //     )
+  //       .trim()
+  //       .toLowerCase();
+
+  //     // Debug log
+  //     console.log("Socket message check:", {
+  //       messageSenderId,
+  //       messageReceiverId,
+  //       currentUserIdStr: currentUserIdStr.toLowerCase(),
+  //       receiverId: receiverId.toLowerCase(),
+  //       fullMessage: message,
+  //       matches:
+  //         (messageSenderId === currentUserIdStr.toLowerCase() &&
+  //           messageReceiverId === receiverId.toLowerCase()) ||
+  //         (messageSenderId === receiverId.toLowerCase() &&
+  //           messageReceiverId === currentUserIdStr.toLowerCase()),
+  //     });
+
+  //     // Check if message is for current conversation
+  //     // Include messages where:
+  //     // 1. User sent to receiver (senderId === currentUserId, receiverId === receiverId)
+  //     // 2. Receiver sent to user (senderId === receiverId, receiverId === currentUserId)
+  //     if (
+  //       (messageSenderId === currentUserIdStr.toLowerCase() &&
+  //         messageReceiverId === receiverId.toLowerCase()) ||
+  //       (messageSenderId === receiverId.toLowerCase() &&
+  //         messageReceiverId === currentUserIdStr.toLowerCase())
+  //     ) {
+  //       const isCurrentUser =
+  //         messageSenderId === currentUserIdStr.toLowerCase();
+  //       const messageId = message.messageId || message.id || Date.now();
+  //       const newMessage = {
+  //         id: messageId,
+  //         sender: (isCurrentUser ? "user" : "other") as "user" | "other",
+  //         senderName: isCurrentUser
+  //           ? "You"
+  //           : selectedConversation?.name || "User",
+  //         text: message.text || "",
+  //         timestamp: message.createdAt
+  //           ? new Date(message.createdAt)
+  //           : new Date(),
+  //       };
+
+  //       console.log("Adding message to real-time list:", newMessage);
+  //       setRealTimeMessages((prev) => {
+  //         // If this is a message from current user, check if there's an optimistic message to replace
+  //         if (isCurrentUser) {
+  //           // Find and remove optimistic message with same text (within 30 seconds)
+  //           const optimisticIndex = prev.findIndex((m) => {
+  //             const isOptimistic =
+  //               typeof m.id === "string" && m.id.startsWith("temp-");
+  //             const sameText = m.text.trim() === newMessage.text.trim();
+  //             const sameSender = m.sender === "user";
+  //             const timeDiff =
+  //               Math.abs(
+  //                 m.timestamp.getTime() - newMessage.timestamp.getTime(),
+  //               ) < 30000; // Within 30 seconds
+  //             return isOptimistic && sameText && sameSender && timeDiff;
+  //           });
+
+  //           if (optimisticIndex !== -1) {
+  //             console.log(
+  //               "Replacing optimistic message with real message from socket",
+  //             );
+  //             const updated = [...prev];
+  //             updated[optimisticIndex] = newMessage;
+  //             return updated;
+  //           }
+  //         }
+
+  //         // Check if message already exists (by ID or by content)
+  //         const exists = prev.some((m) => {
+  //           // Check by exact ID match
+  //           if (String(m.id) === String(newMessage.id)) return true;
+
+  //           // For user messages, check if it's the same message by text, sender, and timestamp (within 10 seconds)
+  //           if (isCurrentUser && m.sender === "user") {
+  //             if (
+  //               m.text.trim() === newMessage.text.trim() &&
+  //               Math.abs(
+  //                 m.timestamp.getTime() - newMessage.timestamp.getTime(),
+  //               ) < 10000
+  //             ) {
+  //               return true;
+  //             }
+  //           }
+
+  //           // For other messages, check by text, sender, and timestamp (within 5 seconds)
+  //           if (
+  //             m.text.trim() === newMessage.text.trim() &&
+  //             m.sender === newMessage.sender &&
+  //             Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) <
+  //               5000
+  //           ) {
+  //             return true;
+  //           }
+  //           return false;
+  //         });
+
+  //         if (exists) {
+  //           console.log("Message already exists in realTimeMessages, skipping");
+  //           return prev;
+  //         }
+
+  //         console.log("Adding new message, previous count:", prev.length);
+  //         return [...prev, newMessage];
+  //       });
+  //     } else {
+  //       console.log("Message does not match current conversation, ignoring");
+  //     }
+  //   };
+
+  //   socket.on("receive-message", handleReceiveMessage);
+  //   socket.on("message", handleReceiveMessage);
+  //   socket.on("new-message", handleReceiveMessage);
+
+  //   return () => {
+  //     socket.off("receive-message", handleReceiveMessage);
+  //     socket.off("message", handleReceiveMessage);
+  //     socket.off("new-message", handleReceiveMessage);
+  //   };
+  // }, [socket, currentUserId, selectedConversation]);
+
+  // this useEffact by shaikot
+  // Listen for real-time messages via Socket.IO
   useEffect(() => {
     if (!socket || !currentUserId || !selectedConversation) return;
 
@@ -293,10 +459,15 @@ export default function MessagesPage() {
     );
     const currentUserIdStr = String(currentUserId);
 
-    const handleReceiveMessage = (message: any) => {
-      console.log("New message received via socket:", message);
+    console.log("🔌 Setting up socket listener for conversation:", {
+      receiverId,
+      currentUserId: currentUserIdStr,
+      conversationName: selectedConversation.name,
+    });
 
-      // Convert IDs to strings for comparison - handle multiple possible field names
+    const handleReceiveMessage = (message: any) => {
+      console.log("📨 New message received via socket:", message);
+
       const messageSenderId = String(
         message.senderId ||
           message.sender?.userId ||
@@ -315,33 +486,32 @@ export default function MessagesPage() {
         .trim()
         .toLowerCase();
 
-      // Debug log
-      console.log("Socket message check:", {
+      const currentLower = currentUserIdStr.toLowerCase();
+      const receiverLower = receiverId.toLowerCase();
+
+      console.log("🔍 Socket message check:", {
         messageSenderId,
         messageReceiverId,
-        currentUserIdStr: currentUserIdStr.toLowerCase(),
-        receiverId: receiverId.toLowerCase(),
-        fullMessage: message,
+        currentUserIdStr: currentLower,
+        receiverId: receiverLower,
         matches:
-          (messageSenderId === currentUserIdStr.toLowerCase() &&
-            messageReceiverId === receiverId.toLowerCase()) ||
-          (messageSenderId === receiverId.toLowerCase() &&
-            messageReceiverId === currentUserIdStr.toLowerCase()),
+          (messageSenderId === currentLower &&
+            messageReceiverId === receiverLower) ||
+          (messageSenderId === receiverLower &&
+            messageReceiverId === currentLower),
       });
 
-      // Check if message is for current conversation
-      // Include messages where:
-      // 1. User sent to receiver (senderId === currentUserId, receiverId === receiverId)
-      // 2. Receiver sent to user (senderId === receiverId, receiverId === currentUserId)
+      // Check if message belongs to current conversation
       if (
-        (messageSenderId === currentUserIdStr.toLowerCase() &&
-          messageReceiverId === receiverId.toLowerCase()) ||
-        (messageSenderId === receiverId.toLowerCase() &&
-          messageReceiverId === currentUserIdStr.toLowerCase())
+        (messageSenderId === currentLower &&
+          messageReceiverId === receiverLower) ||
+        (messageSenderId === receiverLower &&
+          messageReceiverId === currentLower)
       ) {
-        const isCurrentUser =
-          messageSenderId === currentUserIdStr.toLowerCase();
-        const messageId = message.messageId || message.id || Date.now();
+        const isCurrentUser = messageSenderId === currentLower;
+        const messageId =
+          message.messageId || message.id || `socket-${Date.now()}`;
+
         const newMessage = {
           id: messageId,
           sender: (isCurrentUser ? "user" : "other") as "user" | "other",
@@ -354,85 +524,72 @@ export default function MessagesPage() {
             : new Date(),
         };
 
-        console.log("Adding message to real-time list:", newMessage);
+        console.log("✅ Adding message to real-time list:", newMessage);
+
         setRealTimeMessages((prev) => {
-          // If this is a message from current user, check if there's an optimistic message to replace
+          // Check for exact duplicate by ID
+          if (prev.some((m) => String(m.id) === String(messageId))) {
+            console.log("⚠️ Message already exists (by ID), skipping");
+            return prev;
+          }
+
+          // For optimistic messages, replace with real message
           if (isCurrentUser) {
-            // Find and remove optimistic message with same text (within 30 seconds)
             const optimisticIndex = prev.findIndex((m) => {
               const isOptimistic =
                 typeof m.id === "string" && m.id.startsWith("temp-");
               const sameText = m.text.trim() === newMessage.text.trim();
               const sameSender = m.sender === "user";
-              const timeDiff =
-                Math.abs(
-                  m.timestamp.getTime() - newMessage.timestamp.getTime(),
-                ) < 30000; // Within 30 seconds
-              return isOptimistic && sameText && sameSender && timeDiff;
+              return isOptimistic && sameText && sameSender;
             });
 
             if (optimisticIndex !== -1) {
-              console.log(
-                "Replacing optimistic message with real message from socket",
-              );
+              console.log("🔄 Replacing optimistic message with real message");
               const updated = [...prev];
               updated[optimisticIndex] = newMessage;
               return updated;
             }
           }
 
-          // Check if message already exists (by ID or by content)
-          const exists = prev.some((m) => {
-            // Check by exact ID match
-            if (String(m.id) === String(newMessage.id)) return true;
-
-            // For user messages, check if it's the same message by text, sender, and timestamp (within 10 seconds)
-            if (isCurrentUser && m.sender === "user") {
-              if (
-                m.text.trim() === newMessage.text.trim() &&
-                Math.abs(
-                  m.timestamp.getTime() - newMessage.timestamp.getTime(),
-                ) < 10000
-              ) {
-                return true;
-              }
-            }
-
-            // For other messages, check by text, sender, and timestamp (within 5 seconds)
-            if (
+          // Check for very recent duplicates (within 2 seconds, same text)
+          const hasRecentDuplicate = prev.some((m) => {
+            return (
               m.text.trim() === newMessage.text.trim() &&
               m.sender === newMessage.sender &&
               Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) <
-                5000
-            ) {
-              return true;
-            }
-            return false;
+                2000
+            );
           });
 
-          if (exists) {
-            console.log("Message already exists in realTimeMessages, skipping");
+          if (hasRecentDuplicate) {
+            console.log("⚠️ Recent duplicate found, skipping");
             return prev;
           }
 
-          console.log("Adding new message, previous count:", prev.length);
+          console.log("➕ Adding new message, previous count:", prev.length);
           return [...prev, newMessage];
         });
       } else {
-        console.log("Message does not match current conversation, ignoring");
+        console.log("❌ Message does not match current conversation, ignoring");
       }
     };
 
+    // Listen to multiple event names
     socket.on("receive-message", handleReceiveMessage);
     socket.on("message", handleReceiveMessage);
     socket.on("new-message", handleReceiveMessage);
 
+    // Cleanup function - CRITICAL: This removes old listeners
     return () => {
+      console.log(
+        "🧹 Cleaning up socket listeners for:",
+        selectedConversation.name,
+      );
       socket.off("receive-message", handleReceiveMessage);
       socket.off("message", handleReceiveMessage);
       socket.off("new-message", handleReceiveMessage);
     };
-  }, [socket, currentUserId, selectedConversation]);
+  }, [socket, currentUserId, selectedConversation]); // Keep all dependencies
 
   // Reset real-time messages when conversation changes
   useEffect(() => {
@@ -477,93 +634,212 @@ export default function MessagesPage() {
   }, [currentUserId, selectedConversation]);
 
   // Combine API messages with real-time messages
+  // const allMessages = useMemo(() => {
+  //   // Start with API messages (these are the source of truth)
+  //   const apiMessages = messages;
+
+  //   // Filter out optimistic messages from realTimeMessages that match API messages
+  //   const filteredRealTime = realTimeMessages.filter((rtMsg) => {
+  //     // If it's an optimistic message, check if it exists in API messages
+  //     if (typeof rtMsg.id === "string" && rtMsg.id.startsWith("temp-")) {
+  //       const existsInApi = apiMessages.some((apiMsg) => {
+  //         return (
+  //           apiMsg.sender === "user" &&
+  //           apiMsg.text.trim() === rtMsg.text.trim() &&
+  //           Math.abs(apiMsg.timestamp.getTime() - rtMsg.timestamp.getTime()) <
+  //             10000
+  //         );
+  //       });
+  //       if (existsInApi) {
+  //         console.log("Removing optimistic message - already in API messages");
+  //         return false; // Remove optimistic message if it's in API
+  //       }
+  //     }
+  //     return true; // Keep all other real-time messages
+  //   });
+
+  //   const combined = [...apiMessages, ...filteredRealTime];
+
+  //   // Remove duplicates and sort by timestamp
+  //   const uniqueMessages = combined.reduce(
+  //     (acc, msg) => {
+  //       // Check if message already exists
+  //       const existingIndex = acc.findIndex((m) => {
+  //         // Exact ID match
+  //         if (String(m.id) === String(msg.id)) return true;
+
+  //         // For user messages, check by text and timestamp (more lenient for duplicates)
+  //         if (msg.sender === "user" && m.sender === "user") {
+  //           if (
+  //             m.text.trim() === msg.text.trim() &&
+  //             Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 15000 // Within 15 seconds
+  //           ) {
+  //             return true;
+  //           }
+  //         }
+
+  //         // For other messages, check by text, sender, and timestamp
+  //         if (
+  //           m.text.trim() === msg.text.trim() &&
+  //           m.sender === msg.sender &&
+  //           Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 5000
+  //         ) {
+  //           return true;
+  //         }
+
+  //         return false;
+  //       });
+
+  //       if (existingIndex === -1) {
+  //         // No duplicate found, add the message
+  //         acc.push(msg);
+  //       } else {
+  //         // Duplicate found - replace if the new one is better (has real ID, not optimistic)
+  //         const existing = acc[existingIndex];
+  //         const isExistingOptimistic =
+  //           typeof existing.id === "string" && existing.id.startsWith("temp-");
+  //         const isNewOptimistic =
+  //           typeof msg.id === "string" && msg.id.startsWith("temp-");
+
+  //         // Replace optimistic with real message (prefer API/socket message over optimistic)
+  //         if (isExistingOptimistic && !isNewOptimistic) {
+  //           console.log(
+  //             "Replacing optimistic message with real message in allMessages",
+  //           );
+  //           acc[existingIndex] = msg;
+  //         }
+  //         // If both are real messages (not optimistic), keep the first one (from API)
+  //         // This prevents socket duplicates from overwriting API messages
+  //       }
+
+  //       return acc;
+  //     },
+  //     [] as typeof combined,
+  //   );
+
+  //   return uniqueMessages.sort(
+  //     (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+  //   );
+  // }, [messages, realTimeMessages]);
+
+  // this allmessage with realTimeMessages by shaikot
+  // Combine API messages with real-time messages
+  // Combine API messages with real-time messages
   const allMessages = useMemo(() => {
-    // Start with API messages (these are the source of truth)
     const apiMessages = messages;
 
-    // Filter out optimistic messages from realTimeMessages that match API messages
-    const filteredRealTime = realTimeMessages.filter((rtMsg) => {
-      // If it's an optimistic message, check if it exists in API messages
-      if (typeof rtMsg.id === "string" && rtMsg.id.startsWith("temp-")) {
-        const existsInApi = apiMessages.some((apiMsg) => {
-          return (
-            apiMsg.sender === "user" &&
-            apiMsg.text.trim() === rtMsg.text.trim() &&
-            Math.abs(apiMsg.timestamp.getTime() - rtMsg.timestamp.getTime()) <
-              10000
-          );
-        });
-        if (existsInApi) {
-          console.log("Removing optimistic message - already in API messages");
-          return false; // Remove optimistic message if it's in API
-        }
-      }
-      return true; // Keep all other real-time messages
+    console.log("🔗 Combining messages:", {
+      apiCount: apiMessages.length,
+      realTimeCount: realTimeMessages.length,
+      apiMessageIds: apiMessages.map((m) => ({
+        id: m.id,
+        text: m.text.substring(0, 20),
+      })),
+      realTimeMessageIds: realTimeMessages.map((m) => ({
+        id: m.id,
+        text: m.text.substring(0, 20),
+      })),
     });
 
-    const combined = [...apiMessages, ...filteredRealTime];
+    // Combine all messages
+    const combined = [...apiMessages, ...realTimeMessages];
 
-    // Remove duplicates and sort by timestamp
+    // Remove duplicates using a more precise approach
     const uniqueMessages = combined.reduce(
       (acc, msg) => {
-        // Check if message already exists
-        const existingIndex = acc.findIndex((m) => {
-          // Exact ID match
-          if (String(m.id) === String(msg.id)) return true;
+        // Check if message already exists by ID first
+        const existsByIdIndex = acc.findIndex(
+          (m) => String(m.id) === String(msg.id),
+        );
 
-          // For user messages, check by text and timestamp (more lenient for duplicates)
-          if (msg.sender === "user" && m.sender === "user") {
-            if (
-              m.text.trim() === msg.text.trim() &&
-              Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 15000 // Within 15 seconds
-            ) {
-              return true;
-            }
-          }
-
-          // For other messages, check by text, sender, and timestamp
-          if (
-            m.text.trim() === msg.text.trim() &&
-            m.sender === msg.sender &&
-            Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 5000
-          ) {
-            return true;
-          }
-
-          return false;
-        });
-
-        if (existingIndex === -1) {
-          // No duplicate found, add the message
-          acc.push(msg);
-        } else {
-          // Duplicate found - replace if the new one is better (has real ID, not optimistic)
-          const existing = acc[existingIndex];
+        if (existsByIdIndex !== -1) {
+          // Message exists by ID
+          const existing = acc[existsByIdIndex];
           const isExistingOptimistic =
             typeof existing.id === "string" && existing.id.startsWith("temp-");
           const isNewOptimistic =
             typeof msg.id === "string" && msg.id.startsWith("temp-");
 
-          // Replace optimistic with real message (prefer API/socket message over optimistic)
+          // Replace optimistic with real message
           if (isExistingOptimistic && !isNewOptimistic) {
             console.log(
-              "Replacing optimistic message with real message in allMessages",
+              "🔄 Replacing optimistic message with real message:",
+              msg.text.substring(0, 30),
             );
-            acc[existingIndex] = msg;
+            acc[existsByIdIndex] = msg;
           }
-          // If both are real messages (not optimistic), keep the first one (from API)
-          // This prevents socket duplicates from overwriting API messages
+          return acc;
         }
 
+        // Check for near-duplicate by content (only for non-optimistic messages)
+        const isOptimistic =
+          typeof msg.id === "string" && msg.id.startsWith("temp-");
+
+        if (!isOptimistic) {
+          const contentDuplicateIndex = acc.findIndex((m) => {
+            // Same text, same sender, and within 3 seconds
+            return (
+              m.text.trim() === msg.text.trim() &&
+              m.sender === msg.sender &&
+              Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 3000
+            );
+          });
+
+          if (contentDuplicateIndex !== -1) {
+            console.log(
+              "🗑️ Removing content duplicate:",
+              msg.text.substring(0, 30),
+            );
+            const existing = acc[contentDuplicateIndex];
+            const isExistingOptimistic =
+              typeof existing.id === "string" &&
+              existing.id.startsWith("temp-");
+
+            // Replace optimistic with real message
+            if (isExistingOptimistic) {
+              console.log("🔄 Replacing optimistic with real (by content)");
+              acc[contentDuplicateIndex] = msg;
+            }
+            return acc;
+          }
+        }
+
+        // No duplicate found, add the message
+        acc.push(msg);
         return acc;
       },
       [] as typeof combined,
     );
 
-    return uniqueMessages.sort(
+    // Sort by timestamp
+    const sorted = uniqueMessages.sort(
       (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
     );
+
+    console.log("✅ Final message count:", sorted.length);
+    console.log(
+      "✅ Final messages:",
+      sorted.map((m) => ({
+        id: m.id,
+        sender: m.sender,
+        text: m.text.substring(0, 30),
+        timestamp: m.timestamp.toISOString(),
+      })),
+    );
+
+    return sorted;
   }, [messages, realTimeMessages]);
+
+  // Debug effect - add this after allMessages useMemo
+  useEffect(() => {
+    console.log("🔍 Socket Debug:", {
+      socket: socket,
+      socketId: socket?.id,
+      isConnected: isConnected,
+      socketConnected: socket?.connected,
+      currentUserId: currentUserId,
+    });
+  }, [socket, isConnected, currentUserId]);
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">

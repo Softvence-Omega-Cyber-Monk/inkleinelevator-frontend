@@ -89,31 +89,68 @@ export default function ChatWindow({
     }
   }, [messages]);
 
+  // const handleSend = async (e?: React.MouseEvent | React.KeyboardEvent) => {
+  //   // Prevent default behavior and stop propagation
+  //   if (e) {
+  //     e.preventDefault();
+  //     e.stopPropagation();
+  //   }
+
+  //   // Prevent duplicate sends - check multiple conditions
+  //   if (!message.trim() || isSending || isSendingRef.current) {
+  //     console.log("Send blocked:", {
+  //       hasMessage: !!message.trim(),
+  //       isSending,
+  //       isSendingRef: isSendingRef.current,
+  //     });
+  //     return;
+  //   }
+
+  //   // Set sending flag immediately
+  //   isSendingRef.current = true;
+
+  //   const messageText = message.trim();
+  //   // Clear input immediately to prevent double-send
+  //   setMessage("");
+
+  //   // Add optimistic message immediately
+  //   if (onMessageSent) {
+  //     onMessageSent(messageText, receiverId);
+  //   }
+
+  //   try {
+  //     await sendMessage({
+  //       receiverId,
+  //       text: messageText,
+  //     }).unwrap();
+  //     // Message will be received via socket, not refetched from API
+  //   } catch (error: any) {
+  //     toast.error(error?.data?.message || "Failed to send message");
+  //     setMessage(messageText); // Restore message on error
+  //   } finally {
+  //     // Reset sending flag after a delay to prevent rapid double-clicks
+  //     setTimeout(() => {
+  //       isSendingRef.current = false;
+  //     }, 2000); // Increased to 2 seconds
+  //   }
+  // };
+
+  // thsis handler code by shaikot
   const handleSend = async (e?: React.MouseEvent | React.KeyboardEvent) => {
-    // Prevent default behavior and stop propagation
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
 
-    // Prevent duplicate sends - check multiple conditions
     if (!message.trim() || isSending || isSendingRef.current) {
-      console.log("Send blocked:", {
-        hasMessage: !!message.trim(),
-        isSending,
-        isSendingRef: isSendingRef.current,
-      });
       return;
     }
 
-    // Set sending flag immediately
     isSendingRef.current = true;
-
     const messageText = message.trim();
-    // Clear input immediately to prevent double-send
     setMessage("");
 
-    // Add optimistic message immediately
+    // Add optimistic message
     if (onMessageSent) {
       onMessageSent(messageText, receiverId);
     }
@@ -123,15 +160,17 @@ export default function ChatWindow({
         receiverId,
         text: messageText,
       }).unwrap();
-      // Message will be received via socket, not refetched from API
+
+      console.log("✅ Message sent successfully");
     } catch (error: any) {
+      console.error("❌ Failed to send message:", error);
       toast.error(error?.data?.message || "Failed to send message");
-      setMessage(messageText); // Restore message on error
+      setMessage(messageText);
     } finally {
-      // Reset sending flag after a delay to prevent rapid double-clicks
+      // Shorter timeout - 500ms is enough
       setTimeout(() => {
         isSendingRef.current = false;
-      }, 2000); // Increased to 2 seconds
+      }, 500);
     }
   };
 
