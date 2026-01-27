@@ -61,6 +61,14 @@ const userJobApi = baseApi.injectEndpoints({
       }),
     }),
 
+    // Request job
+    requestJobStatus: builder.mutation({
+      query: (jobId: number | string) => ({
+        url: `/job/jobs/${jobId}/ready-for-review`,
+        method: "PATCH",
+      }),
+    }),
+
     // Reject job
     reject: builder.mutation({
       query: (jobId: string) => ({
@@ -96,6 +104,7 @@ export const {
   useGetAllActiveJobsUserDashboardQuery,
   useCloseJobMutation,
   useCompleteJobMutation,
+  useRequestJobStatusMutation,
   useRejectMutation,
   useDeleteJobMutation,
   useUpdateJobMutation,
