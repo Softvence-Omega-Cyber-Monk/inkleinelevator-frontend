@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useBidJobMutation } from "@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi";
+import BidSubmissionSuccessModal from "./BidSubmissionSuccessModal";
 
 interface QuickBidModalProps {
   isOpen: boolean;
@@ -24,11 +26,15 @@ const QuickBidModal = ({
   onClose,
   jobId,
   jobTitle = "Elevator Modernization - 6 Units",
-  budgetMin = 150000,
-  budgetMax = 180000,
+  budgetMin = 0,
+  budgetMax = 0,
 }: QuickBidModalProps) => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  // Bid job mutation
+  const [bidJob] = useBidJobMutation();
 
   const {
     register,
@@ -39,25 +45,105 @@ const QuickBidModal = ({
 
   if (!isOpen) return null;
 
+  const parseTimeline = (timelineStr: string): number => {
+    // Extract numbers from strings like "8-10 weeks", "4 weeks", "2 months", etc.
+    const numbers = timelineStr.match(/\d+/g);
+    if (!numbers || numbers.length === 0) return 4; // Default to 4 weeks
+
+    // If range like "8-10", take the average or first number
+    if (numbers.length >= 2) {
+      return Math.ceil((parseInt(numbers[0]) + parseInt(numbers[1])) / 2);
+    }
+
+    // Check if it's months (multiply by 4.33 weeks per month)
+    if (timelineStr.toLowerCase().includes("month")) {
+      return Math.ceil(parseInt(numbers[0]) * 4.33);
+    }
+
+    // Default: assume weeks
+    return parseInt(numbers[0]) || 4;
+  };
+
+  const formatDate = (date: Date): string => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const onSubmit = async (data: QuickBidFormData) => {
-    console.log(data);
+    if (!jobId) {
+      toast.error("Job ID is missing");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      // TODO: Add API call here when backend is ready
-      // await submitBid({ jobId, ...data });
-      
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      
-      toast.success("Bid submitted successfully!");
+      // Parse timeline to get weeks
+      const timelineWeeks = parseTimeline(data.completionTimeline);
+
+      // Calculate completion date (current date + timeline weeks)
+      const completionDate = new Date();
+      completionDate.setDate(completionDate.getDate() + timelineWeeks * 7);
+      const formattedCompletionDate = formatDate(completionDate);
+
+      // Prepare bid data
+      const bidData = {
+        jobId: jobId,
+        bidAmount: parseFloat(data.bidAmount),
+        completionTimeline: formattedCompletionDate,
+        timeline: timelineWeeks,
+        brefProposal: data.briefProposal,
+      };
+
+      // Call API
+      await bidJob(bidData).unwrap();
+
       reset();
+      setShowSuccessModal(true); // Show success modal
+      toast.success("Bid submitted successfully!");
       onClose();
-    } catch (error) {
-      toast.error("Failed to submit bid. Please try again.");
+    } catch (error: any) {
+      const errorMessage =
+        error?.data?.message ||
+        error?.message ||
+        "Failed to submit bid. Please try again.";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
+  // const onSubmit = async (data: QuickBidFormData) => {
+  //   console.log("Quick bid submitted 43:", data);
+  //   setIsSubmitting(true);
+  //   try {
+  //     // TODO: Add API call here when backend is ready
+  //     // You should add your bidJob mutation hook here similar to the JobDetailsWithBid component
+  //     // Example:
+  //     // const [bidJob] = useBidJobMutation();
+  //     // await bidJob({
+  //     //   jobId,
+  //     //   bidAmount: parseFloat(data.bidAmount),
+  //     //   completionTimeline: data.completionTimeline,
+  //     //   brefProposal: data.briefProposal,
+  //     // }).unwrap();
+
+  //     // Simulate API call
+  //     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  //     toast.success("Bid submitted successfully!");
+  //     reset();
+  //     onClose();
+  //   } catch (error: any) {
+  //     const errorMessage =
+  //       error?.data?.message ||
+  //       error?.message ||
+  //       "Failed to submit bid. Please try again.";
+  //     toast.error(errorMessage);
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
 
   const handleViewFullDetails = () => {
     if (jobId) {
@@ -199,7 +285,7 @@ const QuickBidModal = ({
             </p>
           </div>
 
-          {/* Action Buttons */}
+          {/* Buttons */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
@@ -218,6 +304,11 @@ const QuickBidModal = ({
           </div>
         </form>
       </div>
+      {/* Success Modal */}
+      <BidSubmissionSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+      />
     </div>
   );
 };
