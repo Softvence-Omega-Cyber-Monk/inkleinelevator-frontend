@@ -162,7 +162,7 @@ export default function MessagesPage() {
         skip: !selectedConversation || !currentUserId || !selectedUserId,
       },
     );
-
+// socket io
   // Local messages state for real-time updates
   const [realTimeMessages, setRealTimeMessages] = useState<
     Array<{
