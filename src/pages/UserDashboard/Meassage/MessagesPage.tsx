@@ -1,3 +1,529 @@
+import { useState, useEffect, useMemo, useRef } from "react";
+import { Search, ArrowLeft } from "lucide-react";
+import ConversationList from "./ConversationList";
+import ChatWindow from "./ChatWindow";
+import {
+  useGetChatListUserQuery,
+  useGetMessageHistoryQuery,
+} from "@/Redux/features/userDa/message/messageApi";
+import { useGetMeMutation } from "@/Redux/features/auth/authApi";
+import { useSocket } from "@/hooks/useSocket";
+import { BeatLoader } from "react-spinners";
+
+interface Conversation {
+  id: number | string;
+  name: string;
+  avatar: string;
+  lastMessage: string;
+  unread: boolean;
+  userId?: string;
+}
+
+export default function MessagesPage() {
+  const [getMe] = useGetMeMutation();
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | number | null>(
+    null,
+  );
+
+  // Socket.IO connection
+  const { socket, isConnected } = useSocket(currentUserId);
+  const socketRef = useRef<any>(null);
+
+  // Debug socket connection
+  useEffect(() => {
+    console.log("🔌 Socket status:", {
+      socket: !!socket,
+      connected: isConnected,
+      currentUserId,
+      socketId: socket?.id,
+    });
+
+    if (socket) {
+      // Store socket reference
+      socketRef.current = socket;
+
+      // Connection events
+      socket.on("connect", () => {
+        console.log("✅ Socket connected:", socket.id);
+      });
+
+      socket.on("disconnect", () => {
+        console.log("❌ Socket disconnected");
+      });
+
+      socket.on("connect_error", (error) => {
+        console.error("❌ Socket connection error:", error);
+      });
+    }
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.off("connect");
+        socketRef.current.off("disconnect");
+        socketRef.current.off("connect_error");
+      }
+    };
+  }, [socket, isConnected, currentUserId]);
+
+  const { socket, isConnected } = useSocket(currentUserId);
+  const { data: chatListData, isLoading: isLoadingChatList } =
+    useGetChatListUserQuery();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await getMe({}).unwrap();
+        if (response?.data?.userId) {
+          setCurrentUserId(response.data.userId);
+        }
+      } catch (error) {
+        console.error("Failed to get user:", error);
+      }
+    };
+    fetchUser();
+  }, [getMe]);
+
+  const conversations = useMemo(() => {
+    if (!chatListData?.data) return [];
+
+    const chatUsers = Array.isArray(chatListData.data)
+      ? chatListData.data
+      : Object.values(chatListData.data);
+
+    return chatUsers
+      .filter((user: any) => {
+        const userId = String(user.id || user.userId || "");
+        const currentUserIdStr = currentUserId ? String(currentUserId) : "";
+        return userId !== currentUserIdStr;
+      })
+      .map((user: any, index: number) => {
+        const otherUserId = user.id || user.userId;
+        const userIdString = otherUserId ? String(otherUserId) : null;
+
+        return {
+          id: otherUserId || index + 1,
+          name:
+            user.name || user.companyName || user.email || `User ${index + 1}`,
+          avatar:
+            user.avatar ||
+            user.profile ||
+            user.businessLogo ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || index}`,
+          lastMessage: user.lastMessage || "No messages yet",
+          unread: user.unread || false,
+          userId: userIdString || undefined,
+        };
+      }) as Conversation[];
+  }, [chatListData, currentUserId]);
+
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(
+      conversations.length > 0 ? conversations[0] : null,
+    );
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredConversations = useMemo(() => {
+    if (!searchQuery.trim()) return conversations;
+    const query = searchQuery.toLowerCase();
+    return conversations.filter((conv) =>
+      conv.name.toLowerCase().includes(query),
+    );
+  }, [conversations, searchQuery]);
+
+  useEffect(() => {
+    if (!selectedConversation && conversations.length > 0) {
+      setSelectedConversation(conversations[0]);
+    }
+  }, [conversations, selectedConversation]);
+
+  // Fetch message history when conversation is selected
+  const { data: messageHistoryData, isLoading: isLoadingMessages } =
+    useGetMessageHistoryQuery(
+      { withUserId: selectedUserId as string },
+      {
+        skip: !selectedConversation || !currentUserId || !selectedUserId,
+      },
+    );
+
+  // Local messages state for real-time updates
+  const [realTimeMessages, setRealTimeMessages] = useState<
+    Array<{
+      id: number | string;
+      sender: "user" | "other";
+      senderName: string;
+      text: string;
+      timestamp: Date;
+    }>
+  >([]);
+
+  // Transform message history to component format
+  const apiMessages = useMemo(() => {
+    // Handle direct array response (API returns array directly, not wrapped in data)
+    let messagesArray: any[] = [];
+
+    if (Array.isArray(messageHistoryData)) {
+      messagesArray = messageHistoryData;
+    } else if (Array.isArray(messageHistoryData?.data)) {
+      messagesArray = messageHistoryData.data;
+    } else {
+      return [];
+    }
+
+    if (!currentUserId || messagesArray.length === 0) {
+      return [];
+    }
+
+    const currentUserIdStr = String(currentUserId).trim().toLowerCase();
+
+    return messagesArray.map((msg: any, index: number) => {
+      // Convert to string for reliable comparison - use senderId directly from API
+      const msgSenderId = String(msg.senderId || "")
+        .trim()
+        .toLowerCase();
+      const isCurrentUser = msgSenderId === currentUserIdStr;
+
+      return {
+        id: msg.messageId || msg.id || `api-${Date.now()}-${index}`,
+        sender: (isCurrentUser ? "user" : "other") as "user" | "other",
+        senderName: isCurrentUser
+          ? "You"
+          : selectedConversation?.name || "User",
+        text: msg.text || "",
+        timestamp: msg.createdAt ? new Date(msg.createdAt) : new Date(),
+      };
+    });
+  }, [messageHistoryData, currentUserId, selectedConversation]);
+
+  // Listen for real-time messages via Socket.IO
+  useEffect(() => {
+    if (!socket || !currentUserId) return;
+
+    const handleReceiveMessage = (message: any) => {
+      console.log("📨 New message received via socket:", message);
+
+      // Validate message
+      if (!message || !message.senderId || !message.receiverId) {
+        console.warn("Invalid message format:", message);
+        return;
+      }
+
+      const currentUserIdStr = String(currentUserId);
+      const messageSenderId = String(message.senderId).trim();
+      const messageReceiverId = String(message.receiverId).trim();
+
+      console.log("🔍 Message check:", {
+        currentUserId: currentUserIdStr,
+        messageSenderId,
+        messageReceiverId,
+        isFromMe: messageSenderId === currentUserIdStr,
+        isToMe: messageReceiverId === currentUserIdStr,
+      });
+
+      // Check if message involves current user
+      const isInvolvedInMessage =
+        messageSenderId === currentUserIdStr ||
+        messageReceiverId === currentUserIdStr;
+
+      if (!isInvolvedInMessage) {
+        console.log("❌ Message not for current user");
+        return;
+      }
+
+      // Check if message is for the currently selected conversation
+      if (selectedConversation) {
+        const selectedUserId = String(
+          selectedConversation.userId || selectedConversation.id,
+        );
+
+        // Message is for current conversation if:
+        // 1. It's from selected user to current user, OR
+        // 2. It's from current user to selected user
+        const isForCurrentConversation =
+          (messageSenderId === selectedUserId &&
+            messageReceiverId === currentUserIdStr) ||
+          (messageSenderId === currentUserIdStr &&
+            messageReceiverId === selectedUserId);
+
+        if (!isForCurrentConversation) {
+          console.log("⚠️ Message is for different conversation");
+          return;
+        }
+      }
+
+      // Create message object
+      const isCurrentUser = messageSenderId === currentUserIdStr;
+      const messageId =
+        message.messageId || message.id || `socket-${Date.now()}`;
+
+      const newMessage = {
+        id: messageId,
+        sender: (isCurrentUser ? "user" : "other") as "user" | "other",
+        senderName: isCurrentUser
+          ? "You"
+          : selectedConversation?.name || message.sender?.name || "User",
+        text: message.text || "",
+        timestamp: message.createdAt ? new Date(message.createdAt) : new Date(),
+      };
+
+      console.log("➕ Adding socket message to realTimeMessages:", newMessage);
+
+      setRealTimeMessages((prev) => {
+        // Check for duplicates by message ID
+        const isDuplicate = prev.some(
+          (m) =>
+            String(m.id) === String(messageId) ||
+            (m.text.trim() === newMessage.text.trim() &&
+              m.sender === newMessage.sender &&
+              Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) <
+                1000),
+        );
+
+        if (isDuplicate) {
+          console.log("⚠️ Duplicate message, skipping");
+          return prev;
+        }
+
+        // For user messages, check if we need to replace optimistic message
+        if (isCurrentUser) {
+          // Find optimistic message with same text (within 5 seconds)
+          const optimisticIndex = prev.findIndex((m) => {
+            const isOptimistic =
+              typeof m.id === "string" && m.id.startsWith("temp-");
+            const sameText = m.text.trim() === newMessage.text.trim();
+            const timeDiff =
+              Math.abs(m.timestamp.getTime() - newMessage.timestamp.getTime()) <
+              5000;
+            return isOptimistic && sameText && timeDiff;
+          });
+
+          if (optimisticIndex !== -1) {
+            console.log("🔄 Replacing optimistic message with real message");
+            const updated = [...prev];
+            updated[optimisticIndex] = newMessage;
+            return updated;
+          }
+        }
+
+        return [...prev, newMessage];
+      });
+    };
+
+    // Only listen to 'receive-message' (matches backend)
+    socket.on("receive-message", handleReceiveMessage);
+
+    return () => {
+      socket.off("receive-message", handleReceiveMessage);
+    };
+  }, [socket, currentUserId]); // receiverId নাই - ref use করছি
+
+  // Clear messages when conversation changes
+  useEffect(() => {
+    console.log("🔄 Conversation changed, clearing realTimeMessages");
+    setRealTimeMessages([]);
+  }, [selectedConversation?.id]);
+
+  // Function to add optimistic message
+  const addOptimisticMessage = (text: string, _receiverId: string) => {
+    if (!currentUserId || !selectedConversation) return;
+
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticMessage = {
+      id: optimisticId,
+      sender: "user" as const,
+      senderName: "You",
+      text: text.trim(),
+      timestamp: new Date(),
+    };
+
+    console.log("➕ Adding optimistic message:", optimisticMessage);
+
+    setRealTimeMessages((prev) => {
+      // Check for duplicates
+      const hasDuplicate = prev.some(
+        (m) =>
+          typeof m.id === "string" &&
+          m.id.startsWith("temp-") &&
+          m.text.trim() === text.trim(),
+      );
+
+      if (hasDuplicate) {
+        console.log("⚠️ Optimistic message already exists");
+        return prev;
+      }
+
+      return [...prev, optimisticMessage];
+    });
+  };
+
+  const allMessages = useMemo(() => {
+    console.log("🔄 Combining messages:", {
+      apiMessages: apiMessages.length,
+      realTimeMessages: realTimeMessages.length,
+    });
+
+    // Start with API messages
+    const combined = [...apiMessages];
+
+    // Add real-time messages that aren't already in API messages
+    realTimeMessages.forEach((rtMsg) => {
+      // Skip if already in API messages
+      const existsInApi = apiMessages.some((apiMsg) => {
+        // Check by ID
+        if (String(apiMsg.id) === String(rtMsg.id)) return true;
+
+        // Check for optimistic messages being replaced
+        if (rtMsg.sender === "user" && apiMsg.sender === "user") {
+          if (apiMsg.text.trim() === rtMsg.text.trim()) {
+            return true;
+          }
+        }
+        return false;
+      });
+
+      if (!existsInApi) {
+        // Check if it's a duplicate optimistic message
+        const isOptimisticDuplicate = combined.some((msg) => {
+          if (rtMsg.sender === "user" && msg.sender === "user") {
+            const isOptimistic =
+              typeof msg.id === "string" && msg.id.startsWith("temp-");
+            if (isOptimistic && msg.text.trim() === rtMsg.text.trim()) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+        if (!isOptimisticDuplicate) {
+          combined.push(rtMsg);
+        }
+      }
+    });
+
+    // Sort by timestamp and remove exact duplicates
+    const sorted = combined.sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+
+    const unique = sorted.filter(
+      (msg, index, self) =>
+        index ===
+        self.findIndex(
+          (m) =>
+            String(m.id) === String(msg.id) ||
+            (m.text.trim() === msg.text.trim() &&
+              m.sender === msg.sender &&
+              Math.abs(m.timestamp.getTime() - msg.timestamp.getTime()) < 1000),
+        ),
+    );
+
+    console.log("✅ Final combined messages:", unique.length);
+    return unique;
+  }, [apiMessages, realTimeMessages]);
+
+  return (
+    <div className="flex h-screen bg-white overflow-hidden">
+      {/* SIDEBAR */}
+      <div className="w-full lg:w-80 border-r border-gray-200 flex flex-col hidden lg:flex">
+        <div className="p-4 border-b border-gray-100">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+            Messages
+          </h1>
+          <div className="mt-2 flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+            ></div>
+            <span className="text-sm text-gray-600">
+              {isConnected ? "Connected" : "Disconnected"}
+            </span>
+          </div>
+        </div>
+
+        <div className="px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-100 rounded-full">
+            <Search size={18} className="text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search conversations..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none flex-1"
+            />
+          </div>
+        </div>
+
+        {isLoadingChatList ? (
+          <div className="flex justify-center items-center py-8">
+            <BeatLoader />
+          </div>
+        ) : (
+          <ConversationList
+            conversations={filteredConversations}
+            selectedConversation={selectedConversation}
+            onSelectConversation={setSelectedConversation}
+          />
+        )}
+      </div>
+
+      {/* CHAT */}
+      <div className="flex-1 flex flex-col">
+        {selectedConversation ? (
+          <>
+            <div className="lg:hidden flex items-center gap-3 p-4 border-b border-gray-200">
+              <button className="p-2 hover:bg-gray-100 rounded-full">
+                <ArrowLeft size={20} />
+              </button>
+              <span className="font-medium text-gray-900">
+                {selectedConversation.name}
+              </span>
+              <div className="ml-auto flex items-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+                ></div>
+                <span className="text-xs text-gray-500">
+                  {isConnected ? "Connected" : "Disconnected"}
+                </span>
+              </div>
+            </div>
+
+            <ChatWindow
+              conversation={selectedConversation}
+              messages={allMessages}
+              isLoadingMessages={isLoadingMessages}
+              receiverId={
+                selectedConversation.userId || String(selectedConversation.id)
+              }
+              isConnected={isConnected}
+              currentUserId={currentUserId}
+              onMessageSent={addOptimisticMessage}
+            />
+          </>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-gray-500 text-center">
+              <div className="text-4xl mb-4">💬</div>
+              <p className="text-lg font-medium mb-2">
+                No conversation selected
+              </p>
+              <p className="text-sm text-gray-400">
+                Select a conversation to start chatting
+              </p>
+              <div className="mt-4 flex items-center justify-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${isConnected ? "bg-green-500" : "bg-red-500"}`}
+                ></div>
+                <span className="text-xs text-gray-500">
+                  Socket: {isConnected ? "Connected" : "Disconnected"}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // import { useState, useEffect, useMemo } from "react";
 // import { Search, ArrowLeft } from "lucide-react";
 // import ConversationList from "./ConversationList";
@@ -180,7 +706,7 @@
 //   // Fetch message history when conversation is selected
 //   // This API will fetch messages between current user and the selected user
 //   // Use selectedUserId (set when conversation is selected) as withUserId parameter
-//   const { data: messageHistoryData, isLoading: isLoadingMessages } =
+//   const { data: messageHistoryData, isLoading: isLoadingMessages,refetch } =
 //     useGetMessageHistoryQuery(
 //       { withUserId: selectedUserId || withUserId },
 //       {
@@ -203,7 +729,7 @@
 //       );
 //       console.log("   Selected conversation name:", selectedConversation.name);
 //     }
-//   }, [withUserId, selectedConversation]);
+//   }, [withUserId, selectedConversation,refetch]);
 
 //   // Local messages state for real-time updates
 //   const [realTimeMessages, setRealTimeMessages] = useState<
@@ -282,9 +808,9 @@
 //     );
 
 //     return transformed;
-//   }, [messageHistoryData, currentUserId, selectedConversation]);
+//   }, [messageHistoryData, currentUserId, selectedConversation,refetch]);
 
-//   // Listen for real-time messages via Socket.IO
+//   // // Listen for real-time messages via Socket.IO
 //   useEffect(() => {
 //     if (!socket || !currentUserId || !selectedConversation) return;
 
@@ -434,7 +960,6 @@
 //     };
 //   }, [socket, currentUserId, selectedConversation]);
 
-//   // Reset real-time messages when conversation changes
 //   useEffect(() => {
 //     setRealTimeMessages([]);
 //   }, [selectedConversation?.id]);
@@ -650,397 +1175,3 @@
 //     </div>
 //   );
 // }
-
-import { useState, useEffect, useMemo, useRef } from "react";
-import { Search, ArrowLeft } from "lucide-react";
-import ConversationList from "./ConversationList";
-import ChatWindow from "./ChatWindow";
-import {
-  useGetChatListUserQuery,
-  useGetMessageHistoryQuery,
-} from "@/Redux/features/userDa/message/messageApi";
-import { useGetMeMutation } from "@/Redux/features/auth/authApi";
-import { useSocket } from "@/hooks/useSocket";
-import { BeatLoader } from "react-spinners";
-
-interface Conversation {
-  id: number | string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  unread: boolean;
-  userId?: string;
-}
-
-export default function MessagesPage() {
-  const [getMe] = useGetMeMutation();
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | number | null>(
-    null,
-  );
-
-  const { socket, isConnected } = useSocket(currentUserId);
-  const { data: chatListData, isLoading: isLoadingChatList } =
-    useGetChatListUserQuery();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await getMe({}).unwrap();
-        if (response?.data?.userId) {
-          setCurrentUserId(response.data.userId);
-        }
-      } catch (error) {
-        console.error("Failed to get user:", error);
-      }
-    };
-    fetchUser();
-  }, [getMe]);
-
-  const conversations = useMemo(() => {
-    if (!chatListData?.data) return [];
-
-    const chatUsers = Array.isArray(chatListData.data)
-      ? chatListData.data
-      : Object.values(chatListData.data);
-
-    return chatUsers
-      .filter((user: any) => {
-        const userId = String(user.id || user.userId || "");
-        const currentUserIdStr = currentUserId ? String(currentUserId) : "";
-        return userId !== currentUserIdStr;
-      })
-      .map((user: any, index: number) => {
-        const otherUserId = user.id || user.userId;
-        const userIdString = otherUserId ? String(otherUserId) : null;
-
-        return {
-          id: otherUserId || index + 1,
-          name:
-            user.name || user.companyName || user.email || `User ${index + 1}`,
-          avatar:
-            user.avatar ||
-            user.profile ||
-            user.businessLogo ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name || index}`,
-          lastMessage: user.lastMessage || "No messages yet",
-          unread: user.unread || false,
-          userId: userIdString || undefined,
-        };
-      }) as Conversation[];
-  }, [chatListData, currentUserId]);
-
-  const [selectedConversation, setSelectedConversation] =
-    useState<Conversation | null>(
-      conversations.length > 0 ? conversations[0] : null,
-    );
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const filteredConversations = useMemo(() => {
-    if (!searchQuery.trim()) return conversations;
-    const query = searchQuery.toLowerCase();
-    return conversations.filter((conv) =>
-      conv.name.toLowerCase().includes(query),
-    );
-  }, [conversations, searchQuery]);
-
-  useEffect(() => {
-    if (!selectedConversation && conversations.length > 0) {
-      setSelectedConversation(conversations[0]);
-    }
-  }, [conversations, selectedConversation]);
-
-  useEffect(() => {
-    if (selectedConversation) {
-      const userId = selectedConversation.userId || selectedConversation.id;
-      setSelectedUserId(userId);
-    } else {
-      setSelectedUserId(null);
-    }
-  }, [selectedConversation]);
-
-  const withUserId = useMemo(() => {
-    if (!selectedConversation || !currentUserId) return "";
-
-    const otherUserId = selectedConversation.userId
-      ? String(selectedConversation.userId)
-      : String(selectedConversation.id || "");
-
-    const currentUserIdStr = String(currentUserId);
-    if (otherUserId === currentUserIdStr) return "";
-
-    return otherUserId;
-  }, [selectedConversation, currentUserId]);
-
-  const { data: messageHistoryData, isLoading: isLoadingMessages } =
-    useGetMessageHistoryQuery(
-      { withUserId: selectedUserId || withUserId },
-      {
-        skip:
-          !selectedConversation ||
-          !currentUserId ||
-          !selectedUserId ||
-          String(selectedUserId) === String(currentUserId),
-      },
-    );
-
-  const [realTimeMessages, setRealTimeMessages] = useState<
-    Array<{
-      id: number | string;
-      sender: "user" | "other";
-      senderName: string;
-      text: string;
-      timestamp: Date;
-    }>
-  >([]);
-
-  const messages = useMemo(() => {
-    let messagesArray: any[] = [];
-
-    if (Array.isArray(messageHistoryData)) {
-      messagesArray = messageHistoryData;
-    } else if (Array.isArray(messageHistoryData?.data)) {
-      messagesArray = messageHistoryData.data;
-    } else {
-      return [];
-    }
-
-    if (!currentUserId || messagesArray.length === 0) return [];
-
-    const currentUserIdStr = String(currentUserId).trim().toLowerCase();
-
-    return messagesArray.map((msg: any) => {
-      const msgSenderId = String(msg.senderId || "")
-        .trim()
-        .toLowerCase();
-      const isCurrentUser = msgSenderId === currentUserIdStr;
-
-      return {
-        id: msg.messageId || msg.id || Date.now(),
-        sender: (isCurrentUser ? "user" : "other") as "user" | "other",
-        senderName: isCurrentUser
-          ? "You"
-          : selectedConversation?.name || "User",
-        text: msg.text || "",
-        timestamp: msg.createdAt ? new Date(msg.createdAt) : new Date(),
-      };
-    });
-  }, [messageHistoryData, currentUserId, selectedConversation]);
-
-  // Store current receiverId in ref to use in socket listener
-  const receiverIdRef = useRef<string>("");
-
-  useEffect(() => {
-    const receiverId = String(
-      selectedConversation?.userId || selectedConversation?.id || "",
-    );
-    receiverIdRef.current = receiverId;
-  }, [selectedConversation]);
-
-  // Socket listener - তোমার test code এর মত
-  useEffect(() => {
-    if (!socket || !currentUserId) {
-      console.log("⚠️ No socket or currentUserId");
-      return;
-    }
-
-    console.log("🎧 🎧 🎧 SETTING UP SOCKET LISTENER");
-
-    const handleReceiveMessage = (message: any) => {
-      console.log("📨 📨 📨 MESSAGE RECEIVED:", message);
-
-      const currentReceiverId = receiverIdRef.current;
-
-      console.log("🔍 Checking:", {
-        messageSenderId: message.senderId,
-        messageReceiverId: message.receiverId,
-        currentUserId: currentUserId,
-        currentReceiverId: currentReceiverId,
-      });
-
-      // তোমার test code এর exact logic
-      if (
-        message.senderId === currentReceiverId ||
-        message.receiverId === currentReceiverId
-      ) {
-        console.log("✅ ✅ ✅ MESSAGE IS FOR CURRENT CONVERSATION!");
-
-        const isCurrentUser = message.senderId === currentUserId;
-
-        const newMessage = {
-          id: message.messageId || message.id || Date.now(),
-          sender: (isCurrentUser ? "user" : "other") as "user" | "other",
-          senderName: isCurrentUser ? "You" : "Other User",
-          text: message.text || "",
-          timestamp: message.createdAt
-            ? new Date(message.createdAt)
-            : new Date(),
-        };
-
-        setRealTimeMessages((prev) => {
-          // Check duplicate
-          if (prev.some((m) => String(m.id) === String(newMessage.id))) {
-            console.log("⚠️ Duplicate");
-            return prev;
-          }
-
-          // Replace optimistic
-          if (isCurrentUser) {
-            const optimisticIndex = prev.findIndex((m) => {
-              return (
-                typeof m.id === "string" &&
-                m.id.startsWith("temp-") &&
-                m.text.trim() === newMessage.text.trim()
-              );
-            });
-
-            if (optimisticIndex !== -1) {
-              console.log("🔄 Replacing optimistic");
-              const updated = [...prev];
-              updated[optimisticIndex] = newMessage;
-              return updated;
-            }
-          }
-
-          console.log("➕ ADDING MESSAGE");
-          return [...prev, newMessage];
-        });
-      } else {
-        console.log("❌ Not for current conversation");
-      }
-    };
-
-    console.log("👂 Attaching listener");
-    socket.on("receive-message", handleReceiveMessage);
-
-    return () => {
-      console.log("🧹 Cleaning up");
-      socket.off("receive-message", handleReceiveMessage);
-    };
-  }, [socket, currentUserId]); // receiverId নাই - ref use করছি
-
-  // Clear messages when conversation changes
-  useEffect(() => {
-    console.log("🔄 Conversation changed, clearing");
-    setRealTimeMessages([]);
-  }, [selectedConversation?.id]);
-
-  const addOptimisticMessage = useMemo(() => {
-    return (text: string) => {
-      const optimisticId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const optimisticMessage = {
-        id: optimisticId,
-        sender: "user" as const,
-        senderName: "You",
-        text: text.trim(),
-        timestamp: new Date(),
-      };
-
-      console.log("Adding optimistic:", optimisticMessage);
-      setRealTimeMessages((prev) => [...prev, optimisticMessage]);
-    };
-  }, []);
-
-  const allMessages = useMemo(() => {
-    const combined = [...messages, ...realTimeMessages];
-
-    const uniqueMessages = combined.reduce(
-      (acc, msg) => {
-        const existingIndex = acc.findIndex(
-          (m) => String(m.id) === String(msg.id),
-        );
-
-        if (existingIndex === -1) {
-          acc.push(msg);
-        } else {
-          const existing = acc[existingIndex];
-          const isExistingOptimistic =
-            typeof existing.id === "string" && existing.id.startsWith("temp-");
-          const isNewOptimistic =
-            typeof msg.id === "string" && msg.id.startsWith("temp-");
-
-          if (isExistingOptimistic && !isNewOptimistic) {
-            acc[existingIndex] = msg;
-          }
-        }
-
-        return acc;
-      },
-      [] as typeof combined,
-    );
-
-    return uniqueMessages.sort(
-      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
-    );
-  }, [messages, realTimeMessages]);
-
-  return (
-    <div className="flex h-screen bg-white overflow-hidden">
-      <div className="w-full lg:w-80 border-r border-gray-200 flex flex-col hidden lg:flex">
-        <div className="p-4 border-b border-gray-100">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-            Messages
-          </h1>
-        </div>
-
-        <div className="px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-100 rounded-full">
-            <Search size={18} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search conversations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent text-sm text-gray-900 placeholder-gray-500 outline-none flex-1"
-            />
-          </div>
-        </div>
-
-        {isLoadingChatList ? (
-          <div className="flex justify-center items-center py-8">
-            <BeatLoader />
-          </div>
-        ) : (
-          <ConversationList
-            conversations={filteredConversations}
-            selectedConversation={selectedConversation}
-            onSelectConversation={setSelectedConversation}
-          />
-        )}
-      </div>
-
-      <div className="flex-1 flex flex-col">
-        {selectedConversation && (
-          <div className="lg:hidden flex items-center gap-3 p-4 border-b border-gray-200">
-            <button className="p-2 hover:bg-gray-100 rounded-full">
-              <ArrowLeft size={20} />
-            </button>
-            <span className="font-medium text-gray-900">
-              {selectedConversation.name}
-            </span>
-          </div>
-        )}
-
-        {selectedConversation ? (
-          <ChatWindow
-            conversation={selectedConversation}
-            messages={allMessages}
-            isLoadingMessages={isLoadingMessages}
-            receiverId={
-              selectedConversation.userId || String(selectedConversation.id)
-            }
-            isConnected={isConnected}
-            currentUserId={currentUserId}
-            onMessageSent={addOptimisticMessage}
-          />
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-gray-500">
-              Select a conversation to start chatting
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
