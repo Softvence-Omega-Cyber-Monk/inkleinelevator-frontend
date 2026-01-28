@@ -166,8 +166,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL = 'https://inkleinelevator-server.onrender.com/socket/message';
-// const SOCKET_URL = 'https://api.inkleinelevators.com';
+// const SOCKET_URL = 'https://inkleinelevator-server.onrender.com/socket/message';
+const SOCKET_URL = 'https://api.inkleinelevators.com/socket/message';
 
 interface UseSocketReturn {
   socket: Socket | null;

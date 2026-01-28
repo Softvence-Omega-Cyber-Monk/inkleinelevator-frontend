@@ -155,7 +155,7 @@ export default function MessagesPage() {
   }, [conversations, selectedConversation]);
 
   // Fetch message history when conversation is selected
-  const { data: messageHistoryData, isLoading: isLoadingMessages, refetch } =
+  const { data: messageHistoryData, isLoading: isLoadingMessages, } =
     useGetMessageHistoryQuery(
       { withUserId: selectedUserId as string },
       {
@@ -339,7 +339,7 @@ export default function MessagesPage() {
   }, [selectedConversation?.id]);
 
   // Function to add optimistic message
-  const addOptimisticMessage = (text: string, receiverId: string) => {
+  const addOptimisticMessage = (text: string, _receiverId: string) => {
     if (!currentUserId || !selectedConversation) return;
 
     const optimisticId = `temp-${Date.now()}`;
