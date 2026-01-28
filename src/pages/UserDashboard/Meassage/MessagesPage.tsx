@@ -191,20 +191,7 @@ export default function MessagesPage() {
           String(selectedUserId) === String(currentUserId),
       },
     );
-
-  console.log("messageHistoryData:", messageHistoryData);
-  console.log("API called with selectedUserId:", selectedUserId);
-  // Log when API is called
-  useEffect(() => {
-    if (withUserId && selectedConversation) {
-      console.log(
-        "🔄 Fetching message history with selected user ID:",
-        withUserId,
-      );
-      console.log("   Selected conversation name:", selectedConversation.name);
-    }
-  }, [withUserId, selectedConversation]);
-
+  // socket io
   // Local messages state for real-time updates
   const [realTimeMessages, setRealTimeMessages] = useState<
     Array<{
