@@ -87,7 +87,9 @@ function AudienceCard({
       <div className="space-y-3">
         {onTypeChange && (
           <div>
-            <label className="block text-xs text-gray-600 mb-1">Card Type</label>
+            <label className="block text-xs text-gray-600 mb-1">
+              Card Type
+            </label>
             <select
               value={audience.type}
               onChange={(e) => {
@@ -206,12 +208,14 @@ function AudienceCard({
 
 export default function WhyUsSectionTab() {
   const { data, isLoading, refetch } = useGetHowItsForSectionQuery();
+  console.log("hhhhhhhhhhh", data);
   const [createSection] = useCreateHowItsForSectionMutation();
   const [updateSection] = useUpdateHowItsForSectionMutation();
   const [createCard] = useCreateCardMutation();
   const [updateCard] = useUpdateCardMutation();
 
   const sectionData = data?.data;
+  console.log("pro data", sectionData);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -241,25 +245,30 @@ export default function WhyUsSectionTab() {
       });
 
       // Set audience cards from API
-      if (sectionData.audiences && Array.isArray(sectionData.audiences) && sectionData.audiences.length > 0) {
+      if (
+        sectionData.audiences &&
+        Array.isArray(sectionData.audiences) &&
+        sectionData.audiences.length > 0
+      ) {
         // Count cards by type to create unique titles
         const typeCounts: { [key: string]: number } = {};
-        
+
         const cards = sectionData.audiences.map((audience) => {
           const type = audience.type || "";
-          const baseTitle = type === "JOB_REQUESTER" 
-            ? "Job Requisitions" 
-            : type === "CONTRACTOR"
-            ? "Contractors"
-            : `Card ${type}`;
-          
+          const baseTitle =
+            type === "JOB_REQUESTER"
+              ? "Job Requisitions"
+              : type === "CONTRACTOR"
+                ? "Contractors"
+                : `Card ${type}`;
+
           // Count how many of this type we've seen
           typeCounts[type] = (typeCounts[type] || 0) + 1;
           const count = typeCounts[type];
-          
+
           // Add number suffix if there are multiple of the same type
           const title = count > 1 ? `${baseTitle} ${count}` : baseTitle;
-          
+
           return {
             audienceId: audience.audienceId || "",
             type: type,
@@ -269,7 +278,7 @@ export default function WhyUsSectionTab() {
             title: title,
           };
         });
-        
+
         setAudienceCards(cards);
       } else {
         // Initialize with default cards if no audiences exist
@@ -327,11 +336,17 @@ export default function WhyUsSectionTab() {
       for (const card of audienceCards) {
         // Validate type before saving
         if (card.type !== "JOB_REQUESTER" && card.type !== "CONTRACTOR") {
-          toast.error(`Invalid card type: ${card.type}. Must be JOB_REQUESTER or CONTRACTOR.`);
+          toast.error(
+            `Invalid card type: ${card.type}. Must be JOB_REQUESTER or CONTRACTOR.`,
+          );
           continue;
         }
-        
-        if (card.cardTitle.trim() || card.cardSubtitle.trim() || card.bulletText.trim()) {
+
+        if (
+          card.cardTitle.trim() ||
+          card.cardSubtitle.trim() ||
+          card.bulletText.trim()
+        ) {
           if (card.audienceId) {
             await updateCard({
               id: card.audienceId,
@@ -357,7 +372,9 @@ export default function WhyUsSectionTab() {
       refetch();
     } catch (error: any) {
       console.error("Failed to save changes:", error);
-      toast.error(error?.data?.message || "Failed to save changes. Please try again.");
+      toast.error(
+        error?.data?.message || "Failed to save changes. Please try again.",
+      );
     }
   };
 
@@ -377,11 +394,12 @@ export default function WhyUsSectionTab() {
           cardTitle: audience.cardTitle || "",
           cardSubtitle: audience.cardSubtitle || "",
           bulletText: audience.bulletText || "",
-          title: audience.type === "JOB_REQUESTER" 
-            ? "Job Requisitions" 
-            : audience.type === "CONTRACTOR"
-            ? "Contractors"
-            : `Card ${audience.type}`,
+          title:
+            audience.type === "JOB_REQUESTER"
+              ? "Job Requisitions"
+              : audience.type === "CONTRACTOR"
+                ? "Contractors"
+                : `Card ${audience.type}`,
         }));
         setAudienceCards(cards);
       } else {
@@ -519,13 +537,16 @@ export default function WhyUsSectionTab() {
             onTypeChange={(value) => {
               const newCards = [...audienceCards];
               newCards[index].type = value;
-              newCards[index].title = value === "JOB_REQUESTER" ? "Job Requisitions" : "Contractors";
+              newCards[index].title =
+                value === "JOB_REQUESTER" ? "Job Requisitions" : "Contractors";
               setAudienceCards(newCards);
             }}
             onDelete={
               audienceCards.length > 1
                 ? () => {
-                    const newCards = audienceCards.filter((_, i) => i !== index);
+                    const newCards = audienceCards.filter(
+                      (_, i) => i !== index,
+                    );
                     setAudienceCards(newCards);
                   }
                 : undefined
@@ -540,9 +561,13 @@ export default function WhyUsSectionTab() {
           onClick={() => {
             // Determine the type for the new card
             // Always use a valid type: JOB_REQUESTER or CONTRACTOR
-            const hasJobRequester = audienceCards.some(card => card.type === "JOB_REQUESTER");
-            const hasContractor = audienceCards.some(card => card.type === "CONTRACTOR");
-            
+            const hasJobRequester = audienceCards.some(
+              (card) => card.type === "JOB_REQUESTER",
+            );
+            const hasContractor = audienceCards.some(
+              (card) => card.type === "CONTRACTOR",
+            );
+
             // Default to CONTRACTOR, but prefer JOB_REQUESTER if it doesn't exist
             let newType: "JOB_REQUESTER" | "CONTRACTOR" = "CONTRACTOR";
             if (!hasJobRequester) {
@@ -553,14 +578,15 @@ export default function WhyUsSectionTab() {
               // Both types exist, default to CONTRACTOR
               newType = "CONTRACTOR";
             }
-            
+
             // Ensure type is always valid
             if (newType !== "JOB_REQUESTER" && newType !== "CONTRACTOR") {
               newType = "CONTRACTOR";
             }
-            
-            const newTitle = newType === "JOB_REQUESTER" ? "Job Requisitions" : "Contractors";
-            
+
+            const newTitle =
+              newType === "JOB_REQUESTER" ? "Job Requisitions" : "Contractors";
+
             setAudienceCards([
               ...audienceCards,
               {

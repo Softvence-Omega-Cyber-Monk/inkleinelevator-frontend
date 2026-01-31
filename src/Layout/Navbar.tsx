@@ -67,7 +67,8 @@ const Navbar = () => {
             </div>
             <div className="hidden sm:flex items-center text-white text-sm">
               <Mail className="w-4 h-4 mr-2" />
-              <span>{user?.email}</span>
+              {/* <span>{user?.email}</span> */}
+              <h2>kleinelevator@gmail.com</h2>
             </div>
           </div>
         </div>

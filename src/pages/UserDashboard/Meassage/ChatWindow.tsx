@@ -143,7 +143,7 @@
 
 //     // Set sending flag
 //     isSendingRef.current = true;
-    
+
 //     // Clear input immediately
 //     setMessage("");
 
@@ -161,7 +161,7 @@
 //     setLocalMessages(prev => [...prev, optimisticMessage]);
 
 //     let socketSuccess = false;
-    
+
 //     // Try socket first if connected
 //     if (socket && isConnected) {
 //       socketSuccess = sendMessageViaSocket(trimmedMessage);
@@ -174,14 +174,14 @@
 //         receiverId,
 //         text: trimmedMessage,
 //       }).unwrap();
-      
+
 //       console.log('Message sent successfully via API:', result);
-      
+
 //       // Replace optimistic message with real message from API
 //       if (result?.data?.messageId) {
-//         setLocalMessages(prev => 
-//           prev.map(msg => 
-//             msg.id === optimisticId 
+//         setLocalMessages(prev =>
+//           prev.map(msg =>
+//             msg.id === optimisticId
 //               ? {
 //                   ...msg,
 //                   id: result.data.messageId,
@@ -191,14 +191,14 @@
 //           )
 //         );
 //       }
-      
+
 //     } catch (error: any) {
 //       console.error('API send failed:', error);
 //       toast.error(error?.data?.message || "Failed to send message");
-      
+
 //       // Restore message on error
 //       setMessage(trimmedMessage);
-      
+
 //       // Remove optimistic message on error
 //       setTimeout(() => {
 //         setLocalMessages(prev => prev.filter(msg => msg.id !== optimisticId));
@@ -271,7 +271,7 @@
 //           localMessages.map((msg) => {
 //             const isOptimistic = isOptimisticMessage(msg.id);
 //             const isUserMessage = msg.sender === "user";
-            
+
 //             return (
 //               <div
 //                 key={msg.id}
@@ -285,7 +285,7 @@
 //                       size="sm"
 //                     />
 //                   )}
-                  
+
 //                   <div
 //                     className={`rounded-2xl px-5 py-3 shadow-sm relative ${
 //                       isUserMessage
@@ -307,14 +307,14 @@
 //                         >
 //                           {formatTime(msg.timestamp)}
 //                         </span>
-                        
+
 //                         {isOptimistic && (
 //                           <span className="text-xs text-yellow-300 italic flex items-center">
 //                             <Clock className="h-3 w-3 mr-1" />
 //                             Sending
 //                           </span>
 //                         )}
-                        
+
 //                         {isUserMessage && !isOptimistic && (
 //                           <span className="text-xs text-blue-200">
 //                             <CheckCheck className="h-3 w-3" />
@@ -323,7 +323,7 @@
 //                       </div>
 //                     </div>
 //                   </div>
-                  
+
 //                   {isUserMessage && (
 //                     <Avatar
 //                       name="You"
@@ -375,7 +375,7 @@
 //             </button>
 //           </div>
 //         </div>
-        
+
 //         {/* Connection Status */}
 //         <div className="mt-3">
 //           {!isConnected ? (
@@ -402,13 +402,6 @@
 //     </div>
 //   );
 // }
-
-
-
-
-
-
-
 
 import { useState, useEffect, useRef } from "react";
 import { Send, Smile, MoreVertical } from "lucide-react";
@@ -494,6 +487,7 @@ export default function ChatWindow({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isSendingRef = useRef(false); // Prevent duplicate sends
 
+  console.log(conversation);
   // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
