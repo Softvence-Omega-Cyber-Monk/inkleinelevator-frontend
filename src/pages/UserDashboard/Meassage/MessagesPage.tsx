@@ -31,6 +31,7 @@ export default function MessagesPage() {
   // Fetch chat list users
   const { data: chatListData, isLoading: isLoadingChatList } =
     useGetChatListUserQuery();
+  console.log("iam the chart data", chatListData);
 
   // Get current user ID
   useEffect(() => {
@@ -95,6 +96,7 @@ export default function MessagesPage() {
     useState<Conversation | null>(
       conversations.length > 0 ? conversations[0] : null,
     );
+
   const [searchQuery, setSearchQuery] = useState("");
 
   // Update selectedUserId when conversation is selected

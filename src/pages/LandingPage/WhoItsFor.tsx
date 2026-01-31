@@ -192,8 +192,8 @@ const WhoItsFor: React.FC = () => {
                     "Licensed elevator installation companies",
                     "Elevator modernization specialists",
                     "QEI certified inspectors",
-                    "QEI certified inspectors",
                     "Emergency repair technicians",
+                    "Preventive maintenance service providers",
                   ].map((item, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <CircleCheckBig className="w-4 h-4 text-[#00A63E]" />
