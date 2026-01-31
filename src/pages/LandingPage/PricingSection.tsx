@@ -28,7 +28,7 @@ const PricingSection: React.FC = () => {
             Clear and transparent service fee
           </h2>
           <p className="text-[#717182] text-base mt-4">
-            lear pricing, shown upfront so you always know what you’re paying
+            Earn pricing, shown upfront so you always know what you’re paying
             for.
           </p>
         </div>
