@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useBidJobMutation } from "@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi";
+import { useBidJobMutation, useGetElevatorAllRecentBidQuery } from "@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi";
 import BidSubmissionSuccessModal from "./BidSubmissionSuccessModal";
 
 interface QuickBidModalProps {
@@ -29,12 +29,21 @@ const QuickBidModal = ({
   budgetMin = 0,
   budgetMax = 0,
 }: QuickBidModalProps) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Bid job mutation
   const [bidJob] = useBidJobMutation();
+
+  // Fetch user's existing bid for this job
+  const { data: recentBidsData } = useGetElevatorAllRecentBidQuery();
+
+  // Find existing bid for this job
+  const hasAlreadyBid = useMemo(() => {
+    if (!recentBidsData?.data || !jobId) return false;
+    return recentBidsData.data.some((bid) => String(bid.jobId) === String(jobId));
+  }, [recentBidsData, jobId]);
 
   const {
     register,
@@ -104,11 +113,13 @@ const QuickBidModal = ({
       toast.success("Bid submitted successfully!");
       onClose();
     } catch (error: any) {
+      console.log("Error submitting bid:", error);
       const errorMessage =
         error?.data?.message ||
         error?.message ||
         "Failed to submit bid. Please try again.";
       toast.error(errorMessage);
+      onClose();
     } finally {
       setIsSubmitting(false);
     }
@@ -145,12 +156,12 @@ const QuickBidModal = ({
   //   }
   // };
 
-  const handleViewFullDetails = () => {
-    if (jobId) {
-      navigate(`/elevator/jobdetails/${jobId}`);
-    }
-    onClose();
-  };
+  // const handleViewFullDetails = () => {
+  //   if (jobId) {
+  //     navigate(`/elevator/jobdetails/${jobId}`);
+  //   }
+  //   onClose();
+  // };
 
   const formatBudget = (min: number, max: number) => {
     const minFormatted = (min / 1000).toFixed(0) + "k";
@@ -289,17 +300,17 @@ const QuickBidModal = ({
           <div className="flex gap-3 pt-2">
             <button
               type="button"
-              onClick={handleViewFullDetails}
+              onClick={onClose}
               className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             >
-              View Full Details
+              Cancel
             </button>
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || hasAlreadyBid}
               className="flex-1 px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? "Submitting..." : "Submit Bid"}
+              {isSubmitting ? "Submitting..." : hasAlreadyBid ? "Already Bid" : "Submit Bid"}
             </button>
           </div>
         </form>

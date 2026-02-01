@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, CheckCircle2, Circle, X } from "lucide-react";
+import { CheckCircle2, X, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   useGetMeMutation,
   useUpdateProfileMutation,
   useUploadProfileMutation,
 } from "@/Redux/features/auth/authApi";
 import { toast } from "sonner";
-
+import { useGetElevatorPortfolioQuery } from "@/Redux/features/ElevatorDa/portfolio/portfolioApi";
 interface CompanyProfileProps {}
 
 interface PortfolioCardProps {
@@ -16,6 +17,7 @@ interface PortfolioCardProps {
   projectValue: string;
   completedDate: string;
   description: string;
+  jobId: string;
 }
 
 interface CompanyData {
@@ -28,7 +30,9 @@ interface CompanyData {
   phoneNumber: string;
   email: string;
   website: string;
-  businessAddress: string;
+  businessAddress: string | any;
+  licenseInfo?: string;
+  businessLogo?: string;
 }
 
 const PortfolioCard: React.FC<PortfolioCardProps> = ({
@@ -38,7 +42,10 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   projectValue,
   completedDate,
   description,
+  jobId,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -51,12 +58,23 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-            <h3 className="text-base font-semibold text-gray-900 leading-tight">
-              {title}
-            </h3>
-            <span className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium whitespace-nowrap self-start">
-              {status}
-            </span>
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                {title}
+              </h3>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                  {status}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/elevator/jobdetails/${jobId}`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-900 text-white text-xs font-medium hover:bg-gray-800 transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              View Details
+            </button>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-2">
             <span>Project Value: {projectValue}</span>
@@ -248,7 +266,7 @@ const EditableForm: React.FC<{
                 />
               </div>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
@@ -258,7 +276,7 @@ const EditableForm: React.FC<{
                 onChange={(e) => handleChange("email", e.target.value)}
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
           </div>
 
           <div>
@@ -339,12 +357,18 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
   const [uploadProfile, { isLoading: isUploadingProfile }] =
     useUploadProfileMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [portfolioPage, setPortfolioPage] = useState(1);
+  const { data: portfolioData } = useGetElevatorPortfolioQuery({
+    page: portfolioPage,
+    limit: 5,
+  });
+  console.log("iam the portfolio data", portfolioData);
   // Fetch user profile on component mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await getMe({}).unwrap();
+        console.log("iam the data", response);
         if (response.success && response.data) {
           const userData = response.data;
           // console.log("iam the datajjjjjjjj", userData);
@@ -361,6 +385,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                   .filter(Boolean)
               : [],
             yearFounded: userData.yearFounded || "",
+            licenseInfo: (userData as any).licenseInfo || "",
+            businessLogo: (userData as any).businessLogo || "",
             numberOfEmployees: userData.numberOfEmployee || "",
             phoneNumber: userData.phone || "",
             email: userData.email || "",
@@ -436,9 +462,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
       const updatePayload: {
         name?: string;
         phone?: string;
-        email?: string;
         companyName?: string;
-        businessLogo?: string;
+        businessLogo?: string | any;
         companyDescription?: string;
         servicesType?: string;
         yearFounded?: string;
@@ -446,25 +471,23 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         website?: string;
         businessAddress?: string;
         licenseNo?: string;
-        licenseInfo?: string;
+        licenseInfo?: string|any;
         isNotification?: boolean;
       } = {};
 
       // Include ALL fields in payload (even if empty) to ensure proper API handling
-      updatePayload.name = userName || "";
-      updatePayload.phone = data.phoneNumber || "";
-      updatePayload.email = data.email || "";
-      updatePayload.companyName = data.companyName || "";
-      updatePayload.businessLogo = businessLogo || "";
-      updatePayload.companyDescription = data.companyDescription || "";
-      updatePayload.servicesType =
-        data.serviceTypes.length > 0 ? data.serviceTypes.join(", ") : "";
-      updatePayload.yearFounded = data.yearFounded || "";
-      updatePayload.numberOfEmployee = data.numberOfEmployees || "";
-      updatePayload.website = data.website || "";
-      updatePayload.businessAddress = data.businessAddress || "";
-      updatePayload.licenseNo = data.licenseNumber || "";
-      updatePayload.licenseInfo = licenseInfo || "";
+      updatePayload.name = userName || '';
+      updatePayload.phone = data.phoneNumber || '';
+      updatePayload.companyName = data.companyName || '';
+      updatePayload.businessLogo = businessLogo || '';
+      updatePayload.companyDescription = data.companyDescription || '';
+      updatePayload.servicesType = data.serviceTypes.length > 0 ? data.serviceTypes.join(', ') : '';
+      updatePayload.yearFounded = data.yearFounded || '';
+      updatePayload.numberOfEmployee = data.numberOfEmployees || '';
+      updatePayload.website = data.website || '';
+      updatePayload.businessAddress = data.businessAddress || '';
+      updatePayload.licenseNo = data.licenseNumber || '';
+      updatePayload.licenseInfo = licenseInfo || '';
       updatePayload.isNotification = isNotification;
 
       const response = await updateProfile(updatePayload).unwrap();
@@ -494,6 +517,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             email: userData.email || "",
             website: userData.website || "",
             businessAddress: userData.businessAddress || "",
+            licenseInfo: (userData as any).licenseInfo || "",
+            businessLogo: (userData as any).businessLogo || "",
           });
 
           // Update additional fields
@@ -521,6 +546,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             companyName: userData.companyName || "",
             licenseNumber: userData.licenseNo || "",
             companyDescription: userData.companyDescription || "",
+            licenseInfo: (userData as any).licenseInfo || "",
+            businessLogo: (userData as any).businessLogo || "",
             serviceTypes: userData.servicesType
               ? userData.servicesType
                   .split(",")
@@ -672,38 +699,37 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
               {/* Certifications */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-                  Certifications
-                </h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-sm text-gray-700">
-                      AWS API Certified
+                      {/* AWS API Certified */}
+                    {companyData?.licenseInfo}
+                      {}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-sm text-gray-700">
                       ISO Certification
+                      {companyData?.businessLogo}
                     </span>
                   </div>
-                  <div className="flex items-center">
+                  {/* <div className="flex items-center">
                     <Circle className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
                     <span className="text-sm text-gray-400">State License</span>
-                  </div>
-                  <button className="flex items-center text-[#1e293b] text-sm font-medium hover:text-[#0f172a] transition-colors mt-4">
+                  </div> */}
+                  {/* <button className="flex items-center text-[#1e293b] text-sm font-medium hover:text-[#0f172a] transition-colors mt-4">
                     <Plus className="w-4 h-4 mr-1" />
                     Add Certificate
-                  </button>
+                  </button> */}
                 </div>
               </div>
 
               {/* Service Types */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
-                  Service Types
-                </h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Service Types</h3>
                 <div className="flex flex-wrap gap-2">
                   {companyData.serviceTypes.map((type) => (
                     <span
@@ -734,7 +760,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                       Company Details
                     </button>
                     <button
-                      onClick={() => setActiveTab("portfolio")}
+                      onClick={() => setActiveTab('portfolio')}
                       className={`py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === "portfolio"
                           ? "border-[#1e293b] text-[#1e293b]"
@@ -888,22 +914,70 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
                   {activeTab === "portfolio" && (
                     <div className="space-y-4">
-                      <PortfolioCard
-                        image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"
-                        title="Manhattan Office Tower Modernization"
-                        status="Modernization"
-                        projectValue="$2.3M"
-                        completedDate="2018"
-                        description="Successfully completed a total lift modernization with seismic retrofit for safety. A deluxe cabin installation. 510 floors."
-                      />
-                      <PortfolioCard
-                        image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"
-                        title="Manhattan Office Tower Modernization"
-                        status="Modernization"
-                        projectValue="$2.3M"
-                        completedDate="2018"
-                        description="Successfully completed a total lift modernization with seismic retrofit for safety. A deluxe cabin installation. 510 floors."
-                      />
+                      {portfolioData?.data && portfolioData.data.length > 0 ? (
+                        <>
+                          {portfolioData.data.map((item: any) => (
+                            <PortfolioCard
+                              key={item.bidId}
+                              jobId={item.jobId}
+                              image={
+                                item.job?.photo?.[0] ||
+                                "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"
+                              }
+                              title={item.job?.jobTitle || "Untitled Project"}
+                              status={item.job?.jobType || item.status}
+                              projectValue={`$${item.bidAmount}`}
+                              completedDate={
+                                item.completionTimeline || "Date not specified"
+                              }
+                              description={
+                                item.job?.projectDescription?.replace(
+                                  /<[^>]*>?/gm,
+                                  "",
+                                ) || ""
+                              }
+                            />
+                          ))}
+
+                          {/* Pagination */}
+                          <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
+                            <p className="text-sm text-gray-500">
+                              Showing page {portfolioPage}
+                            </p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  setPortfolioPage((prev) =>
+                                    Math.max(prev - 1, 1),
+                                  )
+                                }
+                                disabled={portfolioPage === 1}
+                                className="p-2 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setPortfolioPage((prev) => prev + 1)
+                                }
+                                disabled={
+                                  !portfolioData?.data ||
+                                  portfolioData.data.length < 5
+                                }
+                                className="p-2 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                          <p className="text-gray-500">
+                            No portfolio projects found yet.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

@@ -213,7 +213,9 @@ export default function JobDetailsWithBid() {
       setShowSuccessModal(true) // Show success modal
       toast.success("Bid submitted successfully!")
     } catch (error: any) {
+      console.log("Error submitting bid:", error);
       const errorMessage = error?.data?.message || error?.message || "Failed to submit bid. Please try again.";
+    
       toast.error(errorMessage)
     } finally {
       setIsSubmitting(false)
@@ -569,10 +571,10 @@ export default function JobDetailsWithBid() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isSubmitting || isBidding}
+                  disabled={isSubmitting || isBidding || (!!existingBid)}
                   className="w-full px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {(isSubmitting || isBidding) ? (existingBid ? "Updating..." : "Submitting...") : (existingBid ? "Update Bid" : "Submit Bid")}
+                  {(isSubmitting || isBidding) ? (existingBid ? "Updating..." : "Submitting...") : (existingBid ? "Already Bid" : "Submit Bid")}
                 </button>
               </form>
             </div>
