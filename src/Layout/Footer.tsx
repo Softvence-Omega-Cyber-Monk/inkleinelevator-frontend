@@ -90,7 +90,7 @@ const Footer: React.FC = () => {
           {/* Right - Contact Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-8">
             {/* Address */}
-            <div>
+            {/* <div>
               <h3 className="text-sm font-semibold mb-3">Address</h3>
               <p className="text-gray-400 text-sm leading-relaxed">
                 Kingstone ---
@@ -99,11 +99,11 @@ const Footer: React.FC = () => {
                 <br />
                 Berlin, Germany
               </p>
-            </div>
+            </div> */}
 
             {/* Say Hello */}
             <div>
-              <h3 className="text-sm font-semibold mb-3">Say Hello</h3>
+              {/* <h3 className="text-sm font-semibold mb-3">Say Hello</h3> */}
               <p className="text-gray-400 text-sm mb-1">
                 kleinelevator@gmail.com
               </p>
