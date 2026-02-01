@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Star, Plus, CheckCircle2, Circle, X } from "lucide-react";
+import { Plus, CheckCircle2, Circle, X } from "lucide-react";
 import {
   useGetMeMutation,
   useUpdateProfileMutation,

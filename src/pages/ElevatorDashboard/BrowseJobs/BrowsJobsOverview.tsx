@@ -6,9 +6,9 @@ import MyJobsContent from "./MyJobsContent";
 const BrowsJobsOverview = () => {
   const [activeTab, setActiveTab] = useState("browse");
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationFilter, setLocationFilter] = useState("");
-  const [jobTypeFilter, setJobTypeFilter] = useState("");
-  const [sortOption, setSortOption] = useState("Newest First");
+  const [, setLocationFilter] = useState("");
+  const [, setJobTypeFilter] = useState("");
+  //   const [sortOption, setSortOption] = useState("Newest First");
 
   // Reset filters when tab changes
   const handleTabChange = (tab: string) => {
