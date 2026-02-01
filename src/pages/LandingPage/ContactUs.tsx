@@ -339,24 +339,23 @@ const ContactSection: React.FC = () => {
               className="w-full h-full object-cover"
             />
             <div className="absolute bottom-0 left-0 right-0 bg-gray-900/50 bg-opacity-90 p-8 text-white">
-              <h3 className="text-lg font-semibold mb-3">
+              {/* <h3 className="text-lg font-semibold mb-3">
                 Lorem ipsum dolor sit amet consectetur.
-              </h3>
+              </h3> */}
               <p className="text-sm text-gray-300 mb-4 leading-relaxed">
-                Lorem ipsum dolor sit amet consectetur. Cursus rhoncus elit ut
-                tristique ullamcorper dignissim. Elit parturient sit sed in
-                porta magna ulvamcorper. Ultrices arcu sed sapien scelerisque
-                adipiscing. Urna parturient non laoreet dolor adipiscing amet.
+                In-Klein is a digital platform that connects building owners,
+                property managers, and general contractors with qualified
+                elevator contractors in one place- Instead of endless calls.
+                emails, and delays, users can post jobs, receive competitive
+                bids, and manage projects faster and more transparently.
               </p>
               <p className="text-sm text-gray-300 mb-4 leading-relaxed">
-                Lorem ipsum dolor sit amet consectetur. Tellus tristique nulla
-                rhoncus senectus ullamcorper neque. Bibendum non pellentesque
-                bibendum. Dui consectetur at malesuada metus. Lobortales tempor
-                juirem convallis. Donec luctus molestie in faucibus risus
-                sagittis ante nulla vitae. In leo donm eu lectus ac.
+                From repairs and maintenance to full installations and
+                modernizations, In-Klein streamlines the entire process—saving
+                time, reducing costs, and keeping projects moving.
               </p>
               <div className="mt-6">
-                <p className="text-xs text-gray-400 uppercase mb-1">E-MAIL:</p>
+                <p className="text-xs text-white uppercase mb-1">E-MAIL:</p>
                 <a
                   href="mailto:kleinzlevator@gmail.com"
                   className="text-white underline text-sm hover:text-cyan-400 transition-colors"
@@ -364,9 +363,6 @@ const ContactSection: React.FC = () => {
                   kleinzlevator@gmail.com
                 </a>
               </div>
-              <p className="text-xs text-gray-400 mt-4">
-                Lorem ipsum dolor sit amet consectetur.
-              </p>
             </div>
           </div>
 
