@@ -38,8 +38,8 @@ const ActionsModal: React.FC<ActionsModalProps> = ({ isOpen, onClose, onAction }
     const actions: ActionItem[] = [
         { icon: Eye, label: 'View Details', value: 'view' },
         { icon: Edit, label: 'Edit Bid', value: 'edit' },
-        { icon: Trash2, label: 'Withdraw Bid', value: 'withdraw' },
-        { icon: Download, label: 'Download Proposal', value: 'download' },
+        // { icon: Trash2, label: 'Withdraw Bid', value: 'withdraw' },
+        // { icon: Download, label: 'Download Proposal', value: 'download' },
     ];
 
     const handleAction = (value: string) => {

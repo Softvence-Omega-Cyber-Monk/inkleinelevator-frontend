@@ -223,7 +223,7 @@ const EditableForm: React.FC<{
                 />
               </div>
             </div>
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
               </label>
@@ -233,7 +233,7 @@ const EditableForm: React.FC<{
                 onChange={(e) => handleChange('email', e.target.value)}
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-            </div>
+            </div> */}
           </div>
 
           <div>
@@ -401,7 +401,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
       const updatePayload: {
         name?: string;
         phone?: string;
-        email?: string;
         companyName?: string;
         businessLogo?: string;
         companyDescription?: string;
@@ -418,7 +417,6 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
       // Include ALL fields in payload (even if empty) to ensure proper API handling
       updatePayload.name = userName || '';
       updatePayload.phone = data.phoneNumber || '';
-      updatePayload.email = data.email || '';
       updatePayload.companyName = data.companyName || '';
       updatePayload.businessLogo = businessLogo || '';
       updatePayload.companyDescription = data.companyDescription || '';
@@ -599,7 +597,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
               </div>
 
               {/* Certifications */}
-              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              {/* <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
                 <div className="space-y-3">
                   <div className="flex items-center">
@@ -619,10 +617,10 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     Add Certificate
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Service Types */}
-              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              {/* <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Service Types</h3>
                 <div className="flex flex-wrap gap-2">
                   {companyData.serviceTypes.map((type) => (
@@ -634,7 +632,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     </span>
                   ))}
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Main Content */}
@@ -653,7 +651,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     >
                       Company Details
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => setActiveTab('portfolio')}
                       className={`py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === 'portfolio'
@@ -662,7 +660,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                       }`}
                     >
                       Portfolio
-                    </button>
+                    </button> */}
                   </div>
                 </div>
 
