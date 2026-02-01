@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import {  CheckCircle2, Plus, X } from "lucide-react";
+import { CheckCircle2, X, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   useGetMeMutation,
   useUpdateProfileMutation,
@@ -16,6 +17,7 @@ interface PortfolioCardProps {
   projectValue: string;
   completedDate: string;
   description: string;
+  jobId: string;
 }
 
 interface CompanyData {
@@ -40,7 +42,10 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
   projectValue,
   completedDate,
   description,
+  jobId,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col sm:flex-row gap-4">
@@ -53,12 +58,23 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-2">
-            <h3 className="text-base font-semibold text-gray-900 leading-tight">
-              {title}
-            </h3>
-            <span className="inline-flex items-center px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-medium whitespace-nowrap self-start">
-              {status}
-            </span>
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 leading-tight">
+                {title}
+              </h3>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+                  {status}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/elevator/jobdetails/${jobId}`)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gray-900 text-white text-xs font-medium hover:bg-gray-800 transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              View Details
+            </button>
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600 mb-2">
             <span>Project Value: {projectValue}</span>
@@ -341,8 +357,12 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
   const [uploadProfile, { isLoading: isUploadingProfile }] =
     useUploadProfileMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-const {data:portfolioData} = useGetElevatorPortfolioQuery({})
-console.log("iam the portfolio data", portfolioData)
+  const [portfolioPage, setPortfolioPage] = useState(1);
+  const { data: portfolioData } = useGetElevatorPortfolioQuery({
+    page: portfolioPage,
+    limit: 5,
+  });
+  console.log("iam the portfolio data", portfolioData);
   // Fetch user profile on component mount
   useEffect(() => {
     const fetchProfile = async () => {
@@ -895,20 +915,67 @@ console.log("iam the portfolio data", portfolioData)
                   {activeTab === "portfolio" && (
                     <div className="space-y-4">
                       {portfolioData?.data && portfolioData.data.length > 0 ? (
-                        portfolioData.data.map((item: any) => (
-                          <PortfolioCard
-                            key={item.bidId}
-                            image={item.job?.photo?.[0] || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"}
-                            title={item.job?.jobTitle || "Untitled Project"}
-                            status={item.job?.jobType || item.status}
-                            projectValue={`$${item.bidAmount}`}
-                            completedDate={item.completionTimeline || "Date not specified"}
-                            description={item.job?.projectDescription?.replace(/<[^>]*>?/gm, "") || ""}
-                          />
-                        ))
+                        <>
+                          {portfolioData.data.map((item: any) => (
+                            <PortfolioCard
+                              key={item.bidId}
+                              jobId={item.jobId}
+                              image={
+                                item.job?.photo?.[0] ||
+                                "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"
+                              }
+                              title={item.job?.jobTitle || "Untitled Project"}
+                              status={item.job?.jobType || item.status}
+                              projectValue={`$${item.bidAmount}`}
+                              completedDate={
+                                item.completionTimeline || "Date not specified"
+                              }
+                              description={
+                                item.job?.projectDescription?.replace(
+                                  /<[^>]*>?/gm,
+                                  "",
+                                ) || ""
+                              }
+                            />
+                          ))}
+
+                          {/* Pagination */}
+                          <div className="flex items-center justify-between mt-6 pt-6 border-t border-gray-100">
+                            <p className="text-sm text-gray-500">
+                              Showing page {portfolioPage}
+                            </p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() =>
+                                  setPortfolioPage((prev) =>
+                                    Math.max(prev - 1, 1),
+                                  )
+                                }
+                                disabled={portfolioPage === 1}
+                                className="p-2 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronLeft className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  setPortfolioPage((prev) => prev + 1)
+                                }
+                                disabled={
+                                  !portfolioData?.data ||
+                                  portfolioData.data.length < 5
+                                }
+                                className="p-2 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                              >
+                                <ChevronRight className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        </>
                       ) : (
                         <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                          <p className="text-gray-500">No portfolio projects found yet.</p>
+                          <p className="text-gray-500">
+                            No portfolio projects found yet.
+                          </p>
                         </div>
                       )}
                     </div>
