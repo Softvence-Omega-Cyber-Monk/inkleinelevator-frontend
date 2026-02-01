@@ -1,26 +1,23 @@
 import React, { useState } from "react";
-import { Search, Star, MoreHorizontal, X } from "lucide-react";
+import { Star, MoreHorizontal, X } from "lucide-react";
 import { useGetAllUserByAdminQuery } from "@/Redux/features/AdminDashboard/adminApi";
 import { BeatLoader } from "react-spinners";
 
 // Types
 interface User {
   userId: string;
-  companyName: string;
+  companyName?: string;
   name: string;
   email: string;
   role: string;
   avgRating: number;
   createdAt: string;
   updatedAt: string;
-  license?: string;
-  status?: string;
-  completedJobs?: number;
-  totalEarned?: string;
-  rating?: number;
-  phone?: string;
-  totalRequests?: number;
-  totalSpent?: string;
+  _count?: {
+    jobs: number;
+    bids: number;
+    reviewsReceived: number;
+  };
 }
 
 // Remove unused ApiResponse interface or use it properly
@@ -108,7 +105,7 @@ const ActionModal: React.FC<{
 const RequesterActionModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
-  requester: User | null;
+  requester: User | null|any;
   onAction: (action: string) => void;
 }> = ({ isOpen, onClose, requester, onAction }) => {
   if (!isOpen || !requester) return null;
@@ -178,29 +175,29 @@ const RequesterActionModal: React.FC<{
 };
 
 // SearchBar Component
-const SearchBar: React.FC<{ activeTab: string }> = ({ activeTab }) => {
-  return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
-      <div className="flex-1 relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <input
-          type="text"
-          placeholder={
-            activeTab === "contractors"
-              ? "Search elevator jobs..."
-              : "Search requesters..."
-          }
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
-      </div>
-      <select className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white w-full sm:w-auto sm:min-w-[140px]">
-        <option>
-          {activeTab === "contractors" ? "Jobs Type" : "Request Type"}
-        </option>
-      </select>
-    </div>
-  );
-};
+// const SearchBar: React.FC<{ activeTab: string }> = ({ activeTab }) => {
+//   return (
+//     <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
+//       <div className="flex-1 relative">
+//         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+//         <input
+//           type="text"
+//           placeholder={
+//             activeTab === "contractors"
+//               ? "Search elevator jobs..."
+//               : "Search requesters..."
+//           }
+//           className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+//         />
+//       </div>
+//       <select className="px-4 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white w-full sm:w-auto sm:min-w-[140px]">
+//         <option>
+//           {activeTab === "contractors" ? "Jobs Type" : "Request Type"}
+//         </option>
+//       </select>
+//     </div>
+//   );
+// };
 
 // Tabs Component
 const Tabs: React.FC<{
@@ -266,27 +263,15 @@ const ContractorCard: React.FC<{
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">License:</span>
+          <span className="text-xs text-gray-600">Joined:</span>
           <span className="text-xs text-gray-900 font-medium">
-            {contractor.license || "Not provided"}
+            {new Date(contractor.createdAt).toLocaleDateString()}
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Status:</span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-700">
-            {contractor.status || "Active"}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Completed Jobs:</span>
+          <span className="text-xs text-gray-600">Bids:</span>
           <span className="text-xs text-gray-900 font-medium">
-            {contractor.completedJobs || 0}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Total Earned:</span>
-          <span className="text-xs text-gray-900 font-medium">
-            {contractor.totalEarned || "$0"}
+            {contractor._count?.bids || 0}
           </span>
         </div>
         <div className="flex justify-between items-center">
@@ -334,27 +319,15 @@ const RequesterCard: React.FC<{
 
       <div className="space-y-2">
         <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Phone:</span>
+          <span className="text-xs text-gray-600">Joined:</span>
           <span className="text-xs text-gray-900 font-medium">
-            {requester.phone || "Not provided"}
+            {new Date(requester.createdAt).toLocaleDateString()}
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Status:</span>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-700">
-            {requester.status || "Active"}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Total Requests:</span>
+          <span className="text-xs text-gray-600">Jobs:</span>
           <span className="text-xs text-gray-900 font-medium">
-            {requester.totalRequests || 0}
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-xs text-gray-600">Total Spent:</span>
-          <span className="text-xs text-gray-900 font-medium">
-            {requester.totalSpent || "$0"}
+            {requester._count?.jobs || 0}
           </span>
         </div>
         <div className="flex justify-between items-center">
@@ -432,16 +405,10 @@ const ContractorTable: React.FC<{ contractors: User[] }> = ({
                   Company
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  License
+                  Joined Date
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Completed Jobs
-                </th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Total Earned
+                  Bids
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Rating
@@ -473,18 +440,10 @@ const ContractorTable: React.FC<{ contractors: User[] }> = ({
                     </div>
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-900">
-                    {contractor.license || "Not provided"}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
-                      {contractor.status || "Active"}
-                    </span>
+                    {new Date(contractor.createdAt).toLocaleDateString()}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-900">
-                    {contractor.completedJobs || 0}
-                  </td>
-                  <td className="py-4 px-4 text-sm text-gray-900">
-                    {contractor.totalEarned || "$0"}
+                    {contractor._count?.bids || 0}
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-1">
@@ -567,16 +526,10 @@ const RequesterTable: React.FC<{ requesters: User[] }> = ({ requesters }) => {
                   Name
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Phone
+                  Joined Date
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Total Requests
-                </th>
-                <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Total Spent
+                  Jobs
                 </th>
                 <th className="text-left py-3 px-4 text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Rating
@@ -608,18 +561,10 @@ const RequesterTable: React.FC<{ requesters: User[] }> = ({ requesters }) => {
                     </div>
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-900">
-                    {requester.phone || "Not provided"}
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
-                      {requester.status || "Active"}
-                    </span>
+                    {new Date(requester.createdAt).toLocaleDateString()}
                   </td>
                   <td className="py-4 px-4 text-sm text-gray-900">
-                    {requester.totalRequests || 0}
-                  </td>
-                  <td className="py-4 px-4 text-sm text-gray-900">
-                    {requester.totalSpent || "$0"}
+                    {requester._count?.jobs || 0}
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-1">
@@ -744,7 +689,7 @@ const UserManagement: React.FC = () => {
       page: currentPage,
       limit: 10,
     });
-
+  console.log(elevatorData);
   // Type cast the API responses
   const elevatorResponse = elevatorData as unknown as ApiResponse;
   const requesterResponse = requesterData as unknown as ApiResponse;
@@ -803,7 +748,7 @@ const UserManagement: React.FC = () => {
         </div>
 
         {/* Search Bar */}
-        <SearchBar activeTab={activeTab} />
+        {/* <SearchBar activeTab={activeTab} /> */}
 
         {/* Tabs */}
         <Tabs
