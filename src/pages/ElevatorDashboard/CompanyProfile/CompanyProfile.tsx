@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import {  CheckCircle2, Plus, X } from "lucide-react";
 import {
   useGetMeMutation,
   useUpdateProfileMutation,
   useUploadProfileMutation,
 } from "@/Redux/features/auth/authApi";
 import { toast } from "sonner";
-
+import { useGetElevatorPortfolioQuery } from "@/Redux/features/ElevatorDa/portfolio/portfolioApi";
 interface CompanyProfileProps {}
 
 interface PortfolioCardProps {
@@ -28,7 +28,9 @@ interface CompanyData {
   phoneNumber: string;
   email: string;
   website: string;
-  businessAddress: string;
+  businessAddress: string | any;
+  licenseInfo?: string;
+  businessLogo?: string;
 }
 
 const PortfolioCard: React.FC<PortfolioCardProps> = ({
@@ -339,12 +341,14 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
   const [uploadProfile, { isLoading: isUploadingProfile }] =
     useUploadProfileMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+const {data:portfolioData} = useGetElevatorPortfolioQuery({})
+console.log("iam the portfolio data", portfolioData)
   // Fetch user profile on component mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await getMe({}).unwrap();
+        console.log("iam the data", response);
         if (response.success && response.data) {
           const userData = response.data;
           // console.log("iam the datajjjjjjjj", userData);
@@ -361,6 +365,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                   .filter(Boolean)
               : [],
             yearFounded: userData.yearFounded || "",
+            licenseInfo: (userData as any).licenseInfo || "",
+            businessLogo: (userData as any).businessLogo || "",
             numberOfEmployees: userData.numberOfEmployee || "",
             phoneNumber: userData.phone || "",
             email: userData.email || "",
@@ -437,7 +443,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         name?: string;
         phone?: string;
         companyName?: string;
-        businessLogo?: string;
+        businessLogo?: string | any;
         companyDescription?: string;
         servicesType?: string;
         yearFounded?: string;
@@ -445,7 +451,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         website?: string;
         businessAddress?: string;
         licenseNo?: string;
-        licenseInfo?: string;
+        licenseInfo?: string|any;
         isNotification?: boolean;
       } = {};
 
@@ -491,6 +497,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             email: userData.email || "",
             website: userData.website || "",
             businessAddress: userData.businessAddress || "",
+            licenseInfo: (userData as any).licenseInfo || "",
+            businessLogo: (userData as any).businessLogo || "",
           });
 
           // Update additional fields
@@ -518,6 +526,8 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             companyName: userData.companyName || "",
             licenseNumber: userData.licenseNo || "",
             companyDescription: userData.companyDescription || "",
+            licenseInfo: (userData as any).licenseInfo || "",
+            businessLogo: (userData as any).businessLogo || "",
             serviceTypes: userData.servicesType
               ? userData.servicesType
                   .split(",")
@@ -668,34 +678,37 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
               </div>
 
               {/* Certifications */}
-              {/* <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-sm text-gray-700">
-                      AWS API Certified
+                      {/* AWS API Certified */}
+                    {companyData?.licenseInfo}
+                      {}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
                     <span className="text-sm text-gray-700">
                       ISO Certification
+                      {companyData?.businessLogo}
                     </span>
                   </div>
-                  <div className="flex items-center">
+                  {/* <div className="flex items-center">
                     <Circle className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
                     <span className="text-sm text-gray-400">State License</span>
-                  </div>
-                  <button className="flex items-center text-[#1e293b] text-sm font-medium hover:text-[#0f172a] transition-colors mt-4">
+                  </div> */}
+                  {/* <button className="flex items-center text-[#1e293b] text-sm font-medium hover:text-[#0f172a] transition-colors mt-4">
                     <Plus className="w-4 h-4 mr-1" />
                     Add Certificate
-                  </button>
+                  </button> */}
                 </div>
-              </div> */}
+              </div>
 
               {/* Service Types */}
-              {/* <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Service Types</h3>
                 <div className="flex flex-wrap gap-2">
                   {companyData.serviceTypes.map((type) => (
@@ -707,7 +720,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     </span>
                   ))}
                 </div>
-              </div> */}
+              </div>
             </div>
 
             {/* Main Content */}
@@ -726,7 +739,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     >
                       Company Details
                     </button>
-                    {/* <button
+                    <button
                       onClick={() => setActiveTab('portfolio')}
                       className={`py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === "portfolio"
@@ -735,7 +748,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                       }`}
                     >
                       Portfolio
-                    </button> */}
+                    </button>
                   </div>
                 </div>
 
@@ -881,22 +894,23 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
                   {activeTab === "portfolio" && (
                     <div className="space-y-4">
-                      <PortfolioCard
-                        image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"
-                        title="Manhattan Office Tower Modernization"
-                        status="Modernization"
-                        projectValue="$2.3M"
-                        completedDate="2018"
-                        description="Successfully completed a total lift modernization with seismic retrofit for safety. A deluxe cabin installation. 510 floors."
-                      />
-                      <PortfolioCard
-                        image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"
-                        title="Manhattan Office Tower Modernization"
-                        status="Modernization"
-                        projectValue="$2.3M"
-                        completedDate="2018"
-                        description="Successfully completed a total lift modernization with seismic retrofit for safety. A deluxe cabin installation. 510 floors."
-                      />
+                      {portfolioData?.data && portfolioData.data.length > 0 ? (
+                        portfolioData.data.map((item: any) => (
+                          <PortfolioCard
+                            key={item.bidId}
+                            image={item.job?.photo?.[0] || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"}
+                            title={item.job?.jobTitle || "Untitled Project"}
+                            status={item.job?.jobType || item.status}
+                            projectValue={`$${item.bidAmount}`}
+                            completedDate={item.completionTimeline || "Date not specified"}
+                            description={item.job?.projectDescription?.replace(/<[^>]*>?/gm, "") || ""}
+                          />
+                        ))
+                      ) : (
+                        <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+                          <p className="text-gray-500">No portfolio projects found yet.</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

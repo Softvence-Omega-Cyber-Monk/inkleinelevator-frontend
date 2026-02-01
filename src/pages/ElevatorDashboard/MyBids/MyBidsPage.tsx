@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Info, ChevronLeft, ChevronRight, MoreHorizontal, X, Eye, Edit } from 'lucide-react';
+import { Info, ChevronLeft, ChevronRight, MoreHorizontal, X, Eye,  } from 'lucide-react';
 import { useGetMyBidsQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 
 // Types
@@ -37,7 +37,7 @@ const ActionsModal: React.FC<ActionsModalProps> = ({ isOpen, onClose, onAction }
 
     const actions: ActionItem[] = [
         { icon: Eye, label: 'View Details', value: 'view' },
-        { icon: Edit, label: 'Edit Bid', value: 'edit' },
+        // { icon: Edit, label: 'Edit Bid', value: 'edit' },
         // { icon: Trash2, label: 'Withdraw Bid', value: 'withdraw' },
         // { icon: Download, label: 'Download Proposal', value: 'download' },
     ];
