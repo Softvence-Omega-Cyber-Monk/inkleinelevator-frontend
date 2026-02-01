@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Star, Plus, CheckCircle2, Circle, X } from 'lucide-react';
-import { useGetMeMutation, useUpdateProfileMutation, useUploadProfileMutation } from '@/Redux/features/auth/authApi';
-import { toast } from 'sonner';
+import React, { useState, useEffect, useRef } from "react";
+import { X } from "lucide-react";
+import {
+  useGetMeMutation,
+  useUpdateProfileMutation,
+  useUploadProfileMutation,
+} from "@/Redux/features/auth/authApi";
+import { toast } from "sonner";
 
 interface CompanyProfileProps {}
 
@@ -59,9 +63,7 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
             <span className="hidden sm:inline">•</span>
             <span>Completed: {completedDate}</span>
           </div>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            {description}
-          </p>
+          <p className="text-sm text-gray-600 leading-relaxed">{description}</p>
         </div>
       </div>
     </div>
@@ -75,21 +77,30 @@ const EditableForm: React.FC<{
   isUpdating?: boolean;
 }> = ({ data, onSave, onCancel, isUpdating = false }) => {
   const [formData, setFormData] = useState<CompanyData>(data);
-  const [newServiceType, setNewServiceType] = useState('');
+  const [newServiceType, setNewServiceType] = useState("");
 
   const handleChange = (field: keyof CompanyData, value: string | string[]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const addServiceType = () => {
-    if (newServiceType.trim() && !formData.serviceTypes.includes(newServiceType.trim())) {
-      handleChange('serviceTypes', [...formData.serviceTypes, newServiceType.trim()]);
-      setNewServiceType('');
+    if (
+      newServiceType.trim() &&
+      !formData.serviceTypes.includes(newServiceType.trim())
+    ) {
+      handleChange("serviceTypes", [
+        ...formData.serviceTypes,
+        newServiceType.trim(),
+      ]);
+      setNewServiceType("");
     }
   };
 
   const removeServiceType = (type: string) => {
-    handleChange('serviceTypes', formData.serviceTypes.filter(t => t !== type));
+    handleChange(
+      "serviceTypes",
+      formData.serviceTypes.filter((t) => t !== type),
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -101,8 +112,12 @@ const EditableForm: React.FC<{
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Basic Information */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Basic Information</h3>
-        <p className="text-sm text-gray-500 mb-6">Your company's public profile information</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          Basic Information
+        </h3>
+        <p className="text-sm text-gray-500 mb-6">
+          Your company's public profile information
+        </p>
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -113,7 +128,7 @@ const EditableForm: React.FC<{
               <input
                 type="text"
                 value={formData.companyName}
-                onChange={(e) => handleChange('companyName', e.target.value)}
+                onChange={(e) => handleChange("companyName", e.target.value)}
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -124,7 +139,7 @@ const EditableForm: React.FC<{
               <input
                 type="text"
                 value={formData.licenseNumber}
-                onChange={(e) => handleChange('licenseNumber', e.target.value)}
+                onChange={(e) => handleChange("licenseNumber", e.target.value)}
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -136,7 +151,9 @@ const EditableForm: React.FC<{
             </label>
             <textarea
               value={formData.companyDescription}
-              onChange={(e) => handleChange('companyDescription', e.target.value)}
+              onChange={(e) =>
+                handleChange("companyDescription", e.target.value)
+              }
               rows={4}
               className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -150,7 +167,9 @@ const EditableForm: React.FC<{
               type="text"
               value={newServiceType}
               onChange={(e) => setNewServiceType(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addServiceType())}
+              onKeyPress={(e) =>
+                e.key === "Enter" && (e.preventDefault(), addServiceType())
+              }
               placeholder="Enter service Type"
               className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -181,7 +200,7 @@ const EditableForm: React.FC<{
               <input
                 type="text"
                 value={formData.yearFounded}
-                onChange={(e) => handleChange('yearFounded', e.target.value)}
+                onChange={(e) => handleChange("yearFounded", e.target.value)}
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -192,7 +211,9 @@ const EditableForm: React.FC<{
               <input
                 type="text"
                 value={formData.numberOfEmployees}
-                onChange={(e) => handleChange('numberOfEmployees', e.target.value)}
+                onChange={(e) =>
+                  handleChange("numberOfEmployees", e.target.value)
+                }
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -202,8 +223,12 @@ const EditableForm: React.FC<{
 
       {/* Contact Information */}
       <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Contact Information</h3>
-        <p className="text-sm text-gray-500 mb-6">Your company's public profile information</p>
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          Contact Information
+        </h3>
+        <p className="text-sm text-gray-500 mb-6">
+          Your company's public profile information
+        </p>
 
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,7 +243,7 @@ const EditableForm: React.FC<{
                 <input
                   type="text"
                   value={formData.phoneNumber}
-                  onChange={(e) => handleChange('phoneNumber', e.target.value)}
+                  onChange={(e) => handleChange("phoneNumber", e.target.value)}
                   className="flex-1 px-3 py-2 bg-blue-50 border border-blue-100 rounded-r-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -230,7 +255,7 @@ const EditableForm: React.FC<{
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleChange('email', e.target.value)}
+                onChange={(e) => handleChange("email", e.target.value)}
                 className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div> */}
@@ -243,7 +268,7 @@ const EditableForm: React.FC<{
             <input
               type="text"
               value={formData.website}
-              onChange={(e) => handleChange('website', e.target.value)}
+              onChange={(e) => handleChange("website", e.target.value)}
               className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -255,7 +280,7 @@ const EditableForm: React.FC<{
             <input
               type="text"
               value={formData.businessAddress}
-              onChange={(e) => handleChange('businessAddress', e.target.value)}
+              onChange={(e) => handleChange("businessAddress", e.target.value)}
               className="w-full px-3 py-2 bg-blue-50 border border-blue-100 rounded-md text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -276,7 +301,7 @@ const EditableForm: React.FC<{
           disabled={isUpdating}
           className="px-6 py-2 bg-[#1e293b] text-white rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isUpdating ? 'Saving...' : 'Save Changes'}
+          {isUpdating ? "Saving..." : "Save Changes"}
         </button>
       </div>
     </form>
@@ -284,31 +309,35 @@ const EditableForm: React.FC<{
 };
 
 const CompanyProfile: React.FC<CompanyProfileProps> = () => {
-  const [activeTab, setActiveTab] = useState<'details' | 'portfolio'>('details');
+  const [activeTab, setActiveTab] = useState<"details" | "portfolio">(
+    "details",
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [companyData, setCompanyData] = useState<CompanyData>({
-    companyName: '',
-    licenseNumber: '',
-    companyDescription: '',
+    companyName: "",
+    licenseNumber: "",
+    companyDescription: "",
     serviceTypes: [],
-    yearFounded: '',
-    numberOfEmployees: '',
-    phoneNumber: '',
-    email: '',
-    website: '',
-    businessAddress: '',
+    yearFounded: "",
+    numberOfEmployees: "",
+    phoneNumber: "",
+    email: "",
+    website: "",
+    businessAddress: "",
   });
 
   // Store additional fields from API that are not in CompanyData form
-  const [userName, setUserName] = useState<string>('');
-  const [businessLogo, setBusinessLogo] = useState<string>('');
-  const [licenseInfo, setLicenseInfo] = useState<string>('');
+  const [userName, setUserName] = useState<string>("");
+  const [businessLogo, setBusinessLogo] = useState<string>("");
+  const [licenseInfo, setLicenseInfo] = useState<string>("");
   const [isNotification, setIsNotification] = useState<boolean>(false);
-  const [profileImage, setProfileImage] = useState<string>('');
+  const [profileImage, setProfileImage] = useState<string>("");
 
   const [getMe, { isLoading: isLoadingProfile }] = useGetMeMutation();
+  console.log("iam the data", getMe);
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
-  const [uploadProfile, { isLoading: isUploadingProfile }] = useUploadProfileMutation();
+  const [uploadProfile, { isLoading: isUploadingProfile }] =
+    useUploadProfileMutation();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch user profile on component mount
@@ -318,79 +347,85 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         const response = await getMe({}).unwrap();
         if (response.success && response.data) {
           const userData = response.data;
-          
+          // console.log("iam the datajjjjjjjj", userData);
+
           // Map API response to component state
           setCompanyData({
-            companyName: userData.companyName || '',
-            licenseNumber: userData.licenseNo || '',
-            companyDescription: userData.companyDescription || '',
-            serviceTypes: userData.servicesType 
-              ? userData.servicesType.split(',').map((s: string) => s.trim()).filter(Boolean)
+            companyName: userData.companyName || "",
+            licenseNumber: userData.licenseNo || "",
+            companyDescription: userData.companyDescription || "",
+            serviceTypes: userData.servicesType
+              ? userData.servicesType
+                  .split(",")
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
               : [],
-            yearFounded: userData.yearFounded || '',
-            numberOfEmployees: userData.numberOfEmployee || '',
-            phoneNumber: userData.phone || '',
-            email: userData.email || '',
-            website: userData.website || '',
-            businessAddress: userData.businessAddress || '',
+            yearFounded: userData.yearFounded || "",
+            numberOfEmployees: userData.numberOfEmployee || "",
+            phoneNumber: userData.phone || "",
+            email: userData.email || "",
+            website: userData.website || "",
+            businessAddress: userData.businessAddress || "",
           });
-          
+
           // Store additional fields for payload
-          setUserName(userData.name || '');
-          setBusinessLogo(userData.businessLogo || '');
-          setLicenseInfo(userData.licenseInfo || '');
+          setUserName(userData.name || "");
+          setBusinessLogo(userData.businessLogo || "");
+          setLicenseInfo(userData.licenseInfo || "");
           setIsNotification(userData.isNotification ?? false);
-          setProfileImage(userData.profile || '');
+          setProfileImage(userData.profile || "");
         }
       } catch (error: any) {
-        console.error('Error fetching profile:', error);
-        toast.error(error?.data?.message || 'Failed to load profile');
+        console.error("Error fetching profile:", error);
+        toast.error(error?.data?.message || "Failed to load profile");
       }
     };
 
     fetchProfile();
   }, [getMe]);
 
-  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfileImageUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
 
     try {
       const formData = new FormData();
-      formData.append('profile', file);
+      formData.append("profile", file);
 
       const response = await uploadProfile(formData).unwrap();
-      
+
       if (response.success && response.data?.profile) {
         setProfileImage(response.data.profile);
-        toast.success('Profile image uploaded successfully');
-        
+        toast.success("Profile image uploaded successfully");
+
         // Optionally refetch profile to get latest data
         const refreshResponse = await getMe({}).unwrap();
         if (refreshResponse.success && refreshResponse.data) {
           const userData = refreshResponse.data;
-          setProfileImage(userData.profile || '');
+          setProfileImage(userData.profile || "");
         }
       }
     } catch (error: any) {
-      console.error('Error uploading profile image:', error);
-      toast.error(error?.data?.message || 'Failed to upload profile image');
+      console.error("Error uploading profile image:", error);
+      toast.error(error?.data?.message || "Failed to upload profile image");
     } finally {
       // Reset file input
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
@@ -430,41 +465,44 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
       updatePayload.isNotification = isNotification;
 
       const response = await updateProfile(updatePayload).unwrap();
-      
+
       if (response.success) {
         setCompanyData(data);
         setIsEditing(false);
-        toast.success('Profile updated successfully');
-        
+        toast.success("Profile updated successfully");
+
         // Optionally refetch profile to get latest data
         const refreshResponse = await getMe({}).unwrap();
         if (refreshResponse.success && refreshResponse.data) {
           const userData = refreshResponse.data;
           setCompanyData({
-            companyName: userData.companyName || '',
-            licenseNumber: userData.licenseNo || '',
-            companyDescription: userData.companyDescription || '',
-            serviceTypes: userData.servicesType 
-              ? userData.servicesType.split(',').map((s: string) => s.trim()).filter(Boolean)
+            companyName: userData.companyName || "",
+            licenseNumber: userData.licenseNo || "",
+            companyDescription: userData.companyDescription || "",
+            serviceTypes: userData.servicesType
+              ? userData.servicesType
+                  .split(",")
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
               : [],
-            yearFounded: userData.yearFounded || '',
-            numberOfEmployees: userData.numberOfEmployee || '',
-            phoneNumber: userData.phone || '',
-            email: userData.email || '',
-            website: userData.website || '',
-            businessAddress: userData.businessAddress || '',
+            yearFounded: userData.yearFounded || "",
+            numberOfEmployees: userData.numberOfEmployee || "",
+            phoneNumber: userData.phone || "",
+            email: userData.email || "",
+            website: userData.website || "",
+            businessAddress: userData.businessAddress || "",
           });
-          
+
           // Update additional fields
-          setUserName(userData.name || '');
-          setBusinessLogo(userData.businessLogo || '');
-          setLicenseInfo(userData.licenseInfo || '');
+          setUserName(userData.name || "");
+          setBusinessLogo(userData.businessLogo || "");
+          setLicenseInfo(userData.licenseInfo || "");
           setIsNotification(userData.isNotification ?? false);
         }
       }
     } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast.error(error?.data?.message || 'Failed to update profile');
+      console.error("Error updating profile:", error);
+      toast.error(error?.data?.message || "Failed to update profile");
     }
   };
 
@@ -477,28 +515,31 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         if (response.success && response.data) {
           const userData = response.data;
           setCompanyData({
-            companyName: userData.companyName || '',
-            licenseNumber: userData.licenseNo || '',
-            companyDescription: userData.companyDescription || '',
-            serviceTypes: userData.servicesType 
-              ? userData.servicesType.split(',').map((s: string) => s.trim()).filter(Boolean)
+            companyName: userData.companyName || "",
+            licenseNumber: userData.licenseNo || "",
+            companyDescription: userData.companyDescription || "",
+            serviceTypes: userData.servicesType
+              ? userData.servicesType
+                  .split(",")
+                  .map((s: string) => s.trim())
+                  .filter(Boolean)
               : [],
-            yearFounded: userData.yearFounded || '',
-            numberOfEmployees: userData.numberOfEmployee || '',
-            phoneNumber: userData.phone || '',
-            email: userData.email || '',
-            website: userData.website || '',
-            businessAddress: userData.businessAddress || '',
+            yearFounded: userData.yearFounded || "",
+            numberOfEmployees: userData.numberOfEmployee || "",
+            phoneNumber: userData.phone || "",
+            email: userData.email || "",
+            website: userData.website || "",
+            businessAddress: userData.businessAddress || "",
           });
-          
+
           // Update additional fields
-          setUserName(userData.name || '');
-          setBusinessLogo(userData.businessLogo || '');
-          setLicenseInfo(userData.licenseInfo || '');
+          setUserName(userData.name || "");
+          setBusinessLogo(userData.businessLogo || "");
+          setLicenseInfo(userData.licenseInfo || "");
           setIsNotification(userData.isNotification ?? false);
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
       }
     };
     fetchProfile();
@@ -521,7 +562,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mb-4 sm:mb-6">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-2 sm:mb-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Company Profile</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+              Company Profile
+            </h1>
             {!isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
@@ -531,7 +574,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
               </button>
             )}
           </div>
-          <p className="text-gray-500 text-sm">Your company's public profile information</p>
+          <p className="text-gray-500 text-sm">
+            Your company's public profile information
+          </p>
         </div>
 
         {isEditing ? (
@@ -559,8 +604,18 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                       />
                     ) : (
                       <div className="w-full h-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center">
-                        <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        <svg
+                          className="w-10 h-10 sm:w-12 sm:h-12 text-white"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                          />
                         </svg>
                       </div>
                     )}
@@ -568,14 +623,20 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                   <h2 className="text-base sm:text-lg font-semibold text-gray-900 text-center mb-1">
                     {companyData.companyName}
                   </h2>
-                  <p className="text-sm text-gray-500 mb-3">Elevator Maintenance & Repair</p>
-                  <div className="flex items-center mb-4">
+                  <p className="text-sm text-gray-500 mb-3">
+                    Elevator Maintenance & Repair
+                  </p>
+                  {/* <div className="flex items-center mb-4">
                     <div className="flex items-center">
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="ml-1 text-sm font-medium text-gray-900">4.8</span>
+                      <span className="ml-1 text-sm font-medium text-gray-900">
+                        4.8
+                      </span>
                     </div>
-                    <span className="ml-2 text-sm text-gray-500">(127 reviews)</span>
-                  </div>
+                    <span className="ml-2 text-sm text-gray-500">
+                      (127 reviews)
+                    </span>
+                  </div> */}
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -588,10 +649,20 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     disabled={isUploadingProfile}
                     className="w-full bg-[#1e293b] text-white py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
-                    {isUploadingProfile ? 'Uploading...' : 'Upload Profile'}
+                    {isUploadingProfile ? "Uploading..." : "Upload Profile"}
                   </button>
                 </div>
               </div>
@@ -602,11 +673,15 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">AWS API Certified</span>
+                    <span className="text-sm text-gray-700">
+                      AWS API Certified
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">ISO Certification</span>
+                    <span className="text-sm text-gray-700">
+                      ISO Certification
+                    </span>
                   </div>
                   <div className="flex items-center">
                     <Circle className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
@@ -642,11 +717,11 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                 <div className="border-b border-gray-200 px-4 sm:px-6">
                   <div className="flex space-x-4 sm:space-x-8">
                     <button
-                      onClick={() => setActiveTab('details')}
+                      onClick={() => setActiveTab("details")}
                       className={`py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'details'
-                          ? 'border-[#1e293b] text-[#1e293b]'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                        activeTab === "details"
+                          ? "border-[#1e293b] text-[#1e293b]"
+                          : "border-transparent text-gray-500 hover:text-gray-700"
                       }`}
                     >
                       Company Details
@@ -654,9 +729,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     {/* <button
                       onClick={() => setActiveTab('portfolio')}
                       className={`py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
-                        activeTab === 'portfolio'
-                          ? 'border-[#1e293b] text-[#1e293b]'
-                          : 'border-transparent text-gray-500 hover:text-gray-700'
+                        activeTab === "portfolio"
+                          ? "border-[#1e293b] text-[#1e293b]"
+                          : "border-transparent text-gray-500 hover:text-gray-700"
                       }`}
                     >
                       Portfolio
@@ -666,16 +741,22 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
                 {/* Tab Content */}
                 <div className="p-4 sm:p-6">
-                  {activeTab === 'details' && (
+                  {activeTab === "details" && (
                     <div className="space-y-6">
                       {/* Basic Information */}
                       <div>
-                        <h3 className="text-base font-semibold text-gray-900 mb-4">Basic Information</h3>
-                        <p className="text-sm text-gray-500 mb-4">Your company's public profile information</p>
-                        
+                        <h3 className="text-base font-semibold text-gray-900 mb-4">
+                          Basic Information
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Your company's public profile information
+                        </p>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Company Name
+                            </label>
                             <input
                               type="text"
                               value={companyData.companyName}
@@ -684,7 +765,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">License Number</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              License Number
+                            </label>
                             <input
                               type="text"
                               value={companyData.licenseNumber}
@@ -695,7 +778,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                         </div>
 
                         <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Company Description</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Company Description
+                          </label>
                           <textarea
                             value={companyData.companyDescription}
                             readOnly
@@ -706,7 +791,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Year Founded</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Year Founded
+                            </label>
                             <input
                               type="text"
                               value={companyData.yearFounded}
@@ -715,7 +802,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Number of Employees</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Number of Employees
+                            </label>
                             <input
                               type="text"
                               value={companyData.numberOfEmployees}
@@ -728,12 +817,18 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
                       {/* Contact Information */}
                       <div className="border-t border-gray-200 pt-6">
-                        <h3 className="text-base font-semibold text-gray-900 mb-4">Contact Information</h3>
-                        <p className="text-sm text-gray-500 mb-4">Your company's public profile information</p>
+                        <h3 className="text-base font-semibold text-gray-900 mb-4">
+                          Contact Information
+                        </h3>
+                        <p className="text-sm text-gray-500 mb-4">
+                          Your company's public profile information
+                        </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Phone Number
+                            </label>
                             <div className="flex">
                               <span className="inline-flex items-center px-3 bg-gray-50 border border-r-0 border-gray-300 rounded-l-md text-sm text-gray-700">
                                 +
@@ -758,7 +853,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                         </div>
 
                         <div className="mb-4">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Website</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Website
+                          </label>
                           <input
                             type="url"
                             value={companyData.website}
@@ -768,7 +865,9 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Business Address</label>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Business Address
+                          </label>
                           <input
                             type="text"
                             value={companyData.businessAddress}
@@ -780,7 +879,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                     </div>
                   )}
 
-                  {activeTab === 'portfolio' && (
+                  {activeTab === "portfolio" && (
                     <div className="space-y-4">
                       <PortfolioCard
                         image="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&q=80"

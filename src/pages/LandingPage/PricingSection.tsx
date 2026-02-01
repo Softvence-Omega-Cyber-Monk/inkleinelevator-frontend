@@ -1,6 +1,9 @@
 import React from "react";
 import golmatha from "@/assets/image/golmatha.png";
 import { Check } from "lucide-react";
+import { useAppSelector } from "@/Redux/hooks";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const PricingSection: React.FC = () => {
   const features = [
@@ -12,6 +15,32 @@ const PricingSection: React.FC = () => {
     "Analytics dashboard",
     "Priority support 24x7",
   ];
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
+  const navigate = useNavigate();
+  const handleButtonClick = () => {
+    if (!user) {
+      // User not logged in → go to login page
+      navigate("/login");
+      return;
+    }
+
+    // Navigate based on role
+    switch (user.role) {
+      case "USER":
+        navigate("/user/my-jobs");
+        break;
+      case "ELEVATOR":
+        navigate("/elevator/browse-jobs");
+        break;
+      case "ADMIN":
+      case "SUPER_ADMIN":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/login"); // fallback
+    }
+  };
 
   return (
     <div className="py-16 px-4 bg-[#F8F9FF]">
@@ -28,7 +57,7 @@ const PricingSection: React.FC = () => {
             Clear and transparent service fee
           </h2>
           <p className="text-[#717182] text-base mt-4">
-            lear pricing, shown upfront so you always know what you’re paying
+            Earn pricing, shown upfront so you always know what you’re paying
             for.
           </p>
         </div>
@@ -56,7 +85,10 @@ const PricingSection: React.FC = () => {
           </div>
 
           {/* CTA Button */}
-          <button className="w-full cursor-pointer bg-[#0A1A3A] text-white py-3 rounded-md font-medium hover:bg-gray-900 transition-colors">
+          <button
+            onClick={handleButtonClick}
+            className="w-full cursor-pointer bg-[#0A1A3A] text-white py-3 rounded-md font-medium hover:bg-gray-900 transition-colors"
+          >
             Get Started Free
           </button>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Info, ChevronLeft, ChevronRight, MoreHorizontal, X, Eye, Edit, Trash2, Download } from 'lucide-react';
+import { Info, ChevronLeft, ChevronRight, MoreHorizontal, X, Eye, Edit } from 'lucide-react';
 import { useGetMyBidsQuery } from '@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi';
 
 // Types

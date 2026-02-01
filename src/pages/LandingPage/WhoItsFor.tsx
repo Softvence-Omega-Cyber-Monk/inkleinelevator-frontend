@@ -1,8 +1,37 @@
 import React from "react";
 import golmatha from "@/assets/image/golmatha.png";
 import { CircleCheckBig, Wrench } from "lucide-react";
+import { useAppSelector } from "@/Redux/hooks";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
 
 const WhoItsFor: React.FC = () => {
+  const user = useAppSelector(selectCurrentUser);
+  console.log("iam the user from redux", user);
+  const navigate = useNavigate();
+  const handleButtonClick = () => {
+    if (!user) {
+      // User not logged in → go to login page
+      navigate("/login");
+      return;
+    }
+
+    // Navigate based on role
+    switch (user.role) {
+      case "USER":
+        navigate("/user/my-jobs");
+        break;
+      case "ELEVATOR":
+        navigate("/elevator/browse-jobs");
+        break;
+      case "ADMIN":
+      case "SUPER_ADMIN":
+        navigate("/admin");
+        break;
+      default:
+        navigate("/login"); // fallback
+    }
+  };
   return (
     <div className="py-16 bg-white">
       <div className="max-w-[1500px] mx-auto py-12">
@@ -159,7 +188,10 @@ const WhoItsFor: React.FC = () => {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full bg-gray-900 cursor-pointer  text-white py-3 rounded-md font-medium hover:bg-gray-700 transition-colors">
+              <button
+                onClick={handleButtonClick}
+                className="w-full bg-gray-900 cursor-pointer  text-white py-3 rounded-md font-medium hover:bg-gray-700 transition-colors"
+              >
                 Post a Job
               </button>
             </div>
@@ -192,8 +224,8 @@ const WhoItsFor: React.FC = () => {
                     "Licensed elevator installation companies",
                     "Elevator modernization specialists",
                     "QEI certified inspectors",
-                    "QEI certified inspectors",
                     "Emergency repair technicians",
+                    "Preventive maintenance service providers",
                   ].map((item, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <CircleCheckBig className="w-4 h-4 text-[#00A63E]" />
@@ -283,7 +315,10 @@ const WhoItsFor: React.FC = () => {
               </div>
 
               {/* CTA Button */}
-              <button className="w-full cursor-pointer bg-cyan-400 text-white py-3 rounded-md font-medium hover:bg-cyan-500 transition-colors">
+              <button
+                onClick={handleButtonClick}
+                className="w-full cursor-pointer bg-cyan-400 text-white py-3 rounded-md font-medium hover:bg-cyan-500 transition-colors"
+              >
                 Find Elevator Job
               </button>
             </div>

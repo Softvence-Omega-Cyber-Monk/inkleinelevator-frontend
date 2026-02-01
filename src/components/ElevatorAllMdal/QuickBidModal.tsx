@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBidJobMutation, useGetElevatorAllRecentBidQuery } from "@/Redux/features/ElevatorDa/elevatorbid/elevatorbidApi";
 import BidSubmissionSuccessModal from "./BidSubmissionSuccessModal";
@@ -29,7 +29,7 @@ const QuickBidModal = ({
   budgetMin = 0,
   budgetMax = 0,
 }: QuickBidModalProps) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -156,12 +156,12 @@ const QuickBidModal = ({
   //   }
   // };
 
-  const handleViewFullDetails = () => {
-    if (jobId) {
-      navigate(`/elevator/jobdetails/${jobId}`);
-    }
-    onClose();
-  };
+  // const handleViewFullDetails = () => {
+  //   if (jobId) {
+  //     navigate(`/elevator/jobdetails/${jobId}`);
+  //   }
+  //   onClose();
+  // };
 
   const formatBudget = (min: number, max: number) => {
     const minFormatted = (min / 1000).toFixed(0) + "k";

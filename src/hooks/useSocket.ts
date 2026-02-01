@@ -30,7 +30,7 @@
 //       console.log(`🔄 Creating Socket.io connection for user: ${userId}`);
 
 //       const newSocket = io(SOCKET_URL, {
-//         query: { 
+//         query: {
 //           userId,
 //           clientType: 'web',
 //           timestamp: Date.now()
@@ -64,10 +64,10 @@
 //           description: err.description,
 //           attempts: connectionAttempts.current
 //         });
-        
+
 //         setIsConnected(false);
 //         connectionAttempts.current += 1;
-        
+
 //         if (connectionAttempts.current >= MAX_RETRIES) {
 //           setError('Unable to establish real-time connection. Using API fallback.');
 //           console.log('Max connection attempts reached, giving up on WebSocket');
@@ -79,7 +79,7 @@
 //       newSocket.on('disconnect', (reason) => {
 //         console.log('⚠️ Socket.io disconnected:', reason);
 //         setIsConnected(false);
-        
+
 //         if (reason === 'io server disconnect') {
 //           setError('Server disconnected. Will try to reconnect...');
 //         }
@@ -159,15 +159,11 @@
 //   return { socket, isConnected, error, reconnect };
 // };
 
-
-
-
-
-import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 // const SOCKET_URL = 'https://inkleinelevator-server.onrender.com/socket/message';
-const SOCKET_URL = 'https://api.inkleinelevators.com/socket/message';
+const SOCKET_URL = "https://api.inkleinelevators.com/socket/message";
 
 interface UseSocketReturn {
   socket: Socket | null;
@@ -181,7 +177,7 @@ export const useSocket = (userId: string | null): UseSocketReturn => {
 
   useEffect(() => {
     if (!userId) {
-      // Disconnect if no user ID
+      console.log("⚠️ No userId, skipping socket");
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
@@ -191,28 +187,43 @@ export const useSocket = (userId: string | null): UseSocketReturn => {
       return;
     }
 
-    // Create socket connection
+    console.log("🔌 Connecting socket for user:", userId);
+    console.log("🔌 Socket URL:", SOCKET_URL);
+
     const newSocket = io(SOCKET_URL, {
-      query: { userId },
-      transports: ['websocket', 'polling'],
+      query: { userId: userId },
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
     });
 
-    // Connection event handlers
-    newSocket.on('connect', () => {
-      console.log('Socket connected');
+    newSocket.on("connect", () => {
+      console.log("✅ ✅ ✅ Socket CONNECTED successfully!");
+      console.log("   Socket ID:", newSocket.id);
+      console.log("   User ID:", userId);
+      console.log("   Transport:", newSocket.io.engine.transport.name);
       setIsConnected(true);
     });
 
-    newSocket.on('disconnect', () => {
-      console.log('Socket disconnected');
+    newSocket.on("disconnect", (reason) => {
+      console.log("❌ Socket disconnected. Reason:", reason);
       setIsConnected(false);
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("❌ Connection error:", error.message);
+    });
+
+    // IMPORTANT: Log ALL socket events
+    newSocket.onAny((eventName, ...args) => {
+      console.log(`📡 📡 📡 Socket event received: "${eventName}"`, args);
     });
 
     socketRef.current = newSocket;
     setSocket(newSocket);
 
-    // Cleanup on unmount or userId change
     return () => {
+      console.log("🧹 Disconnecting socket for user:", userId);
       if (socketRef.current) {
         socketRef.current.disconnect();
         socketRef.current = null;
