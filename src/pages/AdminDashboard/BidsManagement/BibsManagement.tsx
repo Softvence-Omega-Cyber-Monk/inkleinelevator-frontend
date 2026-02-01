@@ -42,7 +42,7 @@ const ActionModal: React.FC<{
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-sm">
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h3 className="text-base font-semibold text-gray-900">Action</h3>
@@ -77,18 +77,18 @@ const AllBiddersModal: React.FC<{
   onClose: () => void;
   bids: Bid[];
   jobTitle: string;
-}> = ({ isOpen, onClose, bids }) => {
+}> = ({ isOpen, onClose, bids, jobTitle }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4 font-sans">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
           <div>
-            <h3 className="text-base sm:text-lg font-semibold text-gray-900">All Bids</h3>
-            <p className="text-xs text-gray-500 mt-1">Monitor and review all contractor bid submissions</p>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900">Bids for Job</h3>
+            <p className="text-xs text-gray-500 mt-1 truncate max-w-[200px]">{jobTitle}</p>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded focus:outline-none flex-shrink-0">
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded focus:outline-none flex-shrink-0 transition-colors">
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
@@ -113,19 +113,117 @@ const AllBiddersModal: React.FC<{
                         }`}
                       />
                     ))}
-                    <span className="text-xs text-gray-600 ml-1">{bid.rating || 5} (7 project)</span>
+                    <span className="text-xs text-gray-600 ml-1">{bid.rating || 5}</span>
                   </div>
-                  <p className="text-xs text-gray-500">{bid.experience || 'Est. 30-40 days completion experience'}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
                   <div className="text-lg font-bold text-gray-900">{bid.bidAmount}</div>
                   <div className="text-xs text-gray-500 mt-1">
-                    {bid.timeline === '16 weeks' ? 'Est. 1 week' : bid.timeline}
+                    {bid.timeline}
                   </div>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Bid Details Modal Component
+const BidDetailsModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+  bid: Bid | null;
+}> = ({ isOpen, onClose, bid }) => {
+  if (!isOpen || !bid) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 bg-opacity-50 flex items-center justify-center z-50 p-4 font-sans">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 transition-colors">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Bid Details</h3>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded focus:outline-none transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        <div className="p-4 sm:p-6 space-y-8">
+          {/* Top Section: Contractor & Job Info */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Contractor Information</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase font-bold mb-0.5">Company Name</div>
+                  <div className="text-sm font-semibold text-gray-900">{bid.contractor}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase font-bold mb-0.5">Email Address</div>
+                  <div className="text-sm text-gray-900 break-all">{bid.contractorEmail}</div>
+                </div>
+                <div className="flex items-center gap-2 pt-1 border-t border-gray-200">
+                  <div className="text-[10px] text-gray-500 uppercase font-bold">Rating:</div>
+                  <div className="flex items-center gap-1">
+                    <Star className="w-3.5 h-3.5 fill-orange-400 text-orange-400" />
+                    <span className="text-sm font-medium text-gray-900">{bid.rating}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Job Information</h4>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase font-bold mb-0.5">Job Title</div>
+                  <div className="text-sm font-semibold text-gray-900 truncate">{bid.job}</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-gray-500 uppercase font-bold mb-0.5">Requester</div>
+                  <div className="text-sm text-gray-900">{bid.requester}</div>
+                </div>
+                <div>
+                    <div className="text-[10px] text-gray-500 uppercase font-bold mb-0.5">Status</div>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase transition-colors ${
+                        bid.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                        {bid.status}
+                    </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bid Section */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Financial & Timeline</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 transition-colors">
+                <div className="text-[10px] text-blue-600 font-bold uppercase mb-1">Bid Amount</div>
+                <div className="text-lg font-bold text-blue-900">{bid.bidAmount}</div>
+              </div>
+              <div className="bg-red-50 border border-red-100 rounded-lg p-4 transition-colors">
+                <div className="text-[10px] text-red-600 font-bold uppercase mb-1">Platform Fee (10%)</div>
+                <div className="text-lg font-bold text-red-900">{bid.platformFee}</div>
+              </div>
+              <div className="bg-green-50 border border-green-100 rounded-lg p-4 transition-colors">
+                <div className="text-[10px] text-green-600 font-bold uppercase mb-1">Timeline</div>
+                <div className="text-lg font-bold text-green-900">{bid.timeline}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Proposal Section */}
+          <div className="space-y-4">
+            <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Proposal / Brief</h4>
+            <div className="bg-white border border-gray-200 rounded-lg p-4 sm:p-6 shadow-sm">
+              <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {bid.experience || "No additional proposal details provided."}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -271,6 +369,7 @@ const BidsTable: React.FC<{ bids: Bid[]; onActionClick: (bid: Bid) => void }> = 
 const BidsManagement: React.FC = () => {
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [isAllBiddersModalOpen, setIsAllBiddersModalOpen] = useState(false);
+  const [isBidDetailsModalOpen, setIsBidDetailsModalOpen] = useState(false);
   const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -327,7 +426,8 @@ const BidsManagement: React.FC = () => {
       // Get contractor info
       const contractorName = bid.user?.companyName || bid.user?.name || 'Unknown Contractor';
       const contractorEmail = bid.user?.email || 'No email';
-
+console.log(bid.job)
+console.log(bid.user)
       // Get job info
       const jobTitle = bid.job?.jobTitle || bid.jobTitle || 'Untitled Job';
       const jobDetails = bid.job?.user?.name || bid.requesterName || 'Unknown Requester';
@@ -393,7 +493,7 @@ const BidsManagement: React.FC = () => {
 
   const handleViewBids = () => {
     setIsActionModalOpen(false);
-    // Handle view bids logic
+    setIsBidDetailsModalOpen(true);
   };
 
   const handleViewAllBidders = () => {
@@ -538,6 +638,12 @@ const BidsManagement: React.FC = () => {
           onClose={() => setIsAllBiddersModalOpen(false)}
           bids={allBidders}
           jobTitle={selectedBid?.job || ''}
+        />
+
+        <BidDetailsModal
+          isOpen={isBidDetailsModalOpen}
+          onClose={() => setIsBidDetailsModalOpen(false)}
+          bid={selectedBid}
         />
       </div>
     </div>
