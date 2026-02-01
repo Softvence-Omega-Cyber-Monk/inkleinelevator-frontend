@@ -97,11 +97,11 @@ export default function HireSignupForm() {
 
       {/* Right Side */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white p-4">
-        <div className="max-w-2xl h-[700px] w-full flex items-center justify-center border border-gray-200 shadow-md rounded-2xl">
+        <div className="max-w-2xl h-[750px] w-full flex items-center justify-center border border-gray-200 shadow-md rounded-2xl">
           <div className="max-w-md w-full">
             {/* Header */}
             <div className="mb-8 text-center">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2 pt-8">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2 pt-3">
                 Create an account
               </h1>
               <p className="text-gray-500 text-sm">Enter your details</p>
@@ -109,7 +109,7 @@ export default function HireSignupForm() {
 
             {/* STEP 1 */}
             {step === 1 && (
-              <div className="space-y-5">
+              <div className="space-y-5 ">
                 {/* Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-900 mb-2">
