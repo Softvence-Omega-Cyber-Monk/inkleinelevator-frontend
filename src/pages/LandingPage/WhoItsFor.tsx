@@ -76,7 +76,8 @@ const WhoItsFor: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900">
-                  For Job Requesters
+                  {/* For Job Requesters */}
+                  For Contractors
                 </h3>
                 <p className="text-sm text-gray-500">
                   Property managers, building owners & general contractors
@@ -206,7 +207,8 @@ const WhoItsFor: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 ">
-                  For Contractors
+                  {/* For Contractors */}
+                  For Job Requesters
                 </h3>
                 <p className="text-sm text-gray-500">
                   Licensed elevator companies & certified technicians
