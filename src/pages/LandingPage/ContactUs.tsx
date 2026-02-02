@@ -357,10 +357,10 @@ const ContactSection: React.FC = () => {
               <div className="mt-6">
                 <p className="text-xs text-white uppercase mb-1">E-MAIL:</p>
                 <a
-                  href="mailto:kleinzlevator@gmail.com"
+                  href="mailto:kleinelevator@gmailcom"
                   className="text-white underline text-sm hover:text-cyan-400 transition-colors"
                 >
-                  kleinzlevator@gmail.com
+                  kleinelevator@gmailcom
                 </a>
               </div>
             </div>
