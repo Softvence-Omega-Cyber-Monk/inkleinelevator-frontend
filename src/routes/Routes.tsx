@@ -39,6 +39,7 @@ import AdminDashboardOverview from "@/pages/AdminDashboard/AdminDashboardOvervie
 import Forgotpassword from "@/pages/Forgotpassword";
 import OtpVerify from "@/pages/OtpVerify";
 import ResetPassword from "@/pages/ResetPassword";
+import TremsConditionPage from "@/pages/TremsConditionPage";
 
 const routes = createBrowserRouter([
   {
@@ -65,6 +66,10 @@ const routes = createBrowserRouter([
       {
         path: "/how-it-works",
         element: <HoeItWorks />,
+      },
+      {
+        path: "/trms-conditions",
+        element: <TremsConditionPage />,
       },
       {
         path: "/success-stories",
