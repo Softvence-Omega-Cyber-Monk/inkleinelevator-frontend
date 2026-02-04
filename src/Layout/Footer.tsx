@@ -2,7 +2,7 @@ import React from "react";
 import { Facebook, Twitter, Youtube, Linkedin } from "lucide-react";
 import { useAppSelector } from "@/Redux/hooks";
 import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Footer: React.FC = () => {
   const user = useAppSelector(selectCurrentUser);
@@ -174,18 +174,19 @@ const Footer: React.FC = () => {
 
             {/* Legal Links */}
             <div className="flex gap-6 text-sm">
-              <a
-                href="#"
+              <Link
+                to="trms-conditions"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Terms and Conditions
-              </a>
-              <a
+              </Link>
+
+              {/* <a
                 href="#"
                 className="text-gray-400 hover:text-white transition-colors"
               >
                 Privacy Policy
-              </a>
+              </a> */}
             </div>
           </div>
         </div>
