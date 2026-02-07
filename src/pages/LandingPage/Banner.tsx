@@ -19,7 +19,7 @@
 //           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 //             {/* Text Section */}
 //             <div className="text-white py-12 lg:py-20 relative">
-//               {/* Social Media Icons - Vertical Left Side with "FOLLOW US" */}
+//               {/* Social Media Icons - Vertical Left Side with " " */}
 //               <div className="hidden lg:flex absolute -left-20 top-1/2 -translate-y-1/2 flex-col items-center gap-4 z-10">
 //                 <a
 //                   href="#"
