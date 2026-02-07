@@ -4,7 +4,7 @@ import UserDashboardAnalytics from "@/components/userDashboardComponent/UserDash
 
 import { useGetAllActiveJobsUserDashboardQuery } from "@/Redux/features/userDa/userJob/userJobApi";
 import { useGetUserAllRecentActivityQuery } from "@/Redux/features/userDa/userRecentActivity/userRecentActivityApi";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
