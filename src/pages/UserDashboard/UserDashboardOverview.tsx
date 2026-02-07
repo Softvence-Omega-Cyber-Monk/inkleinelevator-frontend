@@ -1,8 +1,10 @@
 import ActivitySkeleton from "@/common/Skeleton/ActivitySkeleton";
+import TermsModal from "@/components/TrmsModal/TermsModal";
 import UserDashboardAnalytics from "@/components/userDashboardComponent/UserDashboardAnalytics";
 
 import { useGetAllActiveJobsUserDashboardQuery } from "@/Redux/features/userDa/userJob/userJobApi";
 import { useGetUserAllRecentActivityQuery } from "@/Redux/features/userDa/userRecentActivity/userRecentActivityApi";
+import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
@@ -38,8 +40,18 @@ const UserDashboardOverview = () => {
     const days = Math.floor(diff / 86400);
     return `${days} day${days > 1 ? "s" : ""} ago`;
   }
+
+  // for this  trms condition modal
+  const [showTerms, setShowTerms] = useState(false);
+
+  // useEffect(() => {
+  //   if (user && user.termsAccepted === false) {
+  //     setShowTerms(true);
+  //   }
+  // }, [user]);
   return (
     <>
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
       <div>
         {/* trmas modal here  */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between  pt-8 mb-10">
