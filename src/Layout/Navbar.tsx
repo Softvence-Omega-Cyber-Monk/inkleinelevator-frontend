@@ -196,7 +196,7 @@ const Navbar = () => {
                 {user ? (
                   <button
                     onClick={handleLogout}
-                    className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                    className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium  hover:scale-[1.02] transition-all duration-500 ease-out transform"
                   >
                     Logout
                   </button>
@@ -206,7 +206,7 @@ const Navbar = () => {
                       navigate("/login");
                       setIsOpen(false);
                     }}
-                    className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                    className="border-2 border-white text-white hover:bg-white hover:text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium  hover:scale-[1.02] transition-all duration-500 ease-out transform"
                   >
                     Login
                   </button>
@@ -216,7 +216,7 @@ const Navbar = () => {
                     handleButtonClick;
                     setIsOpen(false);
                   }}
-                  className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                  className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium  hover:scale-[1.02] transition-all duration-500 ease-out transform"
                 >
                   Get Started
                 </button>
@@ -227,7 +227,7 @@ const Navbar = () => {
                   navigate("/get-started");
                   setIsOpen(false);
                 }}
-                className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium transition-all"
+                className="bg-teal-400 hover:bg-teal-500 text-[#0a1f44] w-full px-4 py-2 rounded-md font-medium hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Get Started
               </button>
