@@ -129,12 +129,7 @@ const Footer: React.FC = () => {
                 >
                   <Youtube size={16} />
                 </a>
-                <a
-                  href="#"
-                  className="w-8 h-8 bg-[#2a2a2a] rounded flex items-center justify-center hover:bg-[#3a3a3a] transition-colors"
-                >
-                  <Linkedin size={16} />
-                </a>
+              
               </div> */}
             </div>
           </div>
