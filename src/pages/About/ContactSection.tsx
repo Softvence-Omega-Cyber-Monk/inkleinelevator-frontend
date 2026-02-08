@@ -79,7 +79,7 @@ export default function ContactSection() {
 
             <button
               onClick={handleContactClick}
-              className="w-full md:w-auto px-10 py-3 cursor-pointer bg-[#0B163B] text-white rounded-lg font-bold transition-all hover:bg-[#1a2b5a] active:scale-95"
+              className="w-full md:w-auto px-10 py-3 cursor-pointer bg-[#0B163B] text-white rounded-lg font-bold  hover:bg-[#1a2b5a] active:scale-95 hover:scale-[1.02] transition-all duration-500 ease-out transform"
             >
               Contact Us
             </button>
@@ -103,7 +103,7 @@ export default function ContactSection() {
 
             <button
               onClick={handleButtonClick}
-              className="w-full md:w-auto px-10 cursor-pointer py-3 border-2 border-[#EBEBFF] bg-white text-[#0B163B] rounded-lg font-bold transition-all hover:bg-gray-50 active:scale-95"
+              className="w-full md:w-auto px-10 cursor-pointer py-3 border-2 border-[#EBEBFF] bg-white text-[#0B163B] rounded-lg font-bold  hover:bg-gray-50 active:scale-95 hover:scale-[1.02] transition-all duration-500 ease-out transform"
             >
               Sign Up Free
             </button>

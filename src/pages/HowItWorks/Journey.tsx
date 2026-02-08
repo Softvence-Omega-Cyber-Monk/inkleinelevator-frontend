@@ -302,7 +302,7 @@ const ChooseJourney: React.FC = () => {
         <div className="flex justify-center gap-3 mb-16">
           <button
             onClick={() => setActiveTab("need")}
-            className={`px-6 py-2.5 rounded font-medium cursor-pointer text-sm flex items-center gap-2 transition-colors ${
+            className={`px-6 py-2.5 rounded font-medium cursor-pointer text-sm flex items-center gap-2  hover:scale-[1.02] transition-all duration-500 ease-out transform ${
               activeTab === "need"
                 ? "bg-gray-900 text-white"
                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
@@ -313,7 +313,7 @@ const ChooseJourney: React.FC = () => {
 
           <button
             onClick={() => setActiveTab("provide")}
-            className={`px-6 py-2.5 rounded font-medium text-sm cursor-pointer  flex items-center gap-2 transition-colors ${
+            className={`px-6 py-2.5 rounded font-medium text-sm cursor-pointer  flex items-center gap-2  hover:scale-[1.02] transition-all duration-500 ease-out transform ${
               activeTab === "provide"
                 ? "bg-gray-900 text-white"
                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"

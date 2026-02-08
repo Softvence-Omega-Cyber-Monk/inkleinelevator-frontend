@@ -74,13 +74,13 @@ const Footer: React.FC = () => {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={handleButtonClick}
-                className="bg-[#2dd4bf] text-black px-6 py-3  cursor-pointer rounded font-medium hover:bg-[#2dd4bf]/90 transition-colors"
+                className="bg-[#2dd4bf] text-black px-6 py-3  cursor-pointer rounded font-medium hover:bg-[#2dd4bf]/90  hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Get started
               </button>
               <button
                 onClick={handleContactClick}
-                className="bg-white text-black px-6 py-3 cursor-pointer rounded font-medium hover:bg-gray-100 transition-colors"
+                className="bg-white text-black px-6 py-3 cursor-pointer rounded font-medium hover:bg-gray-100  hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Contact Us
               </button>

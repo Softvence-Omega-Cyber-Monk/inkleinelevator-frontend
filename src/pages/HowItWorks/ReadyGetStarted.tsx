@@ -61,13 +61,13 @@ const ReadyGetStarted: React.FC = () => {
         <div className="flex items-center justify-center gap-3">
           <button
             onClick={handleButtonClick}
-            className="px-6 py-2.5 bg-white cursor-pointer text-gray-900 rounded font-medium text-sm hover:bg-gray-300 transition-colors"
+            className="px-6 py-2.5 bg-white cursor-pointer text-gray-900 rounded font-medium text-sm hover:bg-gray-300  hover:scale-[1.02] transition-all duration-500 ease-out transform"
           >
             Create Free Account
           </button>
           <button
             onClick={handleContactClick}
-            className="px-6 py-2.5 bg-transparent cursor-pointer text-white border border-white rounded font-medium text-sm hover:bg-white hover:text-gray-900 transition-colors"
+            className="px-6 py-2.5 bg-transparent cursor-pointer text-white border border-white rounded font-medium text-sm hover:bg-white hover:text-gray-900  hover:scale-[1.02] transition-all duration-500 ease-out transform"
           >
             Contact Us
           </button>
