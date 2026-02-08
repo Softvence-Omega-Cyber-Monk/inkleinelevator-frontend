@@ -78,7 +78,7 @@ const FAQSection: React.FC = () => {
           {/* Left Sidebar - Categories (kept for UI consistency, but not functional) */}
           <div className="lg:col-span-1">
             <div className="overflow-hidden">
-              <button className="w-full text-left px-6 py-4 border-b border-[#DFE3E8] transition-colors bg-gray-900 text-white">
+              <button className="w-full text-left px-6 py-4 border-b border-[#DFE3E8] cursor-pointer bg-gray-900 text-white hover:scale-[1.02] transition-all duration-500 ease-out transform">
                 General Questions
               </button>
             </div>
@@ -96,7 +96,7 @@ const FAQSection: React.FC = () => {
                 >
                   <button
                     onClick={() => toggleFAQ(index)}
-                    className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50 transition-colors border-b border-[#DFE3E8]"
+                    className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-gray-50  border-b border-[#DFE3E8] hover:scale-[1.02] transition-all duration-500 ease-out transform"
                   >
                     <span className="text-gray-900 font-medium pr-4">
                       {faq.question}

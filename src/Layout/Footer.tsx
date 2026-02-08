@@ -110,7 +110,7 @@ const Footer: React.FC = () => {
               {/* <p className="text-gray-400 text-sm">+268 368 3168</p> */}
 
               {/* Social Icons */}
-              <div className="flex gap-3 mt-4">
+              {/* <div className="flex gap-3 mt-4">
                 <a
                   href="#"
                   className="w-8 h-8 bg-[#2a2a2a] rounded flex items-center justify-center hover:bg-[#3a3a3a] transition-colors"
@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
                 >
                   <Linkedin size={16} />
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

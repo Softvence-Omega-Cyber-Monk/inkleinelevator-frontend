@@ -87,7 +87,7 @@ const PricingSection: React.FC = () => {
           {/* CTA Button */}
           <button
             onClick={handleButtonClick}
-            className="w-full cursor-pointer bg-[#0A1A3A] text-white py-3 rounded-md font-medium hover:bg-gray-900 transition-colors"
+            className="w-full cursor-pointer bg-[#0A1A3A] text-white py-3 rounded-md font-medium hover:bg-gray-900  hover:scale-[1.02] transition-all duration-500 ease-out transform"
           >
             Get Started Free
           </button>
