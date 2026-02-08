@@ -191,7 +191,7 @@ const WhoItsFor: React.FC = () => {
               {/* CTA Button */}
               <button
                 onClick={handleButtonClick}
-                className="w-full bg-gray-900 cursor-pointer  text-white py-3 rounded-md font-medium hover:bg-gray-700 transition-colors"
+                className="w-full bg-gray-900 cursor-pointer  text-white py-3 rounded-md font-medium hover:bg-gray-700   hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Post a Job
               </button>
@@ -319,7 +319,7 @@ const WhoItsFor: React.FC = () => {
               {/* CTA Button */}
               <button
                 onClick={handleButtonClick}
-                className="w-full cursor-pointer bg-cyan-400 text-white py-3 rounded-md font-medium hover:bg-cyan-500 transition-colors"
+                className="w-full cursor-pointer bg-cyan-400 text-white py-3 rounded-md font-medium hover:bg-cyan-500 hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Find Elevator Job
               </button>

@@ -137,7 +137,7 @@
 import { useGetHeroContentQuery } from "@/Redux/features/AdminDashboard/contentManagement/contentManagementApi";
 import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
 import { useAppSelector } from "@/Redux/hooks";
-import { Linkedin, Facebook, Youtube, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
 
@@ -209,7 +209,7 @@ const Banner = () => {
             {/* Text Section */}
             <div className="text-white py-12 lg:py-20 relative">
               {/* Social Media Icons */}
-              <div className="hidden lg:flex absolute -left-20 top-1/2 -translate-y-1/2 flex-col items-center gap-4 z-10">
+              {/* <div className="hidden lg:flex absolute -left-20 top-1/2 -translate-y-1/2 flex-col items-center gap-4 z-10">
                 <a
                   href="#"
                   className="text-white hover:text-teal-400 transition-colors"
@@ -235,10 +235,10 @@ const Banner = () => {
                 <span className="text-white text-xs font-medium tracking-widest [writing-mode:vertical-lr] rotate-180">
                   FOLLOW US
                 </span>
-              </div>
+              </div> */}
 
               {/* Mobile Social Icons */}
-              <div className="flex lg:hidden gap-4 mb-8">
+              {/* <div className="flex lg:hidden gap-4 mb-8">
                 <a
                   href="#"
                   className="text-white hover:text-teal-400 transition-colors"
@@ -260,7 +260,7 @@ const Banner = () => {
                 >
                   <Youtube className="w-5 h-5" />
                 </a>
-              </div>
+              </div> */}
 
               {/* Small Title */}
               <p className="text-teal-400 text-sm font-medium mb-6 tracking-wide">
