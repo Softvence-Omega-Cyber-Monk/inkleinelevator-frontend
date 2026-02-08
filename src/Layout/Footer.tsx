@@ -1,5 +1,5 @@
 import React from "react";
-import { Facebook, Twitter, Youtube, Linkedin } from "lucide-react";
+
 import { useAppSelector } from "@/Redux/hooks";
 import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
 import { Link, useLocation, useNavigate } from "react-router-dom";
