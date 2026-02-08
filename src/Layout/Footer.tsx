@@ -74,13 +74,13 @@ const Footer: React.FC = () => {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={handleButtonClick}
-                className="bg-[#2dd4bf] text-black px-6 py-3  cursor-pointer rounded font-medium hover:bg-[#2dd4bf]/90 transition-colors"
+                className="bg-[#2dd4bf] text-black px-6 py-3  cursor-pointer rounded font-medium hover:bg-[#2dd4bf]/90  hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Get started
               </button>
               <button
                 onClick={handleContactClick}
-                className="bg-white text-black px-6 py-3 cursor-pointer rounded font-medium hover:bg-gray-100 transition-colors"
+                className="bg-white text-black px-6 py-3 cursor-pointer rounded font-medium hover:bg-gray-100  hover:scale-[1.02] transition-all duration-500 ease-out transform"
               >
                 Contact Us
               </button>
@@ -110,7 +110,7 @@ const Footer: React.FC = () => {
               {/* <p className="text-gray-400 text-sm">+268 368 3168</p> */}
 
               {/* Social Icons */}
-              <div className="flex gap-3 mt-4">
+              {/* <div className="flex gap-3 mt-4">
                 <a
                   href="#"
                   className="w-8 h-8 bg-[#2a2a2a] rounded flex items-center justify-center hover:bg-[#3a3a3a] transition-colors"
@@ -135,7 +135,7 @@ const Footer: React.FC = () => {
                 >
                   <Linkedin size={16} />
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

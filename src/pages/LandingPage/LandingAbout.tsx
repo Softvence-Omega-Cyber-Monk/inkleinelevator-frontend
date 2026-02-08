@@ -98,7 +98,7 @@ const ElevatorLandingPage: React.FC = () => {
             <button
               onClick={handleGetStarted}
               disabled={isLoading}
-              className="inline-flex items-center cursor-pointer justify-center gap-2 sm:gap-3 bg-[#1a2332] text-white px-4 py-3 sm:py-2 text-sm sm:text-base font-semibold hover:bg-[#2a3544] transition-all duration-500 ease-out w-full sm:w-fit shadow-sm hover:shadow-xl hover:scale-[1.02] transform disabled:opacity-70"
+              className="inline-flex items-center cursor-pointer justify-center gap-2 sm:gap-3 bg-[#1a2332] text-white px-4 py-3 sm:py-2 text-sm sm:text-base font-semibold hover:bg-[#2a3544]  w-full sm:w-fit shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-500 ease-out transform disabled:opacity-70"
             >
               <span>
                 {isLoading ? (
