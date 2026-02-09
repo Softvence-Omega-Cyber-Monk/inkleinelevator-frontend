@@ -1,3 +1,4 @@
+import { useUserTrmsAgreeMutation } from "@/Redux/features/trmsConditions/trmsConditionsApi";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -10,7 +11,7 @@ interface TermsModalProps {
 
 const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
   const [checked, setChecked] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [userTrmsAgree, { isLoading }] = useUserTrmsAgreeMutation();
 
   // const [acceptTerms] = useAcceptTermsMutation();
 
@@ -18,17 +19,14 @@ const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
     if (!checked) return;
 
     try {
-      setLoading(true);
+      //  Call swagger API
+      const res: any = await userTrmsAgree().unwrap();
+      // console.log("i am the res for thew agree", res);
 
-      // 🔥 API call
-      // await acceptTerms().unwrap();
-
-      toast.success("Terms & Conditions accepted");
-      onClose(); // modal close
+      toast.success(res?.message);
+      onClose(); // close modal
     } catch (err) {
       toast.error("Something went wrong");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -58,7 +56,7 @@ const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
 
         {/* Full terms link */}
         <Link
-          to="/terms-and-conditions"
+          to="/trms-conditions"
           target="_blank"
           className="block mt-3 text-sm text-blue-600 hover:underline"
         >
@@ -79,7 +77,7 @@ const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
         {/* Action button */}
         <button
           onClick={handleAccept}
-          disabled={!checked || loading}
+          disabled={!checked || isLoading}
           className={`w-full mt-5 py-3 rounded-lg font-medium text-white transition
             ${
               checked
@@ -87,7 +85,7 @@ const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
                 : "bg-gray-400 cursor-not-allowed"
             }`}
         >
-          {loading ? "Accepting..." : "Accept & Continue"}
+          {isLoading ? "Accepting..." : "Accept & Continue"}
         </button>
 
         <p className="text-xs text-gray-500 text-center mt-2">
