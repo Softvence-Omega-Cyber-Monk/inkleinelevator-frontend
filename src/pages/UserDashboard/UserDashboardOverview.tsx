@@ -1,14 +1,17 @@
 import ActivitySkeleton from "@/common/Skeleton/ActivitySkeleton";
 import TermsModal from "@/components/TrmsModal/TermsModal";
 import UserDashboardAnalytics from "@/components/userDashboardComponent/UserDashboardAnalytics";
+import { selectCurrentUser } from "@/Redux/features/auth/authSlice";
 
 import { useGetAllActiveJobsUserDashboardQuery } from "@/Redux/features/userDa/userJob/userJobApi";
 import { useGetUserAllRecentActivityQuery } from "@/Redux/features/userDa/userRecentActivity/userRecentActivityApi";
-import { useState } from "react";
+import { useAppSelector } from "@/Redux/hooks";
+import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
 const UserDashboardOverview = () => {
+  const user = useAppSelector(selectCurrentUser);
   const navigate = useNavigate();
   const { data: activity, isLoading: activityLoading } =
     useGetUserAllRecentActivityQuery({});
@@ -44,11 +47,11 @@ const UserDashboardOverview = () => {
   // for this  trms condition modal
   const [showTerms, setShowTerms] = useState(false);
 
-  // useEffect(() => {
-  //   if (user && user.termsAccepted === false) {
-  //     setShowTerms(true);
-  //   }
-  // }, [user]);
+  useEffect(() => {
+    if (user && (user as any).isAgree === false) {
+      setShowTerms(true);
+    }
+  }, [user]);
   return (
     <>
       <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
