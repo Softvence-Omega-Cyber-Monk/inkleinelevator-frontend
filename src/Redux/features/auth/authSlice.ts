@@ -12,6 +12,7 @@ export type TUser = {
   iat: number;
   exp: number;
   profileImg: string;
+  isAgree?: boolean;
 };
 
 type TAuthState = {
@@ -37,10 +38,15 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
     },
+    updateUserAgree: (state, action) => {
+      if (state.user) {
+        state.user.isAgree = action.payload;
+      }
+    },
   },
 });
 
-export const { setUser, logout } = authSlice.actions;
+export const { setUser, logout, updateUserAgree } = authSlice.actions;
 
 export default authSlice.reducer;
 
