@@ -1,4 +1,6 @@
+import { updateUserAgree } from "@/Redux/features/auth/authSlice";
 import { useUserTrmsAgreeMutation } from "@/Redux/features/trmsConditions/trmsConditionsApi";
+import { useAppDispatch } from "@/Redux/hooks";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
@@ -14,6 +16,7 @@ const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
   const [userTrmsAgree, { isLoading }] = useUserTrmsAgreeMutation();
 
   // const [acceptTerms] = useAcceptTermsMutation();
+  const dispatch = useAppDispatch();
 
   const handleAccept = async () => {
     if (!checked) return;
@@ -24,6 +27,7 @@ const TermsModal: React.FC<TermsModalProps> = ({ open, onClose }) => {
       // console.log("i am the res for thew agree", res);
 
       toast.success(res?.message);
+      dispatch(updateUserAgree(true));
       onClose(); // close modal
     } catch (err) {
       toast.error("Something went wrong");
