@@ -255,7 +255,7 @@ export default function HireSignupForm() {
                     onChange={(e) =>
                       setBusinessLogo(e.target.files?.[0] || null)
                     }
-                    className="w-full text-sm border py-3 px-4 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
+                    className="w-full  border py-3 px-4 border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     Please upload JPG, PNG up to 10MB, size less than 100KB
@@ -273,7 +273,7 @@ export default function HireSignupForm() {
                     onChange={(e) =>
                       setLicenseFile(e.target.files?.[0] || null)
                     }
-                    className="w-full text-sm py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 text-sm"
+                    className="w-full text-sm py-3 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 "
                   />
                   <p className="text-xs text-gray-400 mt-1">
                     Upload your license and insurance
