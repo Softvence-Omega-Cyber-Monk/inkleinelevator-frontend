@@ -10,10 +10,12 @@ import {
 import { useCreateSingleJobPaymentMutation } from "@/Redux/features/userDa/payment/paymentBidApi";
 import { toast } from "sonner";
 
+// const stripePromise = loadStripe(
+//   "pk_test_51SoyhfCWJMfCZ4i8GjYjbILfFOjutP7T6KT27Kv9t2xWWZCdk53VXjGfKHtE1NrBRiKIJlwZBMDjv0oryK4KpDkf000BSkzJPZ",
+// );
 const stripePromise = loadStripe(
-  "pk_test_51SoyhfCWJMfCZ4i8GjYjbILfFOjutP7T6KT27Kv9t2xWWZCdk53VXjGfKHtE1NrBRiKIJlwZBMDjv0oryK4KpDkf000BSkzJPZ",
+  "pk_live_51Sn3eQ1vscZKaS39uQzTzS1nvzBBKIM2pZZFbMdm0bgxv8V09dQX5wWyoDdGCgLNJze2Efk8rMxtkKsLzGLKP7az00gbrOzkhy",
 );
-
 interface PaymentConfirmModalProps {
   bid: any;
   job: any;
