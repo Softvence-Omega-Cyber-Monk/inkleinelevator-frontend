@@ -598,7 +598,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
             {!isEditing && (
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-[#1e293b] text-white px-4 sm:px-6 py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors w-full sm:w-auto"
+                className="bg-[#1e293b] cursor-pointer text-white px-4 sm:px-6 py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors w-full sm:w-auto"
               >
                 Edit Profile
               </button>
@@ -677,7 +677,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploadingProfile}
-                    className="w-full bg-[#1e293b] text-white py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full cursor-pointer bg-[#1e293b] text-white py-2 rounded-md text-sm font-medium hover:bg-[#0f172a] transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <svg
                       className="w-4 h-4 mr-2"
@@ -698,34 +698,25 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
               </div>
 
               {/* Certifications */}
-              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">
-                      {/* AWS API Certified */}
-                    {companyData?.licenseInfo}
-                      {}
-                    </span>
-                  </div>
-                  <div className="flex items-center">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-                    <span className="text-sm text-gray-700">
-                      ISO Certification
-                      {companyData?.businessLogo}
-                    </span>
-                  </div>
-                  {/* <div className="flex items-center">
-                    <Circle className="w-5 h-5 text-gray-300 mr-3 flex-shrink-0" />
-                    <span className="text-sm text-gray-400">State License</span>
-                  </div> */}
-                  {/* <button className="flex items-center text-[#1e293b] text-sm font-medium hover:text-[#0f172a] transition-colors mt-4">
-                    <Plus className="w-4 h-4 mr-1" />
-                    Add Certificate
-                  </button> */}
-                </div>
-              </div>
+              {/* Certifications */}
+<div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
+  <div className="space-y-3">
+    <div className="flex items-center min-w-0">
+      <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+      <span className="text-sm text-gray-700 break-all min-w-0">
+        {companyData?.licenseInfo}
+      </span>
+    </div>
+    <div className="flex items-center min-w-0">
+      <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+      <span className="text-sm text-gray-700 break-all min-w-0">
+        ISO Certification:  {" "}
+        {companyData?.businessLogo}
+      </span>
+    </div>
+  </div>
+</div>
 
               {/* Service Types */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
