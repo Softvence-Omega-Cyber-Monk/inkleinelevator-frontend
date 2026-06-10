@@ -471,23 +471,24 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
         website?: string;
         businessAddress?: string;
         licenseNo?: string;
-        licenseInfo?: string|any;
+        licenseInfo?: string | any;
         isNotification?: boolean;
       } = {};
 
       // Include ALL fields in payload (even if empty) to ensure proper API handling
-      updatePayload.name = userName || '';
-      updatePayload.phone = data.phoneNumber || '';
-      updatePayload.companyName = data.companyName || '';
-      updatePayload.businessLogo = businessLogo || '';
-      updatePayload.companyDescription = data.companyDescription || '';
-      updatePayload.servicesType = data.serviceTypes.length > 0 ? data.serviceTypes.join(', ') : '';
-      updatePayload.yearFounded = data.yearFounded || '';
-      updatePayload.numberOfEmployee = data.numberOfEmployees || '';
-      updatePayload.website = data.website || '';
-      updatePayload.businessAddress = data.businessAddress || '';
-      updatePayload.licenseNo = data.licenseNumber || '';
-      updatePayload.licenseInfo = licenseInfo || '';
+      updatePayload.name = userName || "";
+      updatePayload.phone = data.phoneNumber || "";
+      updatePayload.companyName = data.companyName || "";
+      updatePayload.businessLogo = businessLogo || "";
+      updatePayload.companyDescription = data.companyDescription || "";
+      updatePayload.servicesType =
+        data.serviceTypes.length > 0 ? data.serviceTypes.join(", ") : "";
+      updatePayload.yearFounded = data.yearFounded || "";
+      updatePayload.numberOfEmployee = data.numberOfEmployees || "";
+      updatePayload.website = data.website || "";
+      updatePayload.businessAddress = data.businessAddress || "";
+      updatePayload.licenseNo = data.licenseNumber || "";
+      updatePayload.licenseInfo = licenseInfo || "";
       updatePayload.isNotification = isNotification;
 
       const response = await updateProfile(updatePayload).unwrap();
@@ -699,28 +700,31 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
 
               {/* Certifications */}
               {/* Certifications */}
-<div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-  <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
-  <div className="space-y-3">
-    <div className="flex items-center min-w-0">
-      <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-      <span className="text-sm text-gray-700 break-all min-w-0">
-        {companyData?.licenseInfo}
-      </span>
-    </div>
-    <div className="flex items-center min-w-0">
-      <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
-      <span className="text-sm text-gray-700 break-all min-w-0">
-        ISO Certification:  {" "}
-        {companyData?.businessLogo}
-      </span>
-    </div>
-  </div>
-</div>
+              <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Certifications
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex items-center min-w-0">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-sm text-gray-700 break-all min-w-0">
+                      {companyData?.licenseInfo}
+                    </span>
+                  </div>
+                  <div className="flex items-center min-w-0">
+                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-sm text-gray-700 break-all min-w-0">
+                      ISO Certification: {companyData?.businessLogo}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               {/* Service Types */}
               <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Service Types</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Service Types
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {companyData.serviceTypes.map((type) => (
                     <span
@@ -751,7 +755,7 @@ const CompanyProfile: React.FC<CompanyProfileProps> = () => {
                       Company Details
                     </button>
                     <button
-                      onClick={() => setActiveTab('portfolio')}
+                      onClick={() => setActiveTab("portfolio")}
                       className={`py-3 sm:py-4 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === "portfolio"
                           ? "border-[#1e293b] text-[#1e293b]"
