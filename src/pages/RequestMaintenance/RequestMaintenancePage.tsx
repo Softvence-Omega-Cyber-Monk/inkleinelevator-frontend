@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { useRequestMaintenanceMutation } from "@/Redux/features/contactHome/contactUsApi";
 import {
   Building2,
   User,
@@ -21,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function RequestMaintenancePage() {
+  const [requestMaintenance] = useRequestMaintenanceMutation();
   const [isLoading, setIsLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -67,7 +69,7 @@ export default function RequestMaintenancePage() {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.companyName.trim()) {
@@ -93,12 +95,27 @@ export default function RequestMaintenancePage() {
 
     setIsLoading(true);
 
-    // Simulated submission delay for static frontend
-    setTimeout(() => {
+    try {
+      const payload = {
+        ...formData,
+        documents: [], // File upload functionality can be implemented later
+      };
+
+      const res = await requestMaintenance(payload).unwrap();
+
+      if (res.success) {
+        setSubmitted(true);
+        toast.success("Maintenance Request submitted successfully!");
+      } else {
+        toast.error(res.message || "Failed to submit request.");
+      }
+    } catch (error: any) {
+      toast.error(
+        error?.data?.message || "An error occurred. Please try again."
+      );
+    } finally {
       setIsLoading(false);
-      setSubmitted(true);
-      toast.success("Maintenance Request submitted successfully!");
-    }, 800);
+    }
   };
 
   if (submitted) {
@@ -623,7 +640,7 @@ export default function RequestMaintenancePage() {
             </div>
           </div>
 
-          {/* Privacy Note & Submit Button (Full Width Bottom Bar) */}
+          {/* Privacy Note & Submit Button */}
           <div className="bg-white rounded-3xl border border-gray-200/80 p-6 sm:p-8 shadow-sm space-y-5">
             <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-200 text-xs sm:text-sm text-gray-600">
               <ShieldCheck size={20} className="text-teal-600 shrink-0 mt-0.5" />
