@@ -9,7 +9,15 @@ export const contactUsApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    requestMaintenance: builder.mutation({
+      query: (body) => ({
+        url: "/maintenance-request/request",
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
-export const { useContactUserMutation } = contactUsApi;
+export const { useContactUserMutation, useRequestMaintenanceMutation } =
+  contactUsApi;
