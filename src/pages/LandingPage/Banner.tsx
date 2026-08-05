@@ -293,28 +293,41 @@ const Banner = () => {
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4 w-full">
+                <button
+                  onClick={() => navigate("/request-maintenance")}
+                  className="w-full sm:w-auto group bg-teal-400 cursor-pointer text-[#0a1f44] px-6 py-3.5 rounded-lg font-semibold hover:bg-teal-300 transition-all flex items-center justify-between sm:justify-center gap-3 hover:scale-[1.02] sm:hover:scale-[1.04] transform shadow-md"
+                >
+                  <span className="text-center w-full sm:w-auto">Need an Elevator Maintenance Contract?</span>
+                  <ArrowRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
+                </button>
+
                 <button
                   onClick={handleButtonClick}
-                  className="group bg-white cursor-pointer text-[#0a1f44] px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2 hover:scale-[1.04] transform"
+                  className="w-full sm:w-auto group bg-white cursor-pointer text-[#0a1f44] px-6 py-3.5 rounded-lg font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-between sm:justify-center gap-3 hover:scale-[1.02] sm:hover:scale-[1.04] transform"
                 >
-                  {isLoading ? (
-                    <Loader />
-                  ) : (
-                    heroContent?.primaryCTA?.trim() || "Post an Elevator job"
-                  )}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <span className="text-center w-full sm:w-auto">
+                    {isLoading ? (
+                      <Loader />
+                    ) : (
+                      heroContent?.primaryCTA?.trim() || "Post an Elevator job"
+                    )}
+                  </span>
+                  <ArrowRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
                 </button>
+
                 <button
                   onClick={handleButtonClick2}
-                  className="group border-2 cursor-pointer border-teal-400 text-teal-400 px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2 hover:scale-[1.04] transform"
+                  className="w-full sm:w-auto group border-2 cursor-pointer border-teal-400 text-teal-400 px-6 py-3.5 rounded-lg font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-between sm:justify-center gap-3 hover:scale-[1.02] sm:hover:scale-[1.04] transform"
                 >
-                  {isLoading ? (
-                    <Loader />
-                  ) : (
-                    heroContent?.secondaryCTA?.trim() || "Find Elevator Work"
-                  )}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <span className="text-center w-full sm:w-auto">
+                    {isLoading ? (
+                      <Loader />
+                    ) : (
+                      heroContent?.secondaryCTA?.trim() || "Find Elevator Work"
+                    )}
+                  </span>
+                  <ArrowRight className="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" />
                 </button>
               </div>
             </div>
