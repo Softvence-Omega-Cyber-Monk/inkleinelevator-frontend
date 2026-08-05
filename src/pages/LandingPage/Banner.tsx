@@ -293,7 +293,14 @@ const Banner = () => {
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+                <button
+                  onClick={() => navigate("/request-maintenance")}
+                  className="group bg-teal-400 cursor-pointer text-[#0a1f44] px-6 py-3 rounded-md font-semibold hover:bg-teal-300 transition-all flex items-center justify-center gap-2 hover:scale-[1.04] transform shadow-md"
+                >
+                  Need an Elevator Maintenance Contract?
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </button>
                 <button
                   onClick={handleButtonClick}
                   className="group bg-white cursor-pointer text-[#0a1f44] px-6 py-3 rounded-md font-semibold hover:bg-teal-400 hover:text-[#0a1f44] transition-all flex items-center justify-center gap-2 hover:scale-[1.04] transform"

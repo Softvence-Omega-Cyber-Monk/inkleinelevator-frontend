@@ -41,6 +41,8 @@ import OtpVerify from "@/pages/OtpVerify";
 import ResetPassword from "@/pages/ResetPassword";
 import TremsConditionPage from "@/pages/TremsConditionPage";
 
+import RequestMaintenancePage from "@/pages/RequestMaintenance/RequestMaintenancePage";
+
 const routes = createBrowserRouter([
   {
     path: "/",
@@ -61,6 +63,10 @@ const routes = createBrowserRouter([
       {
         path: "/services",
         element: <Services />,
+      },
+      {
+        path: "/request-maintenance",
+        element: <RequestMaintenancePage />,
       },
 
       {
