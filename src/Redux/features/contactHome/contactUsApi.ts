@@ -16,8 +16,18 @@ export const contactUsApi = baseApi.injectEndpoints({
         body,
       }),
     }),
+    getAllMaintenanceRequests: builder.query({
+      query: () => "/maintenance-request/all",
+    }),
+    getMaintenanceRequestById: builder.query({
+      query: (id) => `/maintenance-request/${id}`,
+    }),
   }),
 });
 
-export const { useContactUserMutation, useRequestMaintenanceMutation } =
-  contactUsApi;
+export const {
+  useContactUserMutation,
+  useRequestMaintenanceMutation,
+  useGetAllMaintenanceRequestsQuery,
+  useGetMaintenanceRequestByIdQuery,
+} = contactUsApi;
