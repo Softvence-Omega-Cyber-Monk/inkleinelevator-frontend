@@ -150,9 +150,14 @@ export default function CreatedPostElevatorJob() {
       // ===== UPDATE MODE: Handle existing and new files separately =====
       
       // Technical requirements - append all as separate entries
-      technicalRequirements.forEach((stringValue: string) => {
-        form.append("technicalRequirementsAndCertifications", stringValue);
-      });
+      if (technicalRequirements.length === 0) {
+        // Append empty array as string if it has 0 items so it doesn't get dropped
+        form.append("technicalRequirementsAndCertifications", JSON.stringify([]));
+      } else {
+        technicalRequirements.forEach((stringValue: string) => {
+          form.append("technicalRequirementsAndCertifications", stringValue);
+        });
+      }
 
       // Handle photos - append existing and new
       formData.photos?.forEach((photo: any) => {
@@ -202,9 +207,13 @@ export default function CreatedPostElevatorJob() {
       // ===== CREATE MODE: Only new files =====
       
       // Technical requirements
-      technicalRequirements.forEach((stringValue: string) => {
-        form.append("technicalRequirementsAndCertifications", stringValue);
-      });
+      if (technicalRequirements.length === 0) {
+        form.append("technicalRequirementsAndCertifications", JSON.stringify([]));
+      } else {
+        technicalRequirements.forEach((stringValue: string) => {
+          form.append("technicalRequirementsAndCertifications", stringValue);
+        });
+      }
 
       // New photos
       formData.photos?.forEach((photo: any) => {
