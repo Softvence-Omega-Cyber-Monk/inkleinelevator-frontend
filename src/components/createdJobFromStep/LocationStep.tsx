@@ -37,6 +37,9 @@ export default function LocationStep({
           }
           className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 text-gray-900 placeholder-gray-400"
         />
+        <p className="text-xs text-gray-500 mt-1.5">
+          Enter the building, complex, or property name.
+        </p>
       </div>
 
       {/* Street Address */}
@@ -53,6 +56,9 @@ export default function LocationStep({
           }
           className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 text-gray-900 placeholder-gray-400"
         />
+        <p className="text-xs text-gray-500 mt-1.5">
+          Enter street name and house/building number.
+        </p>
       </div>
 
       {/* City and ZIP Code */}
@@ -68,6 +74,9 @@ export default function LocationStep({
             onChange={(e) => setFormData({ ...formData, city: e.target.value })}
             className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 text-gray-900 placeholder-gray-400"
           />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Enter the city where the site is located.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -82,6 +91,9 @@ export default function LocationStep({
             }
             className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-900 text-gray-900 placeholder-gray-400"
           />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Enter postal or ZIP code.
+          </p>
         </div>
       </div>
 
