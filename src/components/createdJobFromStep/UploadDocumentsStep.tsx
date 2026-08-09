@@ -88,6 +88,9 @@ export default function UploadDocumentsStep({
             }}
           />
         </label>
+        <p className="text-xs text-gray-500 mt-1.5">
+          Upload images of the elevator equipment, building exterior, or job location (PNG, JPG).
+        </p>
         {formData.photos && formData.photos.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {formData.photos.map((photo: any) => (
@@ -125,6 +128,9 @@ export default function UploadDocumentsStep({
             className="hidden"
           />
         </label>
+        <p className="text-xs text-gray-500 mt-1.5">
+          Upload blueprints, scope documents, or technical specs (PDF, DOC, DOCX).
+        </p>
         {formData.documents && formData.documents.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {formData.documents.map((doc: any) => (
@@ -160,6 +166,9 @@ export default function UploadDocumentsStep({
           }
           className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder-gray-400"
         />
+        <p className="text-xs text-gray-500 mt-1.5">
+          Provide an estimated budget range for contractors.
+        </p>
       </div>
 
       {/* Buttons */}
