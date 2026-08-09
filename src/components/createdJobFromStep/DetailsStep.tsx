@@ -136,9 +136,11 @@ export default function DetailsStep({
             </RichTextEditor>
           </div>
         )}
+        <p className="text-xs text-gray-500 mt-1.5">
+          Provide full details of the project scope, specifications, or special requests.
+        </p>
       </div>
 
-      {/* Technical Requirements */}
       {/* Technical Requirements */}
       <div className="mb-8">
         <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -168,6 +170,9 @@ export default function DetailsStep({
             }
           }}
         />
+        <p className="text-xs text-gray-500 mt-1.5">
+          Type each requirement or certification tag and press Enter to add.
+        </p>
 
         {/* Display tags */}
         <div className="flex flex-wrap gap-2 mt-3">
@@ -221,7 +226,7 @@ export default function DetailsStep({
               <option value="">Select elevator type</option>
               <option value="Hydraulic">Hydraulic</option>
               <option value="raction">Traction (Geared)</option>
-              <option value="MRL">MRL (Machine Room-Less)</option>
+              <option value="MRL">Machine Room-Less (MRL)</option>
               <option value="freight">Freight</option>
               <option value="dumbwaiter">Dumbwaiter</option>
             </select>
@@ -232,6 +237,9 @@ export default function DetailsStep({
               className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
             />
           </div>
+          <p className="text-xs text-gray-500 mt-1.5">
+            Select the drive type or style of the elevator.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -249,6 +257,9 @@ export default function DetailsStep({
             }
             className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-800 text-gray-900 placeholder-gray-400"
           />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Total number of elevator units to be serviced or installed.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -263,6 +274,9 @@ export default function DetailsStep({
             }
             className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-800 text-gray-900 placeholder-gray-400"
           />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Weight capacity rating (e.g. 2500 lbs, 3500 lbs).
+          </p>
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -277,6 +291,9 @@ export default function DetailsStep({
             }
             className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-800 text-gray-900 placeholder-gray-400"
           />
+          <p className="text-xs text-gray-500 mt-1.5">
+            Elevator speed in FPM (e.g. 150 FPM, 500 FPM).
+          </p>
         </div>
       </div>
 
