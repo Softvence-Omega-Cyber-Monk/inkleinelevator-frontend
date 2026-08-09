@@ -39,6 +39,9 @@ export default function BasicsStep({
           }
           className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-lg focus:outline-none focus:ring-1 focus:ring-gray-800 text-gray-900 placeholder-gray-400"
         />
+        <p className="text-xs text-gray-500 mt-1.5">
+          Enter a clear and descriptive title for your job post.
+        </p>
       </div>
 
       {/* Service Type */}
@@ -74,6 +77,9 @@ export default function BasicsStep({
             className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-600"
           />
         </div>
+        <p className="text-xs text-gray-500 mt-1.5">
+          Select the type of elevator service required for this project.
+        </p>
       </div>
 
       {/* Buttons */}
